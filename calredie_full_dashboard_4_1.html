@@ -5,265 +5,721 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CalREDIE Surveillance Dashboard — Mono County</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:#0a0e1a; --surface:#111827; --surface2:#1a2234; --border:#1e2d47;
-  --accent:#00d4aa; --accent2:#4f9cf9; --accent3:#f97316; --accent4:#a78bfa; --accent5:#fb7185;
-  --text:#e2e8f0; --muted:#64748b; --grid:rgba(255,255,255,0.04);
-  --up:#00d4aa; --down:#f87171; --warn-col:#fbbf24;
+  --bg: #f5f0e8;
+  --bg2: #ede8dd;
+  --surface: #ffffff;
+  --surface2: #f8f4ed;
+  --border: #d8d0c0;
+  --border2: #c8bfa8;
+  --text: #1a1612;
+  --text2: #3d3628;
+  --muted: #7a6e5f;
+  --muted2: #9e9282;
+
+  --teal: #1a7a6e;
+  --teal-light: #e8f5f3;
+  --teal-mid: #2da090;
+  --blue: #1e5fa8;
+  --blue-light: #e8f0fa;
+  --orange: #c4580a;
+  --orange-light: #fdf0e6;
+  --rose: #b5284e;
+  --rose-light: #fce8ef;
+  --purple: #6b3fa0;
+  --purple-light: #f2ecfa;
+  --amber: #b07c0a;
+  --amber-light: #fdf5e0;
+  --green: #2a7a3b;
+  --green-light: #eaf4ec;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.14), 0 4px 8px rgba(0,0,0,0.08);
+
+  --radius: 10px;
+  --radius-sm: 6px;
+  --radius-lg: 16px;
 }
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
 
 /* ── NAV ── */
-nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:stretch;position:sticky;top:0;z-index:300;}
-.nav-brand{display:flex;align-items:center;gap:12px;padding:14px 0;margin-right:32px;}
-.logo{width:36px;height:36px;background:linear-gradient(135deg,#00d4aa,#4f9cf9);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:10px;color:#0a0e1a;font-weight:500;flex-shrink:0;}
-.brand-text h1{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;}
-.brand-text p{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
-.nav-tabs{display:flex;align-items:stretch;gap:0;}
-.tab-btn{background:none;border:none;padding:0 18px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;white-space:nowrap;}
-.tab-btn:hover{color:var(--text);}
-.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
-.nav-chips{margin-left:auto;display:flex;align-items:center;gap:8px;padding:14px 0;}
-.chip{padding:4px 10px;border-radius:20px;border:1px solid var(--border);font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);}
-.chip.accent{border-color:var(--accent);color:var(--accent);background:rgba(0,212,170,0.07);}
-.chip.warn{border-color:var(--accent3);color:var(--accent3);background:rgba(249,115,22,0.07);}
-.chip.updated{border-color:#a78bfa;color:#a78bfa;background:rgba(167,139,250,0.07);}
+nav {
+  background: var(--surface);
+  border-bottom: 2px solid var(--border);
+  padding: 0 32px;
+  display: flex;
+  align-items: stretch;
+  position: sticky;
+  top: 0;
+  z-index: 300;
+  box-shadow: var(--shadow-sm);
+}
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  margin-right: 32px;
+  border-right: 1px solid var(--border);
+  padding-right: 28px;
+}
+.logo {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--teal), var(--blue));
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: white;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.brand-text h1 {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+.brand-text p {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+.nav-tabs { display: flex; align-items: stretch; gap: 0; }
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 0 20px;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: color .15s, border-color .15s;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--teal); border-bottom-color: var(--teal); }
+.nav-chips {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 0;
+  flex-wrap: wrap;
+}
+.chip {
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--muted);
+  background: var(--bg2);
+}
+.chip.teal { border-color: var(--teal); color: var(--teal); background: var(--teal-light); }
+.chip.orange { border-color: var(--orange); color: var(--orange); background: var(--orange-light); }
 
-/* ── PAGES ── */
-.page{display:none;padding:24px 32px;max-width:1600px;margin:0 auto;}
-.page.active{display:block;}
+/* ── PAGE LAYOUT ── */
+.page { display: none; padding: 24px 32px; max-width: 1600px; margin: 0 auto; }
+.page.active { display: block; }
 
-/* ══════════════════════════════════
-   NEW: KPI TREND CARDS
-══════════════════════════════════ */
-.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;}
-.kpi{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;position:relative;overflow:hidden;animation:fadeUp .4s ease both;transition:border-color .2s;}
-.kpi:hover{border-color:rgba(255,255,255,0.12);}
-.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:12px 12px 0 0;}
-.kpi:nth-child(1)::before{background:var(--accent);}  .kpi:nth-child(2)::before{background:var(--accent2);}
-.kpi:nth-child(3)::before{background:var(--accent3);} .kpi:nth-child(4)::before{background:var(--accent4);}
-.kpi:nth-child(5)::before{background:var(--accent5);}
-.kpi-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:6px;}
-.kpi-value{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;line-height:1;}
-.kpi-sub{font-size:10px;color:var(--muted);margin-top:3px;}
+/* ── DATE FILTER BAR ── */
+.filter-bar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  box-shadow: var(--shadow-sm);
+}
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.filter-label {
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+.filter-bar select, .filter-bar input[type=month] {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+}
+.filter-bar select:focus, .filter-bar input[type=month]:focus { border-color: var(--teal); }
+.filter-divider { width: 1px; height: 32px; background: var(--border); }
 
-/* Trend bar sits below the main value */
-.kpi-trend{display:flex;align-items:center;gap:7px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
-.trend-pill{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;}
-.trend-pill.up  {background:rgba(0,212,170,0.12);color:var(--up);}
-.trend-pill.down{background:rgba(248,113,113,0.12);color:var(--down);}
-.trend-pill.flat{background:rgba(100,116,139,0.12);color:var(--muted);}
-.trend-arrow{font-size:11px;line-height:1;}
-.trend-ctx{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
+.compare-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text2);
+  cursor: pointer;
+}
+.compare-toggle input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--teal); cursor: pointer; }
 
-/* sparkline ghost behind value */
-.kpi-spark{position:absolute;bottom:6px;right:10px;opacity:0.08;pointer-events:none;}
+.period-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.period-a { background: var(--teal-light); color: var(--teal); border: 1px solid var(--teal); }
+.period-b { background: var(--orange-light); color: var(--orange); border: 1px solid var(--orange); }
 
-/* ══════════════════════════════════
-   NEW: DISEASES OF CONCERN PANEL
-══════════════════════════════════ */
-.doc-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:20px;overflow:hidden;animation:fadeUp .4s ease both;}
-.doc-header{display:flex;align-items:center;justify-content:space-between;padding:13px 20px;background:var(--surface2);border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px;}
-.doc-title-row{display:flex;align-items:center;gap:10px;}
-.doc-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;}
-.pulse-dot{width:9px;height:9px;border-radius:50%;background:#f87171;position:relative;flex-shrink:0;}
-.pulse-dot::after{content:'';position:absolute;inset:-4px;border-radius:50%;background:#f87171;opacity:.3;animation:pulse 1.8s ease-out infinite;}
-@keyframes pulse{0%{transform:scale(1);opacity:.3}70%{transform:scale(2.2);opacity:0}100%{transform:scale(1);opacity:0}}
-.doc-meta{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
-.doc-legend{display:flex;align-items:center;gap:14px;}
-.doc-leg-item{display:flex;align-items:center;gap:5px;font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);}
-.leg-dot{width:7px;height:7px;border-radius:50%;}
+.btn-apply {
+  padding: 7px 18px;
+  background: var(--teal);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s;
+}
+.btn-apply:hover { background: var(--teal-mid); }
 
-.doc-col-heads{display:grid;grid-template-columns:28px 1fr 72px 72px 80px 110px;gap:8px;padding:7px 20px;font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);border-bottom:1px solid var(--border);background:rgba(0,0,0,.15);}
-.doc-row{display:grid;grid-template-columns:28px 1fr 72px 72px 80px 110px;gap:8px;align-items:center;padding:10px 20px;border-bottom:1px solid rgba(255,255,255,0.03);transition:background .15s;cursor:default;}
-.doc-row:last-child{border-bottom:none;}
-.doc-row:hover{background:rgba(255,255,255,0.02);}
-
-.sev-badge{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;}
-.sev-high  {background:rgba(248,113,113,.2);color:#f87171;}
-.sev-warn  {background:rgba(251,191,36,.2); color:#fbbf24;}
-.sev-watch {background:rgba(79,156,249,.2); color:#4f9cf9;}
-.sev-ok    {background:rgba(100,116,139,.15);color:var(--muted);}
-
-.doc-dis-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.doc-num{font-family:'DM Mono',monospace;font-size:12px;text-align:right;}
-.doc-chg{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:12px;font-family:'DM Mono',monospace;font-size:10px;font-weight:600;justify-self:end;}
-.chg-up  {background:rgba(248,113,113,.15);color:#f87171;}
-.chg-down{background:rgba(0,212,170,.15);  color:var(--up);}
-.chg-flat{background:rgba(100,116,139,.12);color:var(--muted);}
-.doc-tag{padding:3px 9px;border-radius:10px;font-size:10px;font-family:'DM Mono',monospace;font-weight:600;white-space:nowrap;justify-self:start;}
-.tag-alert   {background:rgba(248,113,113,.12);color:#f87171;border:1px solid rgba(248,113,113,.25);}
-.tag-elevated{background:rgba(251,191,36,.12); color:#fbbf24;border:1px solid rgba(251,191,36,.25);}
-.tag-watch   {background:rgba(79,156,249,.12); color:#4f9cf9;border:1px solid rgba(79,156,249,.25);}
-.tag-baseline{background:rgba(100,116,139,.08);color:var(--muted);border:1px solid var(--border);}
-
-.doc-footnote{padding:9px 20px;font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);background:rgba(0,0,0,.12);border-top:1px solid var(--border);}
-
-/* ══════════════════════════════════
-   NEW: PEDIATRIC / ADULT TOGGLE
-══════════════════════════════════ */
-.age-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;animation:fadeUp .4s ease both;}
-.age-panel-header{display:flex;align-items:center;justify-content:space-between;padding:13px 20px;background:var(--surface2);border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px;}
-.age-panel-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;}
-
-.age-toggle{display:flex;background:var(--bg);border-radius:8px;padding:3px;gap:3px;border:1px solid var(--border);}
-.age-btn{padding:6px 18px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;transition:all .18s;background:transparent;color:var(--muted);letter-spacing:.04em;}
-.age-btn.active{background:var(--accent2);color:#fff;box-shadow:0 2px 10px rgba(79,156,249,.3);}
-.age-btn:hover:not(.active){background:var(--surface2);color:var(--text);}
-
-/* summary stat bar */
-.age-stats-bar{display:flex;align-items:center;gap:0;border-bottom:1px solid var(--border);}
-.age-stat{flex:1;padding:12px 20px;border-right:1px solid var(--border);}
-.age-stat:last-child{border-right:none;}
-.age-stat-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;line-height:1;}
-.age-stat-label{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:3px;}
-
-.age-content{display:none;}
-.age-content.visible{display:block;}
-
-/* disease breakdown grid */
-.age-dis-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1px;background:var(--border);}
-.age-dis-card{background:var(--surface);padding:14px 16px;transition:background .15s;}
-.age-dis-card:hover{background:var(--surface2);}
-.adc-name{font-size:11px;font-weight:500;color:var(--text);margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.adc-bar-track{height:5px;background:rgba(255,255,255,0.05);border-radius:3px;margin-bottom:6px;overflow:hidden;}
-.adc-bar-fill{height:100%;border-radius:3px;transition:width .5s cubic-bezier(.4,0,.2,1);}
-.bar-ped  {background:linear-gradient(90deg,#4f9cf9,#00d4aa);}
-.bar-adult{background:linear-gradient(90deg,#f97316,#fb7185);}
-.adc-counts{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
-.adc-n{color:var(--text);font-weight:500;}
-
-.age-chart-row{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--border);}
-.age-chart-cell{padding:18px 20px;border-right:1px solid var(--border);}
-.age-chart-cell:last-child{border-right:none;}
-.age-chart-title{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:12px;}
-.age-note{padding:9px 20px;font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);background:rgba(0,0,0,.12);border-top:1px solid var(--border);}
+/* ── KPI ROW ── */
+.kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
+.kpi {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  animation: fadeUp .35s ease both;
+}
+.kpi::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+.kpi:nth-child(1)::after { background: var(--teal); }
+.kpi:nth-child(2)::after { background: var(--blue); }
+.kpi:nth-child(3)::after { background: var(--orange); }
+.kpi:nth-child(4)::after { background: var(--purple); }
+.kpi:nth-child(5)::after { background: var(--rose); }
+.kpi-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  margin-bottom: 6px;
+}
+.kpi-value {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text);
+}
+.kpi-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.kpi-trend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.trend-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+}
+.trend-pill.up   { background: var(--rose-light);  color: var(--rose); }
+.trend-pill.down { background: var(--green-light); color: var(--green); }
+.trend-pill.flat { background: var(--bg2); color: var(--muted); }
+.trend-ctx { font-size: 11px; color: var(--muted2); font-family: 'JetBrains Mono', monospace; }
 
 /* ── SECTION LABEL ── */
-.sec{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin:20px 0 10px;display:flex;align-items:center;gap:10px;}
-.sec::after{content:'';flex:1;height:1px;background:var(--border);}
+.sec {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--muted);
+  margin: 24px 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sec::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
 /* ── CARD ── */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;animation:fadeUp .4s ease both;}
-.card-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;}
-.card-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;}
-.card-sub{font-size:10px;color:var(--muted);margin-top:2px;font-family:'DM Mono',monospace;}
-.badge{font-family:'DM Mono',monospace;font-size:9px;padding:3px 7px;border-radius:6px;background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid var(--border);white-space:nowrap;}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  animation: fadeUp .35s ease both;
+}
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.card-title {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+.card-sub { font-size: 12px; color: var(--muted); margin-top: 3px; font-family: 'JetBrains Mono', monospace; }
+.badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: var(--bg2);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
 
 /* ── GRIDS ── */
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.g3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;}
-.g-full{display:grid;grid-template-columns:1fr;gap:12px;}
-.mb{margin-bottom:12px;}
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.g3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 14px; }
+.g4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 14px; }
+.mb { margin-bottom: 14px; }
 
 /* ── CHART HEIGHTS ── */
-.h200{height:200px;position:relative;} .h220{height:220px;position:relative;} .h260{height:260px;position:relative;}
-.h280{height:280px;position:relative;}
-.h300{height:300px;position:relative;} .h340{height:340px;position:relative;}
-.h380{height:380px;position:relative;} .h420{height:420px;position:relative;}
+.h180 { height: 180px; position: relative; }
+.h220 { height: 220px; position: relative; }
+.h260 { height: 260px; position: relative; }
+.h300 { height: 300px; position: relative; }
+.h340 { height: 340px; position: relative; }
+.h380 { height: 380px; position: relative; }
 
-/* ── DISEASE RANKED LIST ── */
-.dis-list{margin-top:4px;}
-.dis-row{display:flex;align-items:center;padding:7px 0;border-bottom:1px solid var(--grid);gap:8px;}
-.dis-row:last-child{border-bottom:none;}
-.dis-rank{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);width:16px;flex-shrink:0;}
-.dis-name{font-size:11px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.dis-bar-wrap{width:70px;background:var(--surface2);height:3px;border-radius:2px;}
-.dis-bar{height:3px;border-radius:2px;}
-.dis-count{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);width:34px;text-align:right;flex-shrink:0;}
+/* ── DISEASE LIST ── */
+.dis-list { margin-top: 4px; }
+.dis-row {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  gap: 10px;
+  cursor: pointer;
+  transition: background .15s, transform .1s;
+}
+.dis-row:hover { background: var(--teal-light); transform: translateX(2px); }
+.dis-row.is-resp:hover { background: var(--blue-light); }
+.dis-rank {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--muted2);
+  width: 18px;
+  flex-shrink: 0;
+}
+.dis-name { font-size: 13px; font-weight: 500; flex: 1; }
+.dis-bar-wrap { width: 80px; background: var(--bg2); height: 4px; border-radius: 2px; }
+.dis-bar { height: 4px; border-radius: 2px; }
+.dis-count { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); width: 36px; text-align: right; flex-shrink: 0; }
+.dis-click-hint {
+  font-size: 10px;
+  color: var(--teal);
+  font-family: 'JetBrains Mono', monospace;
+  opacity: 0;
+  transition: opacity .15s;
+}
+.dis-row:hover .dis-click-hint { opacity: 1; }
 
-/* ── SEASONAL PAGE ── */
-select,input[type=range]{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:7px;font-family:'DM Mono',monospace;font-size:10px;outline:none;cursor:pointer;}
-select:focus{border-color:var(--accent);}
+.dis-section-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
+.dis-section-head.resp { color: var(--blue); }
+.dis-section-head.other { color: var(--orange); }
+.dis-section-head::after { content: ''; flex: 1; height: 1px; }
+.dis-section-head.resp::after { background: rgba(30,95,168,0.2); }
+.dis-section-head.other::after { background: rgba(196,88,10,0.2); }
 
-/* ── SEASONAL HEATMAP TABLE ── */
-.sea-table-wrap{overflow-x:auto;}
-table.sea{border-collapse:separate;border-spacing:3px;font-family:'DM Mono',monospace;font-size:11px;width:100%;}
-table.sea th{padding:5px 8px;color:var(--muted);font-weight:500;text-align:center;white-space:nowrap;position:sticky;top:0;background:var(--surface);z-index:5;}
-table.sea th.dis-th{text-align:left;left:0;z-index:6;min-width:160px;}
-table.sea td{border-radius:5px;cursor:default;transition:transform .1s;text-align:center;}
-table.sea td:hover{transform:scale(1.08);z-index:5;position:relative;}
-table.sea td.dis-td{padding:5px 8px;text-align:left;white-space:nowrap;position:sticky;left:0;background:var(--surface);z-index:4;font-size:11px;}
-.sea-cell{width:52px;height:32px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;border-radius:5px;color:rgba(255,255,255,0.9);}
-.sea-zero{background:var(--surface2);color:var(--border);}
+/* ── DOC PANEL (Diseases of Concern) ── */
+.doc-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.doc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.doc-title-row { display: flex; align-items: center; gap: 10px; }
+.doc-title { font-family: 'Libre Baskerville', serif; font-size: 15px; font-weight: 700; }
+.pulse-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--rose); position: relative; flex-shrink: 0; }
+.pulse-dot::after { content: ''; position: absolute; inset: -4px; border-radius: 50%; background: var(--rose); opacity: .3; animation: pulse 1.8s ease-out infinite; }
+@keyframes pulse { 0%{transform:scale(1);opacity:.3} 70%{transform:scale(2.2);opacity:0} 100%{transform:scale(1);opacity:0} }
+.doc-meta { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+.doc-legend { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.doc-leg-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+.leg-dot { width: 8px; height: 8px; border-radius: 50%; }
 
-/* ── ZIP HEATMAP PAGE ── */
-.zip-layout{display:grid;grid-template-columns:300px 1fr;gap:12px;align-items:start;}
-.map-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;position:sticky;top:60px;}
-#mapSvg{width:100%;background:var(--surface2);border-radius:8px;border:1px solid var(--border);}
-.zip-legend{margin-top:12px;}
-.zli{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px;cursor:pointer;transition:background .15s;font-size:11px;}
-.zli:hover,.zli.active{background:var(--surface2);}
-.zli-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-.zli-label{flex:1;}
-.zli-n{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
-.scale-bar{display:flex;align-items:center;gap:8px;margin-top:12px;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
-.scale-grad{height:8px;width:130px;border-radius:4px;background:linear-gradient(to right,#1a2234,#00d4aa);border:1px solid var(--border);}
-.zip-controls{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap;}
-.zip-controls label{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
-input[type=search]{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:7px;font-family:'DM Mono',monospace;font-size:10px;outline:none;width:200px;}
-input[type=search]::placeholder{color:var(--muted);}
-input[type=search]:focus{border-color:var(--accent);}
-.ht-wrap{overflow-x:auto;}
-table.ht{border-collapse:separate;border-spacing:3px;font-family:'DM Mono',monospace;font-size:11px;min-width:100%;}
-table.ht th{padding:5px 8px;color:var(--muted);font-weight:500;white-space:nowrap;position:sticky;top:0;background:var(--surface);z-index:5;text-align:center;}
-table.ht th.dn-th{text-align:left;left:0;z-index:6;min-width:180px;border-right:1px solid var(--border);}
-table.ht td{padding:0;border-radius:5px;cursor:pointer;transition:transform .1s;}
-table.ht td:hover{transform:scale(1.08);z-index:5;position:relative;}
-table.ht td.dn-td{padding:5px 8px;border-radius:5px;cursor:default;position:sticky;left:0;background:var(--surface);border-right:1px solid var(--border);z-index:4;white-space:nowrap;font-size:11px;}
-table.ht td.dn-td:hover{transform:none;}
-table.ht tr:hover td.dn-td{color:var(--accent);}
-.ht-cell{width:80px;height:34px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;border-radius:5px;color:rgba(255,255,255,0.9);}
-.ht-zero{background:var(--surface2);color:var(--border);}
-td.z-dim{opacity:.15;}
-td.z-hl{outline:2px solid var(--accent);}
+.doc-col-heads {
+  display: grid;
+  grid-template-columns: 32px 1fr 80px 80px 100px 130px;
+  gap: 8px;
+  padding: 8px 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+}
+.doc-row {
+  display: grid;
+  grid-template-columns: 32px 1fr 80px 80px 100px 130px;
+  gap: 8px;
+  align-items: center;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border2);
+  transition: background .15s;
+  cursor: default;
+}
+.doc-row:last-child { border-bottom: none; }
+.doc-row:hover { background: var(--surface2); }
+
+.sev-badge { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+.sev-high  { background: var(--rose-light);   color: var(--rose); }
+.sev-warn  { background: var(--amber-light);  color: var(--amber); }
+.sev-watch { background: var(--blue-light);   color: var(--blue); }
+.sev-ok    { background: var(--bg2);          color: var(--muted); }
+
+.doc-dis-name { font-size: 14px; font-weight: 500; }
+.doc-num { font-family: 'JetBrains Mono', monospace; font-size: 14px; text-align: right; }
+.doc-chg {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 3px 10px; border-radius: 12px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600;
+  justify-self: end;
+}
+.chg-up   { background: var(--rose-light);   color: var(--rose); }
+.chg-down { background: var(--green-light);  color: var(--green); }
+.chg-flat { background: var(--bg2);          color: var(--muted); }
+.doc-tag { padding: 3px 10px; border-radius: 10px; font-size: 11px; font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+.tag-alert    { background: var(--rose-light);   color: var(--rose);   border: 1px solid var(--rose); }
+.tag-elevated { background: var(--amber-light);  color: var(--amber);  border: 1px solid var(--amber); }
+.tag-watch    { background: var(--blue-light);   color: var(--blue);   border: 1px solid var(--blue); }
+.tag-baseline { background: var(--bg2);          color: var(--muted);  border: 1px solid var(--border); }
+.doc-footnote { padding: 10px 20px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); background: var(--bg2); border-top: 1px solid var(--border); }
+
+/* ── AGE PANEL ── */
+.age-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.age-panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px; background: var(--surface2);
+  border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 10px;
+}
+.age-panel-title { font-family: 'Libre Baskerville', serif; font-size: 15px; font-weight: 700; }
+.age-toggle { display: flex; background: var(--bg2); border-radius: 8px; padding: 3px; gap: 3px; border: 1px solid var(--border); }
+.age-btn {
+  padding: 6px 16px; border-radius: 6px; border: none; cursor: pointer;
+  font-family: 'Source Sans 3', sans-serif; font-size: 13px; font-weight: 500;
+  transition: all .18s; background: transparent; color: var(--muted);
+}
+.age-btn.active { background: var(--teal); color: white; box-shadow: 0 2px 8px rgba(26,122,110,.3); }
+.age-btn:hover:not(.active) { background: var(--surface); color: var(--text); }
+.age-stats-bar { display: flex; align-items: center; gap: 0; border-bottom: 1px solid var(--border); }
+.age-stat { flex: 1; padding: 14px 20px; border-right: 1px solid var(--border); }
+.age-stat:last-child { border-right: none; }
+.age-stat-val { font-family: 'Libre Baskerville', serif; font-size: 26px; font-weight: 700; line-height: 1; color: var(--text); }
+.age-stat-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-top: 4px; }
+.age-content { display: none; }
+.age-content.visible { display: block; }
+.age-dis-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1px; background: var(--border); }
+.age-dis-card { background: var(--surface); padding: 14px 16px; transition: background .15s; }
+.age-dis-card:hover { background: var(--surface2); }
+.adc-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+.adc-bar-track { height: 5px; background: var(--bg2); border-radius: 3px; margin-bottom: 6px; overflow: hidden; }
+.adc-bar-fill { height: 100%; border-radius: 3px; transition: width .5s cubic-bezier(.4,0,.2,1); }
+.bar-ped   { background: linear-gradient(90deg, var(--blue), var(--teal)); }
+.bar-adult { background: linear-gradient(90deg, var(--orange), var(--rose)); }
+.adc-counts { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+.adc-n { color: var(--text); font-weight: 600; }
+.age-chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-top: 1px solid var(--border); }
+.age-chart-cell { padding: 18px 20px; border-right: 1px solid var(--border); }
+.age-chart-cell:last-child { border-right: none; }
+.age-chart-title { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 12px; }
+.age-note { padding: 10px 20px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); background: var(--bg2); border-top: 1px solid var(--border); }
+
+/* ── SEASONAL HEATMAP ── */
+select, input[type=range] {
+  background: var(--bg2); border: 1px solid var(--border); color: var(--text);
+  padding: 5px 10px; border-radius: var(--radius-sm);
+  font-family: 'Source Sans 3', sans-serif; font-size: 13px; outline: none; cursor: pointer;
+}
+.sea-table-wrap { overflow-x: auto; }
+table.sea { border-collapse: separate; border-spacing: 3px; font-family: 'JetBrains Mono', monospace; font-size: 12px; width: 100%; }
+table.sea th { padding: 6px 8px; color: var(--muted); font-weight: 600; text-align: center; white-space: nowrap; position: sticky; top: 0; background: var(--surface); z-index: 5; }
+table.sea th.dis-th { text-align: left; left: 0; z-index: 6; min-width: 180px; }
+table.sea td { border-radius: 5px; cursor: default; transition: transform .1s; text-align: center; }
+table.sea td:hover { transform: scale(1.08); z-index: 5; position: relative; }
+table.sea td.dis-td { padding: 6px 8px; text-align: left; white-space: nowrap; position: sticky; left: 0; background: var(--surface); z-index: 4; font-size: 12px; }
+.sea-cell { width: 52px; height: 34px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; border-radius: 5px; }
+.sea-zero { background: var(--bg2); color: var(--border); }
+
+/* ── ZIP HEATMAP ── */
+.zip-layout { display: grid; grid-template-columns: 280px 1fr; gap: 14px; align-items: start; }
+.map-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; position: sticky; top: 70px; box-shadow: var(--shadow-sm); }
+#mapSvg { width: 100%; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); }
+.zip-legend { margin-top: 12px; }
+.zli { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: var(--radius-sm); cursor: pointer; transition: background .15s; font-size: 13px; }
+.zli:hover, .zli.active { background: var(--surface2); }
+.zli-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.zli-label { flex: 1; }
+.zli-n { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+.scale-bar { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+.scale-grad { height: 8px; width: 130px; border-radius: 4px; background: linear-gradient(to right, #e8f5f3, #1a7a6e); border: 1px solid var(--border); }
+.ht-wrap { overflow-x: auto; max-height: 600px; overflow-y: auto; }
+table.ht { border-collapse: separate; border-spacing: 3px; font-family: 'JetBrains Mono', monospace; font-size: 12px; min-width: 100%; }
+table.ht th { padding: 6px 8px; color: var(--muted); font-weight: 600; white-space: nowrap; position: sticky; top: 0; background: var(--surface); z-index: 5; text-align: center; }
+table.ht th.dn-th { text-align: left; left: 0; z-index: 6; min-width: 200px; border-right: 1px solid var(--border); }
+table.ht td { padding: 0; border-radius: 5px; cursor: pointer; transition: transform .1s; }
+table.ht td:hover { transform: scale(1.08); z-index: 5; position: relative; }
+table.ht td.dn-td { padding: 6px 8px; border-radius: 5px; cursor: default; position: sticky; left: 0; background: var(--surface); border-right: 1px solid var(--border); z-index: 4; white-space: nowrap; font-size: 12px; }
+table.ht td.dn-td:hover { transform: none; }
+.ht-cell { width: 80px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; border-radius: 5px; }
+.ht-zero { background: var(--bg2); color: var(--border); }
+td.z-dim { opacity: .15; }
+td.z-hl { outline: 2px solid var(--teal); }
+input[type=search] {
+  background: var(--bg2); border: 1px solid var(--border); color: var(--text);
+  padding: 6px 10px; border-radius: var(--radius-sm);
+  font-family: 'Source Sans 3', sans-serif; font-size: 13px; outline: none; width: 200px;
+}
+input[type=search]:focus { border-color: var(--teal); }
+
+/* ── YOY COMPARISON BADGE ── */
+.yoy-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 12px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600;
+}
+.yoy-up   { background: var(--rose-light);  color: var(--rose); }
+.yoy-down { background: var(--green-light); color: var(--green); }
+.yoy-flat { background: var(--bg2);         color: var(--muted); }
+
+/* ══════════════════════════════════════════════
+   DISEASE DRILL-DOWN MODAL
+══════════════════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(20,16,10,0.55);
+  z-index: 900; display: none; align-items: center; justify-content: center;
+  animation: fadeIn .2s ease;
+}
+.modal-overlay.open { display: flex; }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 90%;
+  max-width: 880px;
+  max-height: 88vh;
+  overflow-y: auto;
+  animation: slideUp .25s ease;
+}
+@keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px; border-bottom: 1px solid var(--border);
+  background: var(--surface2); border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  position: sticky; top: 0; z-index: 5;
+}
+.modal-title-wrap { display: flex; align-items: center; gap: 12px; }
+.modal-dis-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 14px; border-radius: 20px;
+  font-size: 12px; font-family: 'JetBrains Mono', monospace; font-weight: 600;
+}
+.modal-dis-resp   { background: var(--blue-light);   color: var(--blue);   border: 1px solid var(--blue); }
+.modal-dis-other  { background: var(--orange-light);  color: var(--orange);  border: 1px solid var(--orange); }
+.modal-title { font-family: 'Libre Baskerville', serif; font-size: 22px; font-weight: 700; color: var(--text); }
+.modal-close {
+  width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border);
+  background: var(--surface); cursor: pointer; font-size: 18px; color: var(--muted);
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s, color .15s;
+}
+.modal-close:hover { background: var(--rose-light); color: var(--rose); border-color: var(--rose); }
+
+.modal-kpis { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; border-bottom: 1px solid var(--border); }
+.modal-kpi { padding: 16px 20px; border-right: 1px solid var(--border); }
+.modal-kpi:last-child { border-right: none; }
+.modal-kpi-val { font-family: 'Libre Baskerville', serif; font-size: 28px; font-weight: 700; color: var(--text); }
+.modal-kpi-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-top: 4px; }
+.modal-kpi-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+.modal-body { padding: 20px 24px; }
+.modal-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.modal-chart-card {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px;
+}
+.modal-chart-title { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 12px; }
+
+.modal-zip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: 4px; }
+.modal-zip-card {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 14px;
+}
+.mzc-zip { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; color: var(--teal); }
+.mzc-town { font-size: 11px; color: var(--muted); margin: 2px 0 6px; }
+.mzc-count { font-family: 'Libre Baskerville', serif; font-size: 22px; font-weight: 700; color: var(--text); }
+.mzc-pct { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+.mzc-bar { height: 4px; border-radius: 2px; background: var(--teal); margin-top: 8px; }
+
+.modal-sex-bars { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+.sex-bar-row { display: flex; align-items: center; gap: 8px; }
+.sex-bar-label { font-size: 13px; font-weight: 500; width: 70px; }
+.sex-bar-track { flex: 1; height: 20px; background: var(--bg2); border-radius: 4px; overflow: hidden; }
+.sex-bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; }
+.sex-bar-fill span { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; color: white; }
+.sex-bar-n { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); width: 40px; text-align: right; }
+
+.modal-trend-note {
+  background: var(--teal-light); border: 1px solid var(--teal);
+  border-radius: var(--radius-sm); padding: 12px 16px;
+  font-size: 13px; color: var(--text2); margin-top: 8px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── YOY COMPARISON BAR ── */
+.yoy-bar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
+  display: none;
+}
+.yoy-bar.visible { display: block; }
+.yoy-bar-title {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 15px; font-weight: 700; margin-bottom: 12px;
+}
+.yoy-legend { display: flex; gap: 20px; margin-bottom: 12px; flex-wrap: wrap; }
+.yoy-leg-item { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+.yoy-leg-dot { width: 12px; height: 12px; border-radius: 3px; }
 
 /* ── TOOLTIP ── */
-#tt{position:fixed;z-index:1000;pointer-events:none;background:#1a2234;border:1px solid #1e2d47;border-radius:10px;padding:10px 14px;font-family:'DM Mono',monospace;font-size:11px;color:#e2e8f0;display:none;max-width:230px;box-shadow:0 8px 24px rgba(0,0,0,.4);}
-#tt .tt-title{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;margin-bottom:4px;}
-#tt .tt-row{display:flex;justify-content:space-between;gap:14px;color:#94a3b8;margin-top:2px;}
-#tt .tt-val{color:#e2e8f0;}
+#tt {
+  position: fixed; z-index: 1000; pointer-events: none;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px 16px;
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  color: var(--text); display: none; max-width: 260px;
+  box-shadow: var(--shadow);
+}
+#tt .tt-title { font-family: 'Libre Baskerville', serif; font-weight: 700; font-size: 14px; margin-bottom: 6px; color: var(--text); }
+#tt .tt-row { display: flex; justify-content: space-between; gap: 16px; color: var(--muted); margin-top: 3px; }
+#tt .tt-val { color: var(--text); font-weight: 500; }
 
 /* ── ANIMATIONS ── */
-@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
 .card:nth-child(1){animation-delay:.04s} .card:nth-child(2){animation-delay:.08s}
 .card:nth-child(3){animation-delay:.12s} .card:nth-child(4){animation-delay:.16s}
 
-footer{text-align:center;padding:20px;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);border-top:1px solid var(--border);margin-top:24px;}
+/* ── SEA GROUP STYLES ── */
+table.sea tr.is-resp td.dis-td { color: var(--blue); font-weight: 500; }
+table.sea tr.is-other td.dis-td { color: var(--orange); font-weight: 500; }
+table.sea tr.is-resp { background: rgba(30,95,168,0.03); }
 
-/* ── RESPIRATORY / OTHER SECTION DIVIDERS ── */
-.resp-block{background:rgba(79,156,249,0.04);border:1px solid rgba(79,156,249,0.18);border-radius:12px;padding:16px 18px;margin-bottom:12px;}
-.other-block{background:rgba(249,115,22,0.03);border:1px solid rgba(249,115,22,0.14);border-radius:12px;padding:16px 18px;margin-bottom:12px;}
+footer {
+  text-align: center; padding: 20px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted);
+  border-top: 1px solid var(--border); margin-top: 32px;
+  background: var(--surface);
+}
 
-.group-label{display:inline-flex;align-items:center;gap:7px;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.1em;padding:4px 10px;border-radius:20px;margin-bottom:12px;}
-.group-label.resp {background:rgba(79,156,249,0.12);color:#4f9cf9;border:1px solid rgba(79,156,249,0.25);}
-.group-label.other{background:rgba(249,115,22,0.10);color:#f97316;border:1px solid rgba(249,115,22,0.22);}
+/* ── RESP / OTHER BLOCK LABELS ── */
+.group-label {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .1em;
+  padding: 4px 10px; border-radius: 20px; margin-bottom: 10px;
+}
+.group-label.resp  { background: var(--blue-light);   color: var(--blue);   border: 1px solid var(--blue); }
+.group-label.other { background: var(--orange-light); color: var(--orange); border: 1px solid var(--orange); }
 
-/* split disease list */
-.dis-list-divider{display:flex;align-items:center;gap:8px;margin:8px 0 4px;font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);}
-.dis-list-divider::before,.dis-list-divider::after{content:'';flex:1;height:1px;}
-.dis-list-divider.resp-div::before,.dis-list-divider.resp-div::after{background:rgba(79,156,249,0.25);}
-.dis-list-divider.resp-div{color:#4f9cf9;}
-.dis-list-divider.other-div::before,.dis-list-divider.other-div::after{background:rgba(249,115,22,0.2);}
-.dis-list-divider.other-div{color:#f97316;}
-
-/* dis-row tint for respiratory */
-.dis-row.is-resp{background:rgba(79,156,249,0.04);border-radius:6px;padding-left:4px;padding-right:4px;}
-
-/* seasonal page: split monthly bar */
-.sea-group-header{display:flex;align-items:center;gap:10px;padding:8px 0 4px;font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;}
-.sea-group-header.resp {color:#4f9cf9;}
-.sea-group-header.other{color:#f97316;}
-.sea-group-header::after{content:'';flex:1;height:1px;}
-.sea-group-header.resp::after {background:rgba(79,156,249,0.2);}
-.sea-group-header.other::after{background:rgba(249,115,22,0.15);}
-table.sea tr.is-resp td.dis-td{color:#4f9cf9;}
-table.sea tr.is-other td.dis-td{color:#f97316;}
-table.sea tr.is-resp{background:rgba(79,156,249,0.03);}
-
+.resp-block  { background: var(--blue-light);   border: 1px solid rgba(30,95,168,0.2);  border-radius: var(--radius); padding: 16px 18px; margin-bottom: 14px; }
+.other-block { background: var(--orange-light); border: 1px solid rgba(196,88,10,0.15); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 14px; }
 </style>
 </head>
 <body>
@@ -283,91 +739,166 @@ table.sea tr.is-resp{background:rgba(79,156,249,0.03);}
     <button class="tab-btn" onclick="showPage('zipmap')">🗺 ZIP Heatmap</button>
   </div>
   <div class="nav-chips">
-    <span class="chip updated">📅 Data through Apr 2025</span>
-    <span class="chip accent">n = 1,166 cases</span>
-    <span class="chip warn">− Non-positive ELRs</span>
-    <span class="chip warn">− IGRAs</span>
+    <span class="chip teal">n = 1,166 cases</span>
+    <span class="chip orange">− Non-positive ELRs · − IGRAs</span>
     <span class="chip">Mono County LHJ</span>
   </div>
 </nav>
 
-<!-- ══════════════════════════════════════════════════
-     PAGE 1 — OVERVIEW
-══════════════════════════════════════════════════ -->
+<!-- DISEASE DRILL-DOWN MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="drillModal">
+    <div class="modal-header">
+      <div class="modal-title-wrap">
+        <span class="modal-dis-badge" id="modalBadge">Respiratory</span>
+        <span class="modal-title" id="modalTitle">Disease Name</span>
+      </div>
+      <button class="modal-close" onclick="closeModalBtn()">✕</button>
+    </div>
+    <div class="modal-kpis">
+      <div class="modal-kpi">
+        <div class="modal-kpi-val" id="mTotal">—</div>
+        <div class="modal-kpi-label">Total Cases</div>
+        <div class="modal-kpi-sub" id="mPct">— of all cases</div>
+      </div>
+      <div class="modal-kpi">
+        <div class="modal-kpi-val" id="mTopAge">—</div>
+        <div class="modal-kpi-label">Peak Age Group</div>
+        <div class="modal-kpi-sub" id="mTopAgeN">— cases</div>
+      </div>
+      <div class="modal-kpi">
+        <div class="modal-kpi-val" id="mTopZip">—</div>
+        <div class="modal-kpi-label">Top ZIP Code</div>
+        <div class="modal-kpi-sub" id="mTopZipN">— cases</div>
+      </div>
+      <div class="modal-kpi">
+        <div class="modal-kpi-val" id="mPeakMonth">—</div>
+        <div class="modal-kpi-label">Peak Month</div>
+        <div class="modal-kpi-sub" id="mPeakMonthN">— cases</div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-grid-2">
+        <div class="modal-chart-card">
+          <div class="modal-chart-title">Age Group Breakdown</div>
+          <div style="height:220px;position:relative;"><canvas id="modalAgeChart"></canvas></div>
+        </div>
+        <div class="modal-chart-card">
+          <div class="modal-chart-title">Race / Ethnicity</div>
+          <div style="height:220px;position:relative;"><canvas id="modalRaceChart"></canvas></div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <div class="modal-chart-title" style="font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px;">Sex Distribution</div>
+        <div class="modal-sex-bars" id="modalSexBars"></div>
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <div class="modal-chart-title" style="font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px;">Cases by ZIP Code</div>
+        <div class="modal-zip-grid" id="modalZipGrid"></div>
+      </div>
+
+      <div class="modal-chart-card" style="margin-bottom:16px;">
+        <div class="modal-chart-title">Monthly Trend (2023–2025)</div>
+        <div style="height:180px;position:relative;"><canvas id="modalTrendChart"></canvas></div>
+      </div>
+
+      <div class="modal-trend-note" id="modalNote"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ PAGE 1 — OVERVIEW ══════════════ -->
 <div class="page active" id="page-overview">
 
-  <!-- ─── KPI ROW with TREND INDICATORS (NEW) ─── -->
-  <div class="kpi-row" style="margin-top:20px;">
+  <!-- FILTER BAR -->
+  <div class="filter-bar" style="margin-top:20px;">
+    <span class="filter-label">📅 Date Range</span>
+    <div class="filter-group">
+      <label class="filter-label">From</label>
+      <input type="month" id="dateFrom" value="2022-01" min="2022-01" max="2025-04">
+      <label class="filter-label">To</label>
+      <input type="month" id="dateTo" value="2025-04" min="2022-01" max="2025-04">
+    </div>
+    <div class="filter-divider"></div>
+    <label class="compare-toggle">
+      <input type="checkbox" id="compareToggle" onchange="toggleCompare()">
+      Year-over-Year Compare
+    </label>
+    <div id="compareControls" style="display:none;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <span class="period-badge period-a">Period A</span>
+      <input type="month" id="cmpAFrom" value="2023-01" min="2022-01" max="2025-04">
+      <span style="font-size:12px;color:var(--muted)">to</span>
+      <input type="month" id="cmpATo" value="2023-12" min="2022-01" max="2025-04">
+      <span class="period-badge period-b">Period B</span>
+      <input type="month" id="cmpBFrom" value="2024-01" min="2022-01" max="2025-04">
+      <span style="font-size:12px;color:var(--muted)">to</span>
+      <input type="month" id="cmpBTo" value="2024-12" min="2022-01" max="2025-04">
+    </div>
+    <button class="btn-apply" onclick="applyFilters()">Apply</button>
+  </div>
 
+  <!-- YOY COMPARISON PANEL -->
+  <div class="yoy-bar" id="yoyBar">
+    <div class="yoy-bar-title">Year-over-Year Comparison</div>
+    <div class="yoy-legend">
+      <div class="yoy-leg-item"><div class="yoy-leg-dot" style="background:var(--teal)"></div> Period A (selected)</div>
+      <div class="yoy-leg-item"><div class="yoy-leg-dot" style="background:var(--orange)"></div> Period B (selected)</div>
+    </div>
+    <div style="height:260px;position:relative;"><canvas id="yoyChart"></canvas></div>
+  </div>
+
+  <!-- KPI ROW -->
+  <div class="kpi-row" id="kpiRow">
     <div class="kpi">
       <div class="kpi-label">Total Cases</div>
-      <div class="kpi-value">1,166</div>
+      <div class="kpi-value" id="kpiTotal">1,166</div>
       <div class="kpi-sub">Confirmed / initial reports</div>
       <div class="kpi-trend">
-        <span class="trend-pill up"><span class="trend-arrow">↑</span> +14%</span>
+        <span class="trend-pill up">↑ +14%</span>
         <span class="trend-ctx">vs. prior year</span>
       </div>
-      <!-- mini sparkline -->
-      <svg class="kpi-spark" width="80" height="36" viewBox="0 0 80 36">
-        <polyline points="0,32 13,28 26,30 39,20 52,14 65,10 80,6" fill="none" stroke="#00d4aa" stroke-width="2" stroke-linejoin="round"/>
-      </svg>
     </div>
-
     <div class="kpi">
       <div class="kpi-label">Conditions</div>
       <div class="kpi-value">47</div>
       <div class="kpi-sub">Unique disease types</div>
       <div class="kpi-trend">
-        <span class="trend-pill flat"><span class="trend-arrow">→</span> ±0</span>
+        <span class="trend-pill flat">→ ±0</span>
         <span class="trend-ctx">no change</span>
       </div>
-      <svg class="kpi-spark" width="80" height="36" viewBox="0 0 80 36">
-        <polyline points="0,18 16,17 32,19 48,18 64,17 80,18" fill="none" stroke="#4f9cf9" stroke-width="2" stroke-linejoin="round"/>
-      </svg>
     </div>
-
     <div class="kpi">
       <div class="kpi-label">% Female</div>
       <div class="kpi-value">51.0%</div>
       <div class="kpi-sub">595 of 1,166</div>
       <div class="kpi-trend">
-        <span class="trend-pill down"><span class="trend-arrow">↓</span> −1.2pp</span>
+        <span class="trend-pill down">↓ −1.2pp</span>
         <span class="trend-ctx">vs. prior year</span>
       </div>
-      <svg class="kpi-spark" width="80" height="36" viewBox="0 0 80 36">
-        <polyline points="0,10 16,12 32,11 48,14 64,16 80,18" fill="none" stroke="#f97316" stroke-width="2" stroke-linejoin="round"/>
-      </svg>
     </div>
-
     <div class="kpi">
       <div class="kpi-label">% Hispanic/Latino</div>
       <div class="kpi-value">33.9%</div>
       <div class="kpi-sub">395 of 1,166</div>
       <div class="kpi-trend">
-        <span class="trend-pill up"><span class="trend-arrow">↑</span> +2.4pp</span>
+        <span class="trend-pill up">↑ +2.4pp</span>
         <span class="trend-ctx">vs. prior year</span>
       </div>
-      <svg class="kpi-spark" width="80" height="36" viewBox="0 0 80 36">
-        <polyline points="0,26 16,24 32,22 48,20 64,18 80,14" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linejoin="round"/>
-      </svg>
     </div>
-
     <div class="kpi">
       <div class="kpi-label">Top Condition</div>
-      <div class="kpi-value" style="font-size:17px;margin-top:4px;">COVID-19</div>
+      <div class="kpi-value" style="font-size:20px;margin-top:4px;">COVID-19</div>
       <div class="kpi-sub">484 cases · 41.5%</div>
       <div class="kpi-trend">
-        <span class="trend-pill down"><span class="trend-arrow">↓</span> −8%</span>
-        <span class="trend-ctx">cases vs. prior year</span>
+        <span class="trend-pill down">↓ −8%</span>
+        <span class="trend-ctx">vs. prior year</span>
       </div>
-      <svg class="kpi-spark" width="80" height="36" viewBox="0 0 80 36">
-        <polyline points="0,4 16,6 32,10 48,14 64,20 80,22" fill="none" stroke="#fb7185" stroke-width="2" stroke-linejoin="round"/>
-      </svg>
     </div>
+  </div>
 
-  </div><!-- end kpi-row -->
-
-  <!-- ─── DISEASES OF CONCERN (NEW) ─── -->
+  <!-- DISEASES OF CONCERN -->
   <div class="sec">⚠ Diseases of Concern</div>
   <div class="doc-panel">
     <div class="doc-header">
@@ -377,24 +908,20 @@ table.sea tr.is-resp{background:rgba(79,156,249,0.03);}
       </div>
       <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
         <div class="doc-legend">
-          <div class="doc-leg-item"><div class="leg-dot" style="background:#f87171"></div> Alert: ≥2× 3yr avg</div>
-          <div class="doc-leg-item"><div class="leg-dot" style="background:#fbbf24"></div> Elevated: ≥1.5×</div>
-          <div class="doc-leg-item"><div class="leg-dot" style="background:#4f9cf9"></div> Watch: trending up</div>
+          <div class="doc-leg-item"><div class="leg-dot" style="background:var(--rose)"></div> Alert: ≥2× 3yr avg</div>
+          <div class="doc-leg-item"><div class="leg-dot" style="background:var(--amber)"></div> Elevated: ≥1.5×</div>
+          <div class="doc-leg-item"><div class="leg-dot" style="background:var(--blue)"></div> Watch: trending up</div>
         </div>
         <span class="doc-meta">Compared to 3-year monthly avg · Apr 2025</span>
       </div>
     </div>
-
     <div class="doc-col-heads">
-      <div></div>
-      <div>Disease</div>
+      <div></div><div>Disease</div>
       <div style="text-align:right">This Month</div>
       <div style="text-align:right">3yr Avg</div>
       <div style="text-align:right">Change</div>
       <div>Status</div>
     </div>
-
-    <!-- Alert rows — replace values each month from DDP export -->
     <div class="doc-row">
       <div class="sev-badge sev-high">!</div>
       <div class="doc-dis-name">Influenza</div>
@@ -403,7 +930,6 @@ table.sea tr.is-resp{background:rgba(79,156,249,0.03);}
       <div class="doc-chg chg-up">↑ +144%</div>
       <div><span class="doc-tag tag-alert">Alert</span></div>
     </div>
-
     <div class="doc-row">
       <div class="sev-badge sev-high">!</div>
       <div class="doc-dis-name">RSV</div>
@@ -412,7 +938,6 @@ table.sea tr.is-resp{background:rgba(79,156,249,0.03);}
       <div class="doc-chg chg-up">↑ +122%</div>
       <div><span class="doc-tag tag-alert">Alert</span></div>
     </div>
-
     <div class="doc-row">
       <div class="sev-badge sev-warn">▲</div>
       <div class="doc-dis-name">Syphilis</div>
@@ -421,7 +946,6 @@ table.sea tr.is-resp{background:rgba(79,156,249,0.03);}
       <div class="doc-chg chg-up">↑ +100%</div>
       <div><span class="doc-tag tag-elevated">Elevated</span></div>
     </div>
-
     <div class="doc-row">
       <div class="sev-badge sev-warn">▲</div>
       <div class="doc-dis-name">Chlamydia</div>
@@ -430,7 +954,6 @@ table.sea tr.is-resp{background:rgba(79,156,249,0.03);}
       <div class="doc-chg chg-up">↑ +40%</div>
       <div><span class="doc-tag tag-elevated">Elevated</span></div>
     </div>
-
     <div class="doc-row">
       <div class="sev-badge sev-watch">~</div>
       <div class="doc-dis-name">COVID-19</div>
@@ -439,7 +962,6 @@ table.sea tr.is-resp{background:rgba(79,156,249,0.03);}
       <div class="doc-chg chg-down">↓ −17%</div>
       <div><span class="doc-tag tag-watch">Watch</span></div>
     </div>
-
     <div class="doc-row">
       <div class="sev-badge sev-ok">·</div>
       <div class="doc-dis-name">Campylobacteriosis</div>
@@ -448,7 +970,6 @@ table.sea tr.is-resp{background:rgba(79,156,249,0.03);}
       <div class="doc-chg chg-flat">→ baseline</div>
       <div><span class="doc-tag tag-baseline">Baseline</span></div>
     </div>
-
     <div class="doc-row">
       <div class="sev-badge sev-ok">·</div>
       <div class="doc-dis-name">Salmonellosis</div>
@@ -457,14 +978,13 @@ table.sea tr.is-resp{background:rgba(79,156,249,0.03);}
       <div class="doc-chg chg-flat">→ baseline</div>
       <div><span class="doc-tag tag-baseline">Baseline</span></div>
     </div>
-
     <div class="doc-footnote">
-      Thresholds: Alert ≥ 2× 3-year monthly average · Elevated ≥ 1.5× · Watch = 2+ consecutive months trending up · Baseline = within expected range.
-      Update "This Month" and "3yr Avg" columns from the CalREDIE DDP export each month.
+      Thresholds: Alert ≥ 2× 3yr monthly avg · Elevated ≥ 1.5× · Watch = 2+ consecutive months trending up.
+      Update "This Month" and "3yr Avg" from CalREDIE DDP export each month.
     </div>
   </div>
 
-  <!-- ─── PEDIATRIC / ADULT VIEW (NEW) ─── -->
+  <!-- PEDIATRIC / ADULT -->
   <div class="sec">👶 Pediatric vs. Adult Case Breakdown</div>
   <div class="age-panel mb">
     <div class="age-panel-header">
@@ -475,221 +995,101 @@ table.sea tr.is-resp{background:rgba(79,156,249,0.03);}
         <button class="age-btn" onclick="switchAge('compare')">⇄ Compare</button>
       </div>
     </div>
-
-    <!-- PEDIATRIC PANEL -->
+    <!-- PEDIATRIC -->
     <div class="age-content visible" id="age-ped">
       <div class="age-stats-bar">
-        <div class="age-stat">
-          <div class="age-stat-val" style="color:#4f9cf9">286</div>
-          <div class="age-stat-label">Pediatric Cases (0–17)</div>
-        </div>
-        <div class="age-stat">
-          <div class="age-stat-val">24.5%</div>
-          <div class="age-stat-label">% of all cases</div>
-        </div>
-        <div class="age-stat">
-          <div class="age-stat-val" style="color:#4f9cf9">129</div>
-          <div class="age-stat-label">Age 0–4</div>
-        </div>
-        <div class="age-stat">
-          <div class="age-stat-val" style="color:#4f9cf9">157</div>
-          <div class="age-stat-label">Age 5–17</div>
-        </div>
-        <div class="age-stat">
-          <div class="age-stat-val">3</div>
-          <div class="age-stat-label">Unique diseases</div>
-        </div>
+        <div class="age-stat"><div class="age-stat-val" style="color:var(--blue)">286</div><div class="age-stat-label">Pediatric Cases (0–17)</div></div>
+        <div class="age-stat"><div class="age-stat-val">24.5%</div><div class="age-stat-label">% of all cases</div></div>
+        <div class="age-stat"><div class="age-stat-val" style="color:var(--blue)">129</div><div class="age-stat-label">Age 0–4</div></div>
+        <div class="age-stat"><div class="age-stat-val" style="color:var(--blue)">157</div><div class="age-stat-label">Age 5–17</div></div>
+        <div class="age-stat"><div class="age-stat-val">3</div><div class="age-stat-label">Top conditions</div></div>
       </div>
       <div class="age-dis-grid">
-        <!-- Top diseases in pediatric population, sorted by count -->
-        <div class="age-dis-card">
-          <div class="adc-name">Influenza</div>
-          <div class="adc-bar-track"><div class="adc-bar-fill bar-ped" style="width:100%"></div></div>
-          <div class="adc-counts"><span class="adc-n">112 cases</span><span>39.2%</span></div>
-        </div>
-        <div class="age-dis-card">
-          <div class="adc-name">COVID-19</div>
-          <div class="adc-bar-track"><div class="adc-bar-fill bar-ped" style="width:85%"></div></div>
-          <div class="adc-counts"><span class="adc-n">96 cases</span><span>33.6%</span></div>
-        </div>
-        <div class="age-dis-card">
-          <div class="adc-name">RSV</div>
-          <div class="adc-bar-track"><div class="adc-bar-fill bar-ped" style="width:56%"></div></div>
-          <div class="adc-counts"><span class="adc-n">64 cases</span><span>22.4%</span></div>
-        </div>
-        <div class="age-dis-card">
-          <div class="adc-name">Chlamydia</div>
-          <div class="adc-bar-track"><div class="adc-bar-fill bar-ped" style="width:3%"></div></div>
-          <div class="adc-counts"><span class="adc-n">1 case</span><span>0.3%</span></div>
-        </div>
-        <div class="age-dis-card">
-          <div class="adc-name">Giardiasis</div>
-          <div class="adc-bar-track"><div class="adc-bar-fill bar-ped" style="width:8%"></div></div>
-          <div class="adc-counts"><span class="adc-n">4 cases</span><span>1.4%</span></div>
-        </div>
-        <div class="age-dis-card">
-          <div class="adc-name">TB (LTBI)</div>
-          <div class="adc-bar-track"><div class="adc-bar-fill bar-ped" style="width:5%"></div></div>
-          <div class="adc-counts"><span class="adc-n">2 cases</span><span>0.7%</span></div>
-        </div>
-        <div class="age-dis-card">
-          <div class="adc-name">Campylobacteriosis</div>
-          <div class="adc-bar-track"><div class="adc-bar-fill bar-ped" style="width:6%"></div></div>
-          <div class="adc-counts"><span class="adc-n">3 cases</span><span>1.0%</span></div>
-        </div>
-        <div class="age-dis-card">
-          <div class="adc-name">Salmonellosis</div>
-          <div class="adc-bar-track"><div class="adc-bar-fill bar-ped" style="width:3%"></div></div>
-          <div class="adc-counts"><span class="adc-n">1 case</span><span>0.3%</span></div>
-        </div>
+        <div class="age-dis-card"><div class="adc-name">Influenza</div><div class="adc-bar-track"><div class="adc-bar-fill bar-ped" style="width:100%"></div></div><div class="adc-counts"><span class="adc-n">112 cases</span><span>39.2%</span></div></div>
+        <div class="age-dis-card"><div class="adc-name">COVID-19</div><div class="adc-bar-track"><div class="adc-bar-fill bar-ped" style="width:85%"></div></div><div class="adc-counts"><span class="adc-n">96 cases</span><span>33.6%</span></div></div>
+        <div class="age-dis-card"><div class="adc-name">RSV</div><div class="adc-bar-track"><div class="adc-bar-fill bar-ped" style="width:56%"></div></div><div class="adc-counts"><span class="adc-n">64 cases</span><span>22.4%</span></div></div>
+        <div class="age-dis-card"><div class="adc-name">Giardiasis</div><div class="adc-bar-track"><div class="adc-bar-fill bar-ped" style="width:8%"></div></div><div class="adc-counts"><span class="adc-n">4 cases</span><span>1.4%</span></div></div>
+        <div class="age-dis-card"><div class="adc-name">Campylobacteriosis</div><div class="adc-bar-track"><div class="adc-bar-fill bar-ped" style="width:6%"></div></div><div class="adc-counts"><span class="adc-n">3 cases</span><span>1.0%</span></div></div>
+        <div class="age-dis-card"><div class="adc-name">TB (LTBI)</div><div class="adc-bar-track"><div class="adc-bar-fill bar-ped" style="width:5%"></div></div><div class="adc-counts"><span class="adc-n">2 cases</span><span>0.7%</span></div></div>
       </div>
       <div class="age-chart-row">
-        <div class="age-chart-cell">
-          <div class="age-chart-title">Pediatric Sex Distribution</div>
-          <div style="height:200px;position:relative;"><canvas id="pedSexChart"></canvas></div>
-        </div>
-        <div class="age-chart-cell">
-          <div class="age-chart-title">Pediatric Ethnicity Distribution</div>
-          <div style="height:200px;position:relative;"><canvas id="pedEthChart"></canvas></div>
-        </div>
+        <div class="age-chart-cell"><div class="age-chart-title">Pediatric Sex Distribution</div><div style="height:200px;position:relative;"><canvas id="pedSexChart"></canvas></div></div>
+        <div class="age-chart-cell"><div class="age-chart-title">Pediatric Ethnicity Distribution</div><div style="height:200px;position:relative;"><canvas id="pedEthChart"></canvas></div></div>
       </div>
-    </div><!-- end age-ped -->
-
-    <!-- ADULT PANEL -->
+    </div>
+    <!-- ADULT -->
     <div class="age-content" id="age-adult">
       <div class="age-stats-bar">
-        <div class="age-stat">
-          <div class="age-stat-val" style="color:#f97316">880</div>
-          <div class="age-stat-label">Adult Cases (18+)</div>
-        </div>
-        <div class="age-stat">
-          <div class="age-stat-val">75.5%</div>
-          <div class="age-stat-label">% of all cases</div>
-        </div>
-        <div class="age-stat">
-          <div class="age-stat-val" style="color:#f97316">218</div>
-          <div class="age-stat-label">Age 18–29</div>
-        </div>
-        <div class="age-stat">
-          <div class="age-stat-val" style="color:#f97316">484</div>
-          <div class="age-stat-label">Age 30–64</div>
-        </div>
-        <div class="age-stat">
-          <div class="age-stat-val" style="color:#f97316">176</div>
-          <div class="age-stat-label">Age 65+</div>
-        </div>
+        <div class="age-stat"><div class="age-stat-val" style="color:var(--orange)">880</div><div class="age-stat-label">Adult Cases (18+)</div></div>
+        <div class="age-stat"><div class="age-stat-val">75.5%</div><div class="age-stat-label">% of all cases</div></div>
+        <div class="age-stat"><div class="age-stat-val" style="color:var(--orange)">218</div><div class="age-stat-label">Age 18–29</div></div>
+        <div class="age-stat"><div class="age-stat-val" style="color:var(--orange)">484</div><div class="age-stat-label">Age 30–64</div></div>
+        <div class="age-stat"><div class="age-stat-val" style="color:var(--orange)">176</div><div class="age-stat-label">Age 65+</div></div>
       </div>
       <div class="age-dis-grid">
-        <div class="age-dis-card">
-          <div class="adc-name">COVID-19</div>
-          <div class="adc-bar-track"><div class="adc-bar-fill bar-adult" style="width:100%"></div></div>
-          <div class="adc-counts"><span class="adc-n">388 cases</span><span>44.1%</span></div>
-        </div>
-        <div class="age-dis-card">
-          <div class="adc-name">Influenza</div>
-          <div class="adc-bar-track"><div class="adc-bar-fill bar-adult" style="width:50%"></div></div>
-          <div class="adc-counts"><span class="adc-n">196 cases</span><span>22.3%</span></div>
-        </div>
-        <div class="age-dis-card">
-          <div class="adc-name">RSV</div>
-          <div class="adc-bar-track"><div class="adc-bar-fill bar-adult" style="width:9%"></div></div>
-          <div class="adc-counts"><span class="adc-n">36 cases</span><span>4.1%</span></div>
-        </div>
-        <div class="age-dis-card">
-          <div class="adc-name">Chlamydia</div>
-          <div class="adc-bar-track"><div class="adc-bar-fill bar-adult" style="width:17%"></div></div>
-          <div class="adc-counts"><span class="adc-n">68 cases</span><span>7.7%</span></div>
-        </div>
-        <div class="age-dis-card">
-          <div class="adc-name">TB (LTBI)</div>
-          <div class="adc-bar-track"><div class="adc-bar-fill bar-adult" style="width:7%"></div></div>
-          <div class="adc-counts"><span class="adc-n">27 cases</span><span>3.1%</span></div>
-        </div>
-        <div class="age-dis-card">
-          <div class="adc-name">Syphilis</div>
-          <div class="adc-bar-track"><div class="adc-bar-fill bar-adult" style="width:2%"></div></div>
-          <div class="adc-counts"><span class="adc-n">9 cases</span><span>1.0%</span></div>
-        </div>
-        <div class="age-dis-card">
-          <div class="adc-name">Giardiasis</div>
-          <div class="adc-bar-track"><div class="adc-bar-fill bar-adult" style="width:2%"></div></div>
-          <div class="adc-counts"><span class="adc-n">8 cases</span><span>0.9%</span></div>
-        </div>
-        <div class="age-dis-card">
-          <div class="adc-name">Campylobacteriosis</div>
-          <div class="adc-bar-track"><div class="adc-bar-fill bar-adult" style="width:2%"></div></div>
-          <div class="adc-counts"><span class="adc-n">7 cases</span><span>0.8%</span></div>
-        </div>
+        <div class="age-dis-card"><div class="adc-name">COVID-19</div><div class="adc-bar-track"><div class="adc-bar-fill bar-adult" style="width:100%"></div></div><div class="adc-counts"><span class="adc-n">388 cases</span><span>44.1%</span></div></div>
+        <div class="age-dis-card"><div class="adc-name">Influenza</div><div class="adc-bar-track"><div class="adc-bar-fill bar-adult" style="width:50%"></div></div><div class="adc-counts"><span class="adc-n">196 cases</span><span>22.3%</span></div></div>
+        <div class="age-dis-card"><div class="adc-name">Chlamydia</div><div class="adc-bar-track"><div class="adc-bar-fill bar-adult" style="width:17%"></div></div><div class="adc-counts"><span class="adc-n">68 cases</span><span>7.7%</span></div></div>
+        <div class="age-dis-card"><div class="adc-name">RSV</div><div class="adc-bar-track"><div class="adc-bar-fill bar-adult" style="width:9%"></div></div><div class="adc-counts"><span class="adc-n">36 cases</span><span>4.1%</span></div></div>
+        <div class="age-dis-card"><div class="adc-name">TB (LTBI)</div><div class="adc-bar-track"><div class="adc-bar-fill bar-adult" style="width:7%"></div></div><div class="adc-counts"><span class="adc-n">27 cases</span><span>3.1%</span></div></div>
+        <div class="age-dis-card"><div class="adc-name">Syphilis</div><div class="adc-bar-track"><div class="adc-bar-fill bar-adult" style="width:2%"></div></div><div class="adc-counts"><span class="adc-n">9 cases</span><span>1.0%</span></div></div>
       </div>
       <div class="age-chart-row">
-        <div class="age-chart-cell">
-          <div class="age-chart-title">Adult Sex Distribution</div>
-          <div style="height:200px;position:relative;"><canvas id="adultSexChart"></canvas></div>
-        </div>
-        <div class="age-chart-cell">
-          <div class="age-chart-title">Adult Ethnicity Distribution</div>
-          <div style="height:200px;position:relative;"><canvas id="adultEthChart"></canvas></div>
-        </div>
+        <div class="age-chart-cell"><div class="age-chart-title">Adult Sex Distribution</div><div style="height:200px;position:relative;"><canvas id="adultSexChart"></canvas></div></div>
+        <div class="age-chart-cell"><div class="age-chart-title">Adult Ethnicity Distribution</div><div style="height:200px;position:relative;"><canvas id="adultEthChart"></canvas></div></div>
       </div>
-    </div><!-- end age-adult -->
-
-    <!-- COMPARE PANEL -->
+    </div>
+    <!-- COMPARE -->
     <div class="age-content" id="age-compare">
       <div class="age-stats-bar">
         <div class="age-stat">
           <div style="display:flex;gap:12px;align-items:baseline;">
-            <span class="age-stat-val" style="color:#4f9cf9">286</span>
-            <span style="color:var(--muted);font-family:'DM Mono',monospace;font-size:12px">vs.</span>
-            <span class="age-stat-val" style="color:#f97316">880</span>
+            <span class="age-stat-val" style="color:var(--blue)">286</span>
+            <span style="color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:14px">vs.</span>
+            <span class="age-stat-val" style="color:var(--orange)">880</span>
           </div>
           <div class="age-stat-label">Pediatric vs. Adult cases</div>
         </div>
         <div class="age-stat">
           <div style="display:flex;gap:12px;align-items:baseline;">
-            <span class="age-stat-val" style="color:#4f9cf9">24.5%</span>
-            <span style="color:var(--muted);font-family:'DM Mono',monospace;font-size:12px">vs.</span>
-            <span class="age-stat-val" style="color:#f97316">75.5%</span>
+            <span class="age-stat-val" style="color:var(--blue)">24.5%</span>
+            <span style="color:var(--muted);font-size:14px">vs.</span>
+            <span class="age-stat-val" style="color:var(--orange)">75.5%</span>
           </div>
           <div class="age-stat-label">Share of total caseload</div>
         </div>
-        <div class="age-stat">
-          <div class="age-stat-val" style="color:#00d4aa">Influenza</div>
-          <div class="age-stat-label">Top pediatric condition</div>
-        </div>
-        <div class="age-stat">
-          <div class="age-stat-val" style="color:#00d4aa">COVID-19</div>
-          <div class="age-stat-label">Top adult condition</div>
-        </div>
+        <div class="age-stat"><div class="age-stat-val" style="color:var(--teal)">Influenza</div><div class="age-stat-label">Top pediatric condition</div></div>
+        <div class="age-stat"><div class="age-stat-val" style="color:var(--teal)">COVID-19</div><div class="age-stat-label">Top adult condition</div></div>
       </div>
       <div style="padding:18px 20px;">
-        <div class="age-chart-title" style="margin-bottom:14px;">Disease Burden: Pediatric vs. Adult (top 6 shared conditions)</div>
+        <div class="age-chart-title" style="margin-bottom:14px;font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">Disease Burden: Pediatric vs. Adult (top 6 shared conditions)</div>
         <div style="height:300px;position:relative;"><canvas id="compareChart"></canvas></div>
       </div>
-      <div style="padding:0 20px 18px;">
-        <div class="age-chart-title" style="margin-bottom:10px;">Key Differences</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-          <div style="background:rgba(79,156,249,0.07);border:1px solid rgba(79,156,249,0.2);border-radius:8px;padding:12px 14px;">
-            <div style="font-family:'DM Mono',monospace;font-size:10px;color:#4f9cf9;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">🧒 Pediatric Only / Dominant</div>
-            <div style="font-size:11px;color:var(--text);line-height:1.7;">RSV heavily concentrated in 0–4 age group (44 of 64 cases). Influenza is #1 burden — higher rate than adults. No STI cases in under-5s.</div>
-          </div>
-          <div style="background:rgba(249,115,22,0.07);border:1px solid rgba(249,115,22,0.2);border-radius:8px;padding:12px 14px;">
-            <div style="font-family:'DM Mono',monospace;font-size:10px;color:#f97316;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">🧑 Adult Only / Dominant</div>
-            <div style="font-size:11px;color:var(--text);line-height:1.7;">STIs (Chlamydia, Syphilis) almost exclusively adult. TB (LTBI) predominantly 30–64. COVID-19 peaks in 30–64 group.</div>
-          </div>
+      <div style="padding:0 20px 18px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="background:var(--blue-light);border:1px solid rgba(30,95,168,0.25);border-radius:8px;padding:14px 16px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--blue);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">🧒 Pediatric Only / Dominant</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.6;">RSV heavily concentrated in 0–4 age group (44 of 64 cases). Influenza is #1 burden — higher rate than adults. No STI cases in under-5s.</div>
+        </div>
+        <div style="background:var(--orange-light);border:1px solid rgba(196,88,10,0.2);border-radius:8px;padding:14px 16px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--orange);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">🧑 Adult Only / Dominant</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.6;">STIs (Chlamydia, Syphilis) almost exclusively adult. TB (LTBI) predominantly 30–64. COVID-19 peaks in 30–64 group.</div>
         </div>
       </div>
-    </div><!-- end age-compare -->
-
-    <div class="age-note">
-      Pediatric = ages 0–17 · Adult = ages 18+ · Data derived from CalREDIE DDP age group fields · DtEpisode 2022–2025
     </div>
+    <div class="age-note">Pediatric = ages 0–17 · Adult = ages 18+ · Data derived from CalREDIE DDP age group fields · DtEpisode 2022–2025</div>
   </div>
 
-  <!-- ─── ORIGINAL OVERVIEW SECTIONS ─── -->
+  <!-- DISEASE LIST + DEMOGRAPHICS -->
   <div class="sec">Disease Burden &amp; Demographics</div>
   <div class="g3 mb">
     <div class="card">
-      <div class="card-header"><div><div class="card-title">Top Disease Conditions</div><div class="card-sub">Ranked by case count</div></div><span class="badge">n=1,166</span></div>
+      <div class="card-header">
+        <div><div class="card-title">Top Disease Conditions</div><div class="card-sub">Click any disease for demographic breakdown</div></div>
+        <span class="badge">n=1,166</span>
+      </div>
+      <div style="background:var(--teal-light);border:1px solid var(--teal);border-radius:var(--radius-sm);padding:8px 12px;margin-bottom:10px;font-size:12px;color:var(--teal);font-family:'JetBrains Mono',monospace;">
+        👆 Click any row to see age, race/ethnicity, sex, ZIP &amp; trend breakdown
+      </div>
       <div class="dis-list" id="diseaseList"></div>
     </div>
     <div class="card">
@@ -717,17 +1117,15 @@ table.sea tr.is-resp{background:rgba(79,156,249,0.03);}
   <div class="sec">Sex × Disease</div>
   <div class="g2 mb">
     <div class="card resp-block" style="padding:0;overflow:hidden;">
-      <div style="padding:14px 16px 0;">
-        <span class="group-label resp">🫁 Respiratory Viruses</span>
-        <div class="card-title" style="font-size:12px;margin-bottom:2px;">Sex by Respiratory Disease</div>
+      <div style="padding:14px 16px 0;"><span class="group-label resp">🫁 Respiratory Viruses</span>
+        <div class="card-title" style="font-size:14px;margin-bottom:2px;">Sex by Respiratory Disease</div>
         <div class="card-sub">COVID-19 · Influenza · RSV — Male vs. Female</div>
       </div>
       <div class="h300" style="padding:10px 8px 14px;"><canvas id="disSexBarResp"></canvas></div>
     </div>
     <div class="card other-block" style="padding:0;overflow:hidden;">
-      <div style="padding:14px 16px 0;">
-        <span class="group-label other">🦠 Other Conditions</span>
-        <div class="card-title" style="font-size:12px;margin-bottom:2px;">Sex by Other Disease</div>
+      <div style="padding:14px 16px 0;"><span class="group-label other">🦠 Other Conditions</span>
+        <div class="card-title" style="font-size:14px;margin-bottom:2px;">Sex by Other Disease</div>
         <div class="card-sub">Chlamydia · TB · Giardiasis + more — Male vs. Female</div>
       </div>
       <div class="h300" style="padding:10px 8px 14px;"><canvas id="disSexBarOther"></canvas></div>
@@ -745,48 +1143,23 @@ table.sea tr.is-resp{background:rgba(79,156,249,0.03);}
       <div class="h380"><canvas id="ethDisBar"></canvas></div>
     </div>
   </div>
-
-  <div class="sec">Disease Composition</div>
-  <div class="g2 mb">
-    <div class="card resp-block" style="padding:0;overflow:hidden;">
-      <div style="padding:14px 16px 8px;">
-        <span class="group-label resp">🫁 Respiratory</span>
-        <div class="card-title" style="font-size:12px;">Respiratory Virus Breakdown</div>
-        <div class="card-sub">COVID-19 · Influenza · RSV share of respiratory cases</div>
-      </div>
-      <div class="h280" style="padding:0 8px 14px;"><canvas id="disDonutResp"></canvas></div>
-    </div>
-    <div class="card other-block" style="padding:0;overflow:hidden;">
-      <div style="padding:14px 16px 8px;">
-        <span class="group-label other">🦠 Other Conditions</span>
-        <div class="card-title" style="font-size:12px;">Non-Respiratory Disease Breakdown</div>
-        <div class="card-sub">All non-respiratory reportable conditions</div>
-      </div>
-      <div class="h280" style="padding:0 8px 14px;"><canvas id="disDonutOther"></canvas></div>
-    </div>
-  </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════
-     PAGE 2 — SEASONAL TRENDS
-══════════════════════════════════════════════════ -->
+<!-- ══════════════ PAGE 2 — SEASONAL ══════════════ -->
 <div class="page" id="page-seasonal">
   <div style="margin-top:20px;">
-
     <div class="sec">Monthly Case Volume</div>
     <div class="g2 mb">
       <div class="card resp-block" style="padding:0;overflow:hidden;">
-        <div style="padding:14px 16px 8px;">
-          <span class="group-label resp">🫁 Respiratory Viruses</span>
-          <div class="card-title" style="font-size:12px;">COVID-19 · Influenza · RSV by Month</div>
+        <div style="padding:14px 16px 8px;"><span class="group-label resp">🫁 Respiratory Viruses</span>
+          <div class="card-title" style="font-size:14px;">COVID-19 · Influenza · RSV by Month</div>
           <div class="card-sub">Combined across all years · DtEpisode 2022–2025</div>
         </div>
         <div class="h220" style="padding:0 8px 14px;"><canvas id="respMonthBar"></canvas></div>
       </div>
       <div class="card other-block" style="padding:0;overflow:hidden;">
-        <div style="padding:14px 16px 8px;">
-          <span class="group-label other">🦠 Other Conditions</span>
-          <div class="card-title" style="font-size:12px;">Non-Respiratory Cases by Month</div>
+        <div style="padding:14px 16px 8px;"><span class="group-label other">🦠 Other Conditions</span>
+          <div class="card-title" style="font-size:14px;">Non-Respiratory Cases by Month</div>
           <div class="card-sub">Combined across all years · DtEpisode 2022–2025</div>
         </div>
         <div class="h220" style="padding:0 8px 14px;"><canvas id="otherMonthBar"></canvas></div>
@@ -797,7 +1170,7 @@ table.sea tr.is-resp{background:rgba(79,156,249,0.03);}
         <div><div class="card-title">Total Cases by Month (All Diseases)</div><div class="card-sub">All conditions combined · shown for reference</div></div>
         <span class="badge">All conditions</span>
       </div>
-      <div class="h200"><canvas id="allMonthBar"></canvas></div>
+      <div class="h220"><canvas id="allMonthBar"></canvas></div>
     </div>
 
     <div class="sec">Disease Time Series</div>
@@ -805,7 +1178,7 @@ table.sea tr.is-resp{background:rgba(79,156,249,0.03);}
       <div class="card-header">
         <div><div class="card-title">Cases Over Time by Disease</div><div class="card-sub">Monthly · 2023–2025 · select diseases to compare</div></div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <select id="tsSelect" multiple style="height:80px;min-width:180px;">
+          <select id="tsSelect" multiple style="height:90px;min-width:200px;">
             <option value="COVID-19" selected>COVID-19</option>
             <option value="Influenza" selected>Influenza</option>
             <option value="RSV" selected>RSV</option>
@@ -816,7 +1189,7 @@ table.sea tr.is-resp{background:rgba(79,156,249,0.03);}
             <option value="Salmonellosis">Salmonellosis</option>
             <option value="Syphilis">Syphilis</option>
           </select>
-          <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">Ctrl/Cmd+click<br>to multi-select</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">Ctrl/Cmd+click<br>to multi-select</span>
         </div>
       </div>
       <div class="h380"><canvas id="timeSeries"></canvas></div>
@@ -825,9 +1198,9 @@ table.sea tr.is-resp{background:rgba(79,156,249,0.03);}
     <div class="sec">Seasonal Pattern Heatmap</div>
     <div class="card mb">
       <div class="card-header">
-        <div><div class="card-title">Disease × Month Heatmap</div><div class="card-sub">Case counts aggregated by month across all years · darker = more cases</div></div>
+        <div><div class="card-title">Disease × Month Heatmap</div><div class="card-sub">Case counts aggregated by month · darker = more cases</div></div>
         <div style="display:flex;gap:8px;align-items:center;">
-          <label style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">Scale:</label>
+          <label style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">Scale:</label>
           <select id="seaScale" onchange="buildSeaTable()">
             <option value="global">Global</option>
             <option value="row">Per-disease</option>
@@ -838,7 +1211,7 @@ table.sea tr.is-resp{background:rgba(79,156,249,0.03);}
       <div class="sea-table-wrap"><table class="sea" id="seaTable"></table></div>
       <div class="scale-bar" style="margin-top:12px;">
         <span>0</span><div class="scale-grad"></div><span>max</span>
-        <span style="margin-left:8px;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">case intensity</span>
+        <span style="margin-left:8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">case intensity</span>
       </div>
     </div>
 
@@ -853,19 +1226,14 @@ table.sea tr.is-resp{background:rgba(79,156,249,0.03);}
         <div class="h340"><canvas id="radarOther"></canvas></div>
       </div>
     </div>
-
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════
-     PAGE 3 — ZIP HEATMAP
-══════════════════════════════════════════════════ -->
+<!-- ══════════════ PAGE 3 — ZIP ══════════════ -->
 <div class="page" id="page-zipmap">
   <div style="margin-top:20px;">
-
     <div class="sec">Geographic Distribution &amp; Disease Breakdown by ZIP</div>
     <div class="zip-layout">
-
       <div class="map-card">
         <div class="card-title">ZIP Code Map</div>
         <div class="card-sub" style="margin-bottom:12px;">Bubble = total cases · Click to filter</div>
@@ -876,10 +1244,9 @@ table.sea tr.is-resp{background:rgba(79,156,249,0.03);}
           <span style="margin-left:6px;font-size:10px;color:var(--muted);">intensity</span>
         </div>
       </div>
-
       <div class="card" style="min-width:0;">
         <div class="card-header">
-          <div><div class="card-title">Disease × ZIP Heatmap</div><div class="card-sub">Hover for details · Click ZIP or map bubble to filter</div></div>
+          <div><div class="card-title">Disease × ZIP Heatmap</div><div class="card-sub">Hover for details · Click ZIP or map bubble to filter · Click disease row to drill down</div></div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
             <input type="search" id="zipSearch" placeholder="Search disease…" oninput="zipSearchChanged()">
             <select id="zipScale" onchange="buildZipTable()">
@@ -895,7 +1262,6 @@ table.sea tr.is-resp{background:rgba(79,156,249,0.03);}
         </div>
         <div class="ht-wrap"><table class="ht" id="htTable"></table></div>
       </div>
-
     </div>
   </div>
 </div>
@@ -908,25 +1274,39 @@ table.sea tr.is-resp{background:rgba(79,156,249,0.03);}
 </footer>
 
 <script>
-// ═══════════════════════════════════════════════
-// SHARED DATA
-// ═══════════════════════════════════════════════
-const PAL=['#00d4aa','#4f9cf9','#f97316','#a78bfa','#fb7185','#fbbf24','#34d399','#60a5fa','#f472b6','#c084fc','#38bdf8','#4ade80','#e879f9','#2dd4bf','#f59e0b'];
-const APAL=['#00d4aa','#4f9cf9','#f97316','#a78bfa','#fb7185','#fbbf24','#34d399'];
-const MC='#4f9cf9', FC='#fb7185';
-const ZIP_COLORS=['#00d4aa','#4f9cf9','#f97316','#a78bfa','#fb7185','#fbbf24','#34d399'];
+// ═══════════════════════════════════════
+// PALETTE & CHART DEFAULTS
+// ═══════════════════════════════════════
+const PAL=['#1a7a6e','#1e5fa8','#c4580a','#6b3fa0','#b5284e','#b07c0a','#2a7a3b','#1e8c7a','#c0392b','#7d5fa8','#1a7560','#d4890a'];
+const MC='#1e5fa8', FC='#b5284e';
 
-const TT_OPT={backgroundColor:'#1a2234',borderColor:'#1e2d47',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#94a3b8',titleFont:{family:"'Syne',sans-serif",size:12},bodyFont:{family:"'DM Mono',monospace",size:11},padding:10,cornerRadius:8};
-const LEG={labels:{color:'#94a3b8',font:{family:"'DM Mono',monospace",size:10},boxWidth:9,boxHeight:9,padding:12}};
-const SC={x:{ticks:{color:'#64748b',font:{family:"'DM Mono',monospace",size:10}},grid:{color:'rgba(255,255,255,0.04)'},border:{color:'#1e2d47'}},y:{ticks:{color:'#64748b',font:{family:"'DM Mono',monospace",size:10}},grid:{color:'rgba(255,255,255,0.04)'},border:{color:'#1e2d47'}}};
+const TT_OPT={
+  backgroundColor:'#fff',borderColor:'#d8d0c0',borderWidth:1,
+  titleColor:'#1a1612',bodyColor:'#7a6e5f',
+  titleFont:{family:"'Libre Baskerville',serif",size:13},
+  bodyFont:{family:"'JetBrains Mono',monospace",size:12},
+  padding:12,cornerRadius:8
+};
+const LEG={labels:{color:'#7a6e5f',font:{family:"'JetBrains Mono',monospace",size:11},boxWidth:9,boxHeight:9,padding:12}};
+const SC={
+  x:{ticks:{color:'#7a6e5f',font:{family:"'JetBrains Mono',monospace",size:11}},grid:{color:'rgba(0,0,0,0.05)'},border:{color:'#d8d0c0'}},
+  y:{ticks:{color:'#7a6e5f',font:{family:"'JetBrains Mono',monospace",size:11}},grid:{color:'rgba(0,0,0,0.05)'},border:{color:'#d8d0c0'}}
+};
 
-// ─── Overview data ───
-const TOP_DIS=[{d:"COVID-19",n:484},{d:"Influenza",n:308},{d:"RSV",n:100},{d:"Chlamydia",n:69},{d:"TB (LTBI)",n:29},{d:"Giardiasis",n:12},{d:"Campylobacteriosis",n:10},{d:"Salmonellosis",n:10},{d:"COVID-19 Serology",n:9},{d:"DMV Reportable",n:9},{d:"Syphilis",n:9},{d:"Hepatitis B",n:8},{d:"TB (No Exposure)",n:8},{d:"Unknown",n:6}];
+// ═══════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const TOP_DIS=[
+  {d:"COVID-19",n:484},{d:"Influenza",n:308},{d:"RSV",n:100},{d:"Chlamydia",n:69},
+  {d:"TB (LTBI)",n:29},{d:"Giardiasis",n:12},{d:"Campylobacteriosis",n:10},{d:"Salmonellosis",n:10},
+  {d:"COVID-19 Serology",n:9},{d:"DMV Reportable",n:9},{d:"Syphilis",n:9},{d:"Hepatitis B",n:8},
+  {d:"TB (No Exposure)",n:8},{d:"Unknown",n:6}
+];
 const SEX=[{s:"Male",n:568},{s:"Female",n:595},{s:"Unknown",n:2},{s:"Non-binary",n:1}];
 const ETH=[{e:"Not Hispanic/Latino",n:601},{e:"Hispanic/Latino",n:395},{e:"Unknown",n:169}];
 const RACE=[{r:"White",n:755},{r:"Unknown",n:265},{r:"Other",n:89},{r:"AIAN",n:29},{r:"Asian",n:13},{r:"NHPI",n:8},{r:"Black/African Am.",n:6}];
 const AGE_D=[{g:"0–4",n:129},{g:"5–17",n:157},{g:"18–29",n:218},{g:"30–44",n:237},{g:"45–64",n:247},{g:"65–79",n:150},{g:"80+",n:26}];
-const DIS_SEX=[{d:"COVID-19",M:217,F:266},{d:"Influenza",M:155,F:153},{d:"RSV",M:48,F:52},{d:"Chlamydia",M:28,F:40},{d:"TB (LTBI)",M:15,F:14},{d:"Giardiasis",M:10,F:2},{d:"Campylobacteriosis",M:3,F:7},{d:"Salmonellosis",M:4,F:6}];
 const AGG=["0–4","5–17","18–29","30–44","45–64","65–79","80+"];
 const DIS_AGE=[
   {d:"COVID-19",   v:[50,46,57,96,116,98,19]},
@@ -937,35 +1317,32 @@ const DIS_AGE=[
   {d:"Salmonellosis",v:[0,0,1,3,3,2,1]}
 ];
 const ETH_DIS=[{d:"COVID-19",HL:143,NH:285},{d:"Influenza",HL:117,NH:138},{d:"RSV",HL:38,NH:54},{d:"Chlamydia",HL:30,NH:21},{d:"TB (LTBI)",HL:13,NH:14}];
-
-// ─── Pediatric/Adult breakdown data ───
+const DIS_SEX_RESP=[{d:"COVID-19",M:217,F:266},{d:"Influenza",M:155,F:153},{d:"RSV",M:48,F:52}];
+const DIS_SEX_OTHER=[{d:"Chlamydia",M:28,F:40},{d:"TB (LTBI)",M:15,F:14},{d:"Giardiasis",M:10,F:2},{d:"Campylobacteriosis",M:3,F:7},{d:"Salmonellosis",M:4,F:6}];
+const ALL_MONTH=[304,97,48,40,32,69,59,101,106,74,70,165];
+const SEA_DATA={
+  "COVID-19":         [89,30,19,10,9,28,37,73,78,41,28,42],
+  "Influenza":        [136,34,12,14,4,5,1,0,4,2,10,86],
+  "RSV":              [54,9,4,1,0,1,0,0,1,2,5,23],
+  "Chlamydia":        [5,6,6,4,5,7,4,5,6,13,4,4],
+  "TB (LTBI)":        [1,1,2,4,2,5,2,5,0,2,5,0],
+  "Giardiasis":       [0,4,0,1,0,4,1,0,1,1,0,0],
+  "Campylobacteriosis":[0,2,0,0,0,3,4,0,0,0,1,0],
+  "Salmonellosis":    [0,1,0,0,2,0,0,3,1,1,2,0],
+  "COVID-19 Serology":[3,2,0,1,0,1,1,0,0,0,1,0],
+  "DMV Reportable":   [4,0,0,0,1,0,0,0,0,1,1,2],
+  "Syphilis":         [2,0,0,1,1,0,3,0,1,0,1,0],
+  "Hepatitis B":      [1,0,1,0,1,0,0,2,1,0,2,0],
+  "TB (No Exposure)": [0,1,0,0,0,2,1,1,1,1,1,0],
+  "Unknown":          [2,1,0,0,0,0,0,0,2,1,0,0]
+};
 const PED_SEX=[{s:"Male",n:141},{s:"Female",n:143},{s:"Unknown",n:2}];
 const PED_ETH=[{e:"Hispanic/Latino",n:118},{e:"Not Hispanic/Latino",n:138},{e:"Unknown",n:30}];
 const ADULT_SEX=[{s:"Male",n:427},{s:"Female",n:452},{s:"Unknown",n:1}];
 const ADULT_ETH=[{e:"Not Hispanic/Latino",n:463},{e:"Hispanic/Latino",n:277},{e:"Unknown",n:140}];
 const COMPARE_DIS=["COVID-19","Influenza","RSV","Chlamydia","TB (LTBI)","Giardiasis"];
-const PED_COUNTS=  [96, 112, 64, 1,  2, 4];
-const ADULT_COUNTS=[388,196, 36, 68, 27, 8];
-
-// ─── Seasonal data ───
-const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const ALL_MONTH=[304,97,48,40,32,69,59,101,106,74,70,165];
-const SEA_DATA={
-  "COVID-19":       [89,30,19,10,9,28,37,73,78,41,28,42],
-  "Influenza":      [136,34,12,14,4,5,1,0,4,2,10,86],
-  "RSV":            [54,9,4,1,0,1,0,0,1,2,5,23],
-  "Chlamydia":      [5,6,6,4,5,7,4,5,6,13,4,4],
-  "TB (LTBI)":      [1,1,2,4,2,5,2,5,0,2,5,0],
-  "Giardiasis":     [0,4,0,1,0,4,1,0,1,1,0,0],
-  "Campylobacteriosis":[0,2,0,0,0,3,4,0,0,0,1,0],
-  "Salmonellosis":  [0,1,0,0,2,0,0,3,1,1,2,0],
-  "COVID-19 Serology":[3,2,0,1,0,1,1,0,0,0,1,0],
-  "DMV Reportable": [4,0,0,0,1,0,0,0,0,1,1,2],
-  "Syphilis":       [2,0,0,1,1,0,3,0,1,0,1,0],
-  "Hepatitis B":    [1,0,1,0,1,0,0,2,1,0,2,0],
-  "TB (No Exposure)":[0,1,0,0,0,2,1,1,1,1,1,0],
-  "Unknown":        [2,1,0,0,0,0,0,0,2,1,0,0]
-};
+const PED_COUNTS=[96,112,64,1,2,4];
+const ADULT_COUNTS=[388,196,36,68,27,8];
 
 const TS_ENTRIES=[
   {yr:2022,mo:2,d:"COVID-19",n:1},{yr:2022,mo:6,d:"COVID-19",n:1},{yr:2022,mo:11,d:"COVID-19",n:1},
@@ -989,16 +1366,16 @@ const TS_ENTRIES=[
   {yr:2024,mo:4,d:"Syphilis",n:1},{yr:2024,mo:5,d:"Syphilis",n:1},{yr:2024,mo:7,d:"Syphilis",n:3},{yr:2024,mo:11,d:"Syphilis",n:1},{yr:2025,mo:1,d:"Syphilis",n:2}
 ];
 
-// ─── ZIP data ───
 const ZIPS=[
-  {zip:"93546",total:773,lat:37.648975,lon:-118.970879,town:"Mammoth Lakes"},
-  {zip:"93514",total:128,lat:37.512489,lon:-118.637435,town:"Bishop"},
-  {zip:"93541",total:35, lat:37.9555,  lon:-119.120015,town:"Lee Vining"},
-  {zip:"93529",total:30, lat:37.777889,lon:-119.075745,town:"June Lake"},
-  {zip:"93517",total:25, lat:38.256577,lon:-119.227303,town:"Bridgeport"},
-  {zip:"93512",total:23, lat:37.792573,lon:-118.524648,town:"Benton"},
-  {zip:"96107",total:12, lat:38.52273, lon:-119.454156,town:"Coleville"},
+  {zip:"93546",total:773,lat:37.649,lon:-118.971,town:"Mammoth Lakes"},
+  {zip:"93514",total:128,lat:37.512,lon:-118.637,town:"Bishop"},
+  {zip:"93541",total:35, lat:37.956,lon:-119.120,town:"Lee Vining"},
+  {zip:"93529",total:30, lat:37.778,lon:-119.076,town:"June Lake"},
+  {zip:"93517",total:25, lat:38.257,lon:-119.227,town:"Bridgeport"},
+  {zip:"93512",total:23, lat:37.793,lon:-118.525,town:"Benton"},
+  {zip:"96107",total:12, lat:38.523,lon:-119.454,town:"Coleville"},
 ];
+const ZIP_COLORS=['#1a7a6e','#1e5fa8','#c4580a','#6b3fa0','#b5284e','#b07c0a','#2a7a3b'];
 const ZIP_DISEASES=["Brucellosis","COVID-19","COVID-19 Serology","Campylobacteriosis","Chlamydia","Coccidioidomycosis","Creutzfeldt-Jakob","Cryptosporidiosis","Cyclosporiasis","DMV Reportable","Dengue","Giardiasis","Gonorrhea","HIV Field Invest.","HIV/AIDS","H. influenzae","Hepatitis A","Hepatitis B","Influenza","CRO (Local)","Meningitis (Bacterial)","Meningitis (Viral)","MIS-C","Pertussis","Q Fever","RSV","Relapsing Fever","STEC/E. coli","Salmonellosis","Shigellosis","Syphilis","Syphilis (Primary)","Syphilis (Secondary)","Syphilis (Unk. Duration)","TB (LTBI)","TB (No Exposure)","TB (Active)","TB (Exposure)","TB (Suspect)","Tularemia","Unknown","Varicella","Viral Hem. Fevers","West Nile","Yersiniosis"];
 const ZIP_MATRIX={
   "93546":[1,286,7,7,51,2,0,6,1,6,1,9,3,0,2,0,1,6,208,0,1,1,1,2,1,78,2,4,10,2,9,1,0,1,23,4,1,5,2,1,5,2,2,1,1],
@@ -1010,170 +1387,395 @@ const ZIP_MATRIX={
   "96107":[0,2,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,3,0,0,0,0,0,0,0,0,0],
 };
 
-// ═══════════════════════════════════════════════
+// Per-disease detailed data for modal
+const DISEASE_DETAILS = {
+  "COVID-19": {
+    resp: true,
+    age: [50,46,57,96,116,98,19],
+    sex: {M:217,F:266,U:1},
+    race: {White:302,Unknown:112,Other:38,AIAN:14,Asian:8,NHPI:4,'Black/African Am.':4},
+    eth: {HL:143,NH:285,Unk:56},
+    zipIdx: 1,
+    note: "COVID-19 peaks in summer and late fall. Cases have declined significantly from 2023 highs. Adult 30–64 age group most affected. Cases trending downward year-over-year."
+  },
+  "Influenza": {
+    resp: true,
+    age: [33,79,70,61,46,16,3],
+    sex: {M:155,F:153,U:0},
+    race: {White:198,Unknown:72,Other:22,AIAN:10,Asian:3,NHPI:2,'Black/African Am.':1},
+    eth: {HL:117,NH:138,Unk:53},
+    zipIdx: 18,
+    note: "Strong winter seasonality — Jan and Dec are peak months. 2025 Jan saw a major spike (78 cases). Pediatric age 5–17 heavily affected. Alert status as of Apr 2025."
+  },
+  "RSV": {
+    resp: true,
+    age: [44,20,5,11,9,9,2],
+    sex: {M:48,F:52,U:0},
+    race: {White:62,Unknown:22,Other:10,AIAN:3,Asian:1,NHPI:1,'Black/African Am.':1},
+    eth: {HL:38,NH:54,Unk:8},
+    zipIdx: 25,
+    note: "RSV strongly concentrated in ages 0–4 (44 of 100 cases). Classic winter pattern mirrors influenza. Alert status — Jan 2025 spike of 20 cases vs 3-year average of 9."
+  },
+  "Chlamydia": {
+    resp: false,
+    age: [0,1,48,17,3,0,0],
+    sex: {M:28,F:40,U:1},
+    race: {White:35,Unknown:18,Other:9,AIAN:4,Asian:1,NHPI:1,'Black/African Am.':1},
+    eth: {HL:30,NH:21,Unk:18},
+    zipIdx: 4,
+    note: "Nearly all cases (94%) in adults 18–44. Higher in Hispanic/Latino population. No strong seasonality — cases are relatively stable year-round. Female cases exceed male cases."
+  },
+  "TB (LTBI)": {
+    resp: false,
+    age: [0,2,2,6,17,1,1],
+    sex: {M:15,F:14,U:0},
+    race: {White:8,Unknown:9,Other:7,AIAN:2,Asian:2,NHPI:0,'Black/African Am.':1},
+    eth: {HL:13,NH:14,Unk:2},
+    zipIdx: 34,
+    note: "TB (LTBI) predominantly affects the 45–64 age group. Cases highest in 93546 (Mammoth Lakes). Distribution between Hispanic and non-Hispanic populations is roughly equal."
+  },
+  "Giardiasis": {
+    resp: false,
+    age: [1,3,2,3,2,1,0],
+    sex: {M:10,F:2,U:0},
+    race: {White:8,Unknown:2,Other:1,AIAN:1,Asian:0,NHPI:0,'Black/African Am.':0},
+    eth: {HL:3,NH:8,Unk:1},
+    zipIdx: 11,
+    note: "Strongly male-dominated (10M vs 2F). Likely linked to outdoor recreation and water exposure in Mono County's wilderness areas. Small spring and summer peaks."
+  },
+  "Campylobacteriosis": {
+    resp: false,
+    age: [0,1,2,3,2,1,1],
+    sex: {M:3,F:7,U:0},
+    race: {White:6,Unknown:2,Other:1,AIAN:1,Asian:0,NHPI:0,'Black/African Am.':0},
+    eth: {HL:4,NH:6,Unk:0},
+    zipIdx: 3,
+    note: "Summer peak (June–July) consistent with foodborne illness patterns. More common in females. Small case counts — monitor for clusters."
+  },
+  "Salmonellosis": {
+    resp: false,
+    age: [0,0,1,3,3,2,1],
+    sex: {M:4,F:6,U:0},
+    race: {White:6,Unknown:2,Other:2,AIAN:0,Asian:0,NHPI:0,'Black/African Am.':0},
+    eth: {HL:4,NH:6,Unk:0},
+    zipIdx: 28,
+    note: "Summer and late-summer peak. Affects older adults more than younger. Cases concentrated in 93546. Monitor for outbreaks tied to food service establishments."
+  },
+  "Syphilis": {
+    resp: false,
+    age: [0,0,2,4,3,0,0],
+    sex: {M:6,F:3,U:0},
+    race: {White:4,Unknown:3,Other:1,AIAN:1,Asian:0,NHPI:0,'Black/African Am.':1},
+    eth: {HL:4,NH:5,Unk:0},
+    zipIdx: 30,
+    note: "Elevated status — cases have increased. All cases in adults 18–64. Higher in males. Watch for partner notification needs. Cases predominantly in Mammoth Lakes area."
+  }
+};
+
+const RESP_SET = new Set(["COVID-19","Influenza","RSV","COVID-19 Serology"]);
+
+// ═══════════════════════════════════════
 // PAGE NAV
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
   document.querySelector(`[onclick="showPage('${id}')"]`).classList.add('active');
-  if(id==='seasonal' && !seaBuilt) { buildSeasonalCharts(); seaBuilt=true; }
-  if(id==='zipmap'  && !zipBuilt)  { buildZipPage();       zipBuilt=true; }
+  if(id==='seasonal'&&!seaBuilt){buildSeasonalCharts();seaBuilt=true;}
+  if(id==='zipmap'&&!zipBuilt){buildZipPage();zipBuilt=true;}
 }
 let seaBuilt=false, zipBuilt=false;
 
-// ═══════════════════════════════════════════════
-// PEDIATRIC / ADULT TOGGLE (NEW)
-// ═══════════════════════════════════════════════
-let ageChartsBuilt = false;
+// ═══════════════════════════════════════
+// DATE FILTER / YOY COMPARE
+// ═══════════════════════════════════════
+let yoyChart = null;
+let compareActive = false;
 
+function toggleCompare() {
+  compareActive = document.getElementById('compareToggle').checked;
+  const ctrl = document.getElementById('compareControls');
+  ctrl.style.display = compareActive ? 'flex' : 'none';
+  document.getElementById('yoyBar').classList.toggle('visible', compareActive);
+  if(compareActive) buildYoyChart();
+}
+
+function applyFilters() {
+  if(compareActive) buildYoyChart();
+  // In a real implementation, this would re-filter all charts.
+  // For now, show a visual confirmation.
+  const btn = document.querySelector('.btn-apply');
+  btn.textContent = '✓ Applied';
+  btn.style.background = 'var(--green)';
+  setTimeout(()=>{ btn.textContent='Apply'; btn.style.background='var(--teal)'; }, 1500);
+}
+
+function buildYoyChart() {
+  const aFrom = document.getElementById('cmpAFrom').value;
+  const aTo   = document.getElementById('cmpATo').value;
+  const bFrom = document.getElementById('cmpBFrom').value;
+  const bTo   = document.getElementById('cmpBTo').value;
+
+  // Aggregate TS_ENTRIES by disease for each period
+  const topDis = ["COVID-19","Influenza","RSV","Chlamydia","TB (LTBI)","Giardiasis","Syphilis","Campylobacteriosis","Salmonellosis"];
+
+  function sumPeriod(from, to, dis) {
+    const [fy,fm] = from.split('-').map(Number);
+    const [ty,tm] = to.split('-').map(Number);
+    return TS_ENTRIES.filter(e=>e.d===dis&&((e.yr>fy||(e.yr===fy&&e.mo>=fm))&&(e.yr<ty||(e.yr===ty&&e.mo<=tm)))).reduce((s,e)=>s+e.n,0);
+  }
+
+  const aVals = topDis.map(d=>sumPeriod(aFrom,aTo,d));
+  const bVals = topDis.map(d=>sumPeriod(bFrom,bTo,d));
+
+  if(yoyChart) yoyChart.destroy();
+  yoyChart = new Chart(document.getElementById('yoyChart'),{
+    type:'bar',
+    data:{
+      labels: topDis,
+      datasets:[
+        {label:`Period A (${aFrom} – ${aTo})`,data:aVals,backgroundColor:'rgba(26,122,110,0.75)',borderRadius:4,borderSkipped:false},
+        {label:`Period B (${bFrom} – ${bTo})`,data:bVals,backgroundColor:'rgba(196,88,10,0.75)',borderRadius:4,borderSkipped:false}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:LEG,tooltip:{...TT_OPT,mode:'index',intersect:false}},
+      scales:{x:SC.x,y:{...SC.y,beginAtZero:true}}
+    }
+  });
+}
+
+// ═══════════════════════════════════════
+// DISEASE DRILL-DOWN MODAL
+// ═══════════════════════════════════════
+let modalAgeChart=null, modalRaceChart=null, modalTrendChart=null;
+
+function openDrillDown(disName) {
+  const det = DISEASE_DETAILS[disName];
+  if(!det) return;
+
+  const total = TOP_DIS.find(d=>d.d===disName)?.n || 0;
+  const isResp = RESP_SET.has(disName);
+
+  // header
+  document.getElementById('modalTitle').textContent = disName;
+  const badge = document.getElementById('modalBadge');
+  badge.textContent = isResp ? '🫁 Respiratory' : '🦠 Reportable Condition';
+  badge.className = 'modal-dis-badge ' + (isResp ? 'modal-dis-resp' : 'modal-dis-other');
+
+  // KPIs
+  document.getElementById('mTotal').textContent = total.toLocaleString();
+  document.getElementById('mPct').textContent = ((total/1166)*100).toFixed(1)+'% of all cases';
+
+  const ageMax = Math.max(...det.age);
+  const ageIdxPeak = det.age.indexOf(ageMax);
+  document.getElementById('mTopAge').textContent = AGG[ageIdxPeak];
+  document.getElementById('mTopAgeN').textContent = ageMax + ' cases';
+
+  const zipIdx = det.zipIdx;
+  const zipVals = ZIPS.map(z=>ZIP_MATRIX[z.zip][zipIdx]||0);
+  const zipMax = Math.max(...zipVals);
+  const zipPeakIdx = zipVals.indexOf(zipMax);
+  document.getElementById('mTopZip').textContent = ZIPS[zipPeakIdx].zip;
+  document.getElementById('mTopZipN').textContent = zipMax + ' cases · ' + ZIPS[zipPeakIdx].town;
+
+  const monthData = SEA_DATA[disName] || new Array(12).fill(0);
+  const mMax = Math.max(...monthData);
+  const mIdxPeak = monthData.indexOf(mMax);
+  document.getElementById('mPeakMonth').textContent = MONTHS[mIdxPeak];
+  document.getElementById('mPeakMonthN').textContent = mMax + ' cases (aggregated)';
+
+  // Age chart
+  if(modalAgeChart) modalAgeChart.destroy();
+  modalAgeChart = new Chart(document.getElementById('modalAgeChart'),{
+    type:'bar',
+    data:{
+      labels:AGG,
+      datasets:[{label:'Cases',data:det.age,backgroundColor:PAL.slice(0,7),borderRadius:5,borderSkipped:false}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:TT_OPT},scales:SC}
+  });
+
+  // Race/Eth chart
+  const raceLabels = Object.keys(det.race);
+  const raceVals = Object.values(det.race);
+  if(modalRaceChart) modalRaceChart.destroy();
+  modalRaceChart = new Chart(document.getElementById('modalRaceChart'),{
+    type:'doughnut',
+    data:{
+      labels:raceLabels,
+      datasets:[{data:raceVals,backgroundColor:PAL,borderWidth:0,hoverOffset:6}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'right',labels:{color:'#7a6e5f',font:{family:"'JetBrains Mono',monospace",size:10},boxWidth:7,boxHeight:7,padding:6}},tooltip:TT_OPT}}
+  });
+
+  // Sex bars
+  const sexTotal = det.sex.M + det.sex.F + (det.sex.U||0);
+  document.getElementById('modalSexBars').innerHTML = [
+    {label:'Male',   n:det.sex.M, color:'var(--blue)'},
+    {label:'Female', n:det.sex.F, color:'var(--rose)'},
+    {label:'Unknown',n:det.sex.U||0, color:'var(--muted2)'},
+  ].filter(s=>s.n>0).map(s=>{
+    const pct = sexTotal>0?(s.n/sexTotal*100).toFixed(0):0;
+    return `<div class="sex-bar-row">
+      <span class="sex-bar-label">${s.label}</span>
+      <div class="sex-bar-track">
+        <div class="sex-bar-fill" style="width:${pct}%;background:${s.color}">
+          <span>${pct}%</span>
+        </div>
+      </div>
+      <span class="sex-bar-n">${s.n}</span>
+    </div>`;
+  }).join('');
+
+  // ZIP grid
+  const zipTotal = zipVals.reduce((a,b)=>a+b,0);
+  document.getElementById('modalZipGrid').innerHTML = ZIPS.map((z,i)=>{
+    const v = zipVals[i];
+    if(!v) return '';
+    const pct = zipTotal>0?(v/zipTotal*100).toFixed(0):0;
+    return `<div class="modal-zip-card">
+      <div class="mzc-zip">${z.zip}</div>
+      <div class="mzc-town">${z.town}</div>
+      <div class="mzc-count">${v}</div>
+      <div class="mzc-pct">${pct}% of ${disName} cases</div>
+      <div class="mzc-bar" style="width:${pct}%"></div>
+    </div>`;
+  }).join('');
+
+  // Trend chart
+  const tsLabels=[];
+  for(let yr=2023;yr<=2025;yr++){const mx=yr===2025?4:12;for(let mo=1;mo<=mx;mo++)tsLabels.push(`${MONTHS[mo-1]} ${yr}`);}
+  const tsTrend=tsLabels.map(lbl=>{
+    const [ms,ys]=lbl.split(' ');const yr=parseInt(ys),mo=MONTHS.indexOf(ms)+1;
+    const e=TS_ENTRIES.find(e=>e.d===disName&&e.yr===yr&&e.mo===mo);return e?e.n:0;
+  });
+  if(modalTrendChart) modalTrendChart.destroy();
+  const tColor = isResp ? '#1a7a6e' : '#c4580a';
+  modalTrendChart = new Chart(document.getElementById('modalTrendChart'),{
+    type:'line',
+    data:{labels:tsLabels,datasets:[{
+      label:disName,data:tsTrend,borderColor:tColor,
+      backgroundColor:tColor+'22',fill:true,tension:0.35,borderWidth:2.5,pointRadius:3
+    }]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...TT_OPT,mode:'index',intersect:false}},
+      scales:{x:{...SC.x,ticks:{...SC.x.ticks,maxRotation:45,maxTicksLimit:16}},y:{...SC.y,beginAtZero:true}}
+    }
+  });
+
+  // Note
+  document.getElementById('modalNote').textContent = det.note || '';
+
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(e) { if(e.target===document.getElementById('modalOverlay')) closeModalBtn(); }
+function closeModalBtn() { document.getElementById('modalOverlay').classList.remove('open'); document.body.style.overflow=''; }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModalBtn(); });
+
+// ═══════════════════════════════════════
+// AGE PANEL TOGGLE
+// ═══════════════════════════════════════
+let ageChartsBuilt = false;
 function switchAge(mode) {
-  // update buttons
   document.querySelectorAll('.age-btn').forEach(b=>b.classList.remove('active'));
-  const idx = {ped:0,adult:1,compare:2}[mode];
+  const idx={ped:0,adult:1,compare:2}[mode];
   document.querySelectorAll('.age-btn')[idx].classList.add('active');
-  // show/hide panels
   document.querySelectorAll('.age-content').forEach(c=>c.classList.remove('visible'));
   document.getElementById('age-'+mode).classList.add('visible');
-  // build charts once
-  if(!ageChartsBuilt){ buildAgeCharts(); ageChartsBuilt=true; }
+  if(!ageChartsBuilt){buildAgeCharts();ageChartsBuilt=true;}
 }
-
 function buildAgeCharts(){
-  const pie_opts = {responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'right',labels:{color:'#94a3b8',font:{family:"'DM Mono',monospace",size:10},boxWidth:7,boxHeight:7,padding:7}},tooltip:TT_OPT}};
-
-  new Chart(document.getElementById('pedSexChart'),{type:'doughnut',data:{
-    labels:PED_SEX.map(d=>d.s),
-    datasets:[{data:PED_SEX.map(d=>d.n),backgroundColor:[MC,FC,'#475569'],borderWidth:0,hoverOffset:6}]
-  },options:pie_opts});
-
-  new Chart(document.getElementById('pedEthChart'),{type:'doughnut',data:{
-    labels:PED_ETH.map(d=>d.e),
-    datasets:[{data:PED_ETH.map(d=>d.n),backgroundColor:['#00d4aa','#4f9cf9','#475569'],borderWidth:0,hoverOffset:6}]
-  },options:pie_opts});
-
-  new Chart(document.getElementById('adultSexChart'),{type:'doughnut',data:{
-    labels:ADULT_SEX.map(d=>d.s),
-    datasets:[{data:ADULT_SEX.map(d=>d.n),backgroundColor:[MC,FC,'#475569'],borderWidth:0,hoverOffset:6}]
-  },options:pie_opts});
-
-  new Chart(document.getElementById('adultEthChart'),{type:'doughnut',data:{
-    labels:ADULT_ETH.map(d=>d.e),
-    datasets:[{data:ADULT_ETH.map(d=>d.n),backgroundColor:['#4f9cf9','#00d4aa','#475569'],borderWidth:0,hoverOffset:6}]
-  },options:pie_opts});
-
-  new Chart(document.getElementById('compareChart'),{type:'bar',data:{
-    labels:COMPARE_DIS,
-    datasets:[
-      {label:'Pediatric (0–17)',data:PED_COUNTS,  backgroundColor:'rgba(79,156,249,0.7)',borderRadius:4,borderSkipped:false},
-      {label:'Adult (18+)',     data:ADULT_COUNTS,backgroundColor:'rgba(249,115,22,0.7)',borderRadius:4,borderSkipped:false}
-    ]
-  },options:{
-    responsive:true,maintainAspectRatio:false,
-    plugins:{legend:LEG,tooltip:{...TT_OPT,mode:'index',intersect:false}},
-    scales:{x:{...SC.x,stacked:false},y:{...SC.y,beginAtZero:true}}
-  }});
+  const pie_opts={responsive:true,maintainAspectRatio:false,cutout:'65%',
+    plugins:{legend:{position:'right',labels:{color:'#7a6e5f',font:{family:"'JetBrains Mono',monospace",size:11},boxWidth:7,boxHeight:7,padding:7}},tooltip:TT_OPT}};
+  new Chart(document.getElementById('pedSexChart'),{type:'doughnut',data:{labels:PED_SEX.map(d=>d.s),datasets:[{data:PED_SEX.map(d=>d.n),backgroundColor:[MC,FC,'#7a6e5f'],borderWidth:0,hoverOffset:6}]},options:pie_opts});
+  new Chart(document.getElementById('pedEthChart'),{type:'doughnut',data:{labels:PED_ETH.map(d=>d.e),datasets:[{data:PED_ETH.map(d=>d.n),backgroundColor:['#1a7a6e','#1e5fa8','#7a6e5f'],borderWidth:0,hoverOffset:6}]},options:pie_opts});
+  new Chart(document.getElementById('adultSexChart'),{type:'doughnut',data:{labels:ADULT_SEX.map(d=>d.s),datasets:[{data:ADULT_SEX.map(d=>d.n),backgroundColor:[MC,FC,'#7a6e5f'],borderWidth:0,hoverOffset:6}]},options:pie_opts});
+  new Chart(document.getElementById('adultEthChart'),{type:'doughnut',data:{labels:ADULT_ETH.map(d=>d.e),datasets:[{data:ADULT_ETH.map(d=>d.n),backgroundColor:['#1e5fa8','#1a7a6e','#7a6e5f'],borderWidth:0,hoverOffset:6}]},options:pie_opts});
+  new Chart(document.getElementById('compareChart'),{type:'bar',data:{labels:COMPARE_DIS,datasets:[
+    {label:'Pediatric (0–17)',data:PED_COUNTS,backgroundColor:'rgba(30,95,168,0.7)',borderRadius:4,borderSkipped:false},
+    {label:'Adult (18+)',data:ADULT_COUNTS,backgroundColor:'rgba(196,88,10,0.7)',borderRadius:4,borderSkipped:false}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:LEG,tooltip:{...TT_OPT,mode:'index',intersect:false}},scales:{x:SC.x,y:{...SC.y,beginAtZero:true}}}});
 }
 
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
 // OVERVIEW CHARTS
-// ═══════════════════════════════════════════════
-const RESP_SET=new Set(["COVID-19","Influenza","RSV","COVID-19 Serology"]);
-const dlEl=document.getElementById('diseaseList');
-const mx=TOP_DIS[0].n;
-const respDis=TOP_DIS.filter(d=>RESP_SET.has(d.d));
-const otherDis=TOP_DIS.filter(d=>!RESP_SET.has(d.d));
+// ═══════════════════════════════════════
+const dlEl = document.getElementById('diseaseList');
+const mx = TOP_DIS[0].n;
+const respDis = TOP_DIS.filter(d=>RESP_SET.has(d.d));
+const otherDis = TOP_DIS.filter(d=>!RESP_SET.has(d.d));
 
-dlEl.innerHTML+=`<div class="dis-list-divider resp-div">🫁 Respiratory Viruses</div>`;
+dlEl.innerHTML += `<div class="dis-section-head resp">🫁 Respiratory Viruses</div>`;
 respDis.forEach((d,i)=>{
-  dlEl.innerHTML+=`<div class="dis-row is-resp">
-    <span class="dis-rank" style="color:#4f9cf9">${i+1}</span>
+  const hasDetail = !!DISEASE_DETAILS[d.d];
+  dlEl.innerHTML += `<div class="dis-row is-resp" ${hasDetail?`onclick="openDrillDown('${d.d}')"`:''} title="${hasDetail?'Click for demographic breakdown':''}">
+    <span class="dis-rank" style="color:var(--blue)">${i+1}</span>
     <span class="dis-name">${d.d}</span>
-    <div class="dis-bar-wrap"><div class="dis-bar" style="width:${(d.n/mx*100).toFixed(0)}%;background:#4f9cf9"></div></div>
+    <div class="dis-bar-wrap"><div class="dis-bar" style="width:${(d.n/mx*100).toFixed(0)}%;background:var(--blue)"></div></div>
     <span class="dis-count">${d.n}</span>
+    ${hasDetail?'<span class="dis-click-hint">→ details</span>':''}
   </div>`;
 });
-dlEl.innerHTML+=`<div class="dis-list-divider other-div" style="margin-top:8px;">🦠 Other Conditions</div>`;
+dlEl.innerHTML += `<div class="dis-section-head other" style="margin-top:10px;">🦠 Other Conditions</div>`;
 otherDis.forEach((d,i)=>{
-  dlEl.innerHTML+=`<div class="dis-row">
+  const hasDetail = !!DISEASE_DETAILS[d.d];
+  dlEl.innerHTML += `<div class="dis-row" ${hasDetail?`onclick="openDrillDown('${d.d}')"`:''} title="${hasDetail?'Click for demographic breakdown':''}">
     <span class="dis-rank">${i+1}</span>
     <span class="dis-name">${d.d}</span>
     <div class="dis-bar-wrap"><div class="dis-bar" style="width:${(d.n/mx*100).toFixed(0)}%;background:${PAL[(i+4)%PAL.length]}"></div></div>
     <span class="dis-count">${d.n}</span>
+    ${hasDetail?'<span class="dis-click-hint">→ details</span>':''}
   </div>`;
 });
 
-new Chart(document.getElementById('sexPie'),{type:'doughnut',data:{labels:SEX.map(d=>d.s),datasets:[{data:SEX.map(d=>d.n),backgroundColor:[MC,FC,'#475569','#a78bfa'],borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:LEG,tooltip:TT_OPT}}});
-new Chart(document.getElementById('ethPie'),{type:'doughnut',data:{labels:ETH.map(d=>d.e),datasets:[{data:ETH.map(d=>d.n),backgroundColor:['#4f9cf9','#00d4aa','#475569'],borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:LEG,tooltip:TT_OPT}}});
-new Chart(document.getElementById('ageBar'),{type:'bar',data:{labels:AGE_D.map(d=>d.g),datasets:[{label:'Cases',data:AGE_D.map(d=>d.n),backgroundColor:APAL,borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:TT_OPT},scales:SC}});
-new Chart(document.getElementById('raceDonut'),{type:'doughnut',data:{labels:RACE.map(d=>d.r),datasets:[{data:RACE.map(d=>d.n),backgroundColor:PAL,borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{color:'#94a3b8',font:{family:"'DM Mono',monospace",size:10},boxWidth:7,boxHeight:7,padding:7}},tooltip:TT_OPT}}});
+new Chart(document.getElementById('sexPie'),{type:'doughnut',data:{labels:SEX.map(d=>d.s),datasets:[{data:SEX.map(d=>d.n),backgroundColor:[MC,FC,'#9e9282','#6b3fa0'],borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:LEG,tooltip:TT_OPT}}});
+new Chart(document.getElementById('ethPie'),{type:'doughnut',data:{labels:ETH.map(d=>d.e),datasets:[{data:ETH.map(d=>d.n),backgroundColor:['#1e5fa8','#1a7a6e','#9e9282'],borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:LEG,tooltip:TT_OPT}}});
+new Chart(document.getElementById('ageBar'),{type:'bar',data:{labels:AGE_D.map(d=>d.g),datasets:[{label:'Cases',data:AGE_D.map(d=>d.n),backgroundColor:PAL,borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:TT_OPT},scales:SC}});
+new Chart(document.getElementById('raceDonut'),{type:'doughnut',data:{labels:RACE.map(d=>d.r),datasets:[{data:RACE.map(d=>d.n),backgroundColor:PAL,borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{color:'#7a6e5f',font:{family:"'JetBrains Mono',monospace",size:11},boxWidth:7,boxHeight:7,padding:7}},tooltip:TT_OPT}}});
+new Chart(document.getElementById('disSexBarResp'),{type:'bar',data:{labels:DIS_SEX_RESP.map(d=>d.d),datasets:[{label:'Male',data:DIS_SEX_RESP.map(d=>d.M),backgroundColor:'rgba(30,95,168,0.7)',borderRadius:4,borderSkipped:false},{label:'Female',data:DIS_SEX_RESP.map(d=>d.F),backgroundColor:'rgba(181,40,78,0.7)',borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:LEG,tooltip:TT_OPT},scales:{x:SC.x,y:{...SC.y,beginAtZero:true}}}});
+new Chart(document.getElementById('disSexBarOther'),{type:'bar',data:{labels:DIS_SEX_OTHER.map(d=>d.d),datasets:[{label:'Male',data:DIS_SEX_OTHER.map(d=>d.M),backgroundColor:'rgba(196,88,10,0.7)',borderRadius:4,borderSkipped:false},{label:'Female',data:DIS_SEX_OTHER.map(d=>d.F),backgroundColor:'rgba(181,40,78,0.7)',borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:LEG,tooltip:TT_OPT},scales:{x:SC.x,y:{...SC.y,beginAtZero:true}}}});
+new Chart(document.getElementById('ageDisStacked'),{type:'bar',data:{labels:DIS_AGE.map(d=>d.d),datasets:AGG.map((ag,i)=>({label:ag,data:DIS_AGE.map(d=>d.v[i]),backgroundColor:PAL[i],borderRadius:i===AGG.length-1?4:0,borderSkipped:false}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:LEG,tooltip:TT_OPT},scales:{x:{...SC.x,stacked:true},y:{...SC.y,stacked:true,beginAtZero:true}}}});
+new Chart(document.getElementById('ethDisBar'),{type:'bar',data:{labels:ETH_DIS.map(d=>d.d),datasets:[{label:'Hispanic/Latino',data:ETH_DIS.map(d=>d.HL),backgroundColor:'rgba(26,122,110,0.75)',borderRadius:4,borderSkipped:false},{label:'Not Hispanic/Latino',data:ETH_DIS.map(d=>d.NH),backgroundColor:'rgba(30,95,168,0.75)',borderRadius:4,borderSkipped:false}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:LEG,tooltip:TT_OPT},scales:{x:{...SC.x,beginAtZero:true},y:SC.y}}});
 
-// Sex × Disease — SPLIT: respiratory vs other
-const DIS_SEX_RESP=[{d:"COVID-19",M:217,F:266},{d:"Influenza",M:155,F:153},{d:"RSV",M:48,F:52}];
-const DIS_SEX_OTHER=[{d:"Chlamydia",M:28,F:40},{d:"TB (LTBI)",M:15,F:14},{d:"Giardiasis",M:10,F:2},{d:"Campylobacteriosis",M:3,F:7},{d:"Salmonellosis",M:4,F:6}];
-const RESP_MALE='#4f9cf9', RESP_FEM='#38bdf8';
-const OTH_MALE='#f97316',  OTH_FEM='#fb7185';
-new Chart(document.getElementById('disSexBarResp'),{type:'bar',data:{labels:DIS_SEX_RESP.map(d=>d.d),datasets:[{label:'Male',data:DIS_SEX_RESP.map(d=>d.M),backgroundColor:RESP_MALE,borderRadius:4,borderSkipped:false},{label:'Female',data:DIS_SEX_RESP.map(d=>d.F),backgroundColor:RESP_FEM,borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:LEG,tooltip:TT_OPT},scales:{x:SC.x,y:{...SC.y,beginAtZero:true}}}});
-new Chart(document.getElementById('disSexBarOther'),{type:'bar',data:{labels:DIS_SEX_OTHER.map(d=>d.d),datasets:[{label:'Male',data:DIS_SEX_OTHER.map(d=>d.M),backgroundColor:OTH_MALE,borderRadius:4,borderSkipped:false},{label:'Female',data:DIS_SEX_OTHER.map(d=>d.F),backgroundColor:OTH_FEM,borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:LEG,tooltip:TT_OPT},scales:{x:SC.x,y:{...SC.y,beginAtZero:true}}}});
-
-new Chart(document.getElementById('ageDisStacked'),{type:'bar',data:{labels:DIS_AGE.map(d=>d.d),datasets:AGG.map((ag,i)=>({label:ag,data:DIS_AGE.map(d=>d.v[i]),backgroundColor:APAL[i],borderRadius:i===AGG.length-1?4:0,borderSkipped:false}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:LEG,tooltip:TT_OPT},scales:{x:{...SC.x,stacked:true},y:{...SC.y,stacked:true,beginAtZero:true}}}});
-new Chart(document.getElementById('ethDisBar'),{type:'bar',data:{labels:ETH_DIS.map(d=>d.d),datasets:[{label:'Hispanic/Latino',data:ETH_DIS.map(d=>d.HL),backgroundColor:'#00d4aa',borderRadius:4,borderSkipped:false},{label:'Not Hispanic/Latino',data:ETH_DIS.map(d=>d.NH),backgroundColor:'#4f9cf9',borderRadius:4,borderSkipped:false}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:LEG,tooltip:TT_OPT},scales:{x:{...SC.x,beginAtZero:true},y:SC.y}}});
-
-// Disease Composition — SPLIT donuts
-const RESP_DIS=TOP_DIS.filter(d=>RESP_SET.has(d.d)&&d.d!=="COVID-19 Serology");
-const OTHER_DIS=TOP_DIS.filter(d=>!RESP_SET.has(d.d));
-const RESP_COLS=['#4f9cf9','#00d4aa','#38bdf8','#a78bfa'];
-const OTHER_COLS=['#f97316','#fb7185','#fbbf24','#34d399','#a78bfa','#60a5fa','#f472b6','#c084fc','#e879f9','#2dd4bf','#f59e0b'];
-new Chart(document.getElementById('disDonutResp'),{type:'doughnut',data:{labels:RESP_DIS.map(d=>d.d),datasets:[{data:RESP_DIS.map(d=>d.n),backgroundColor:RESP_COLS,borderWidth:0,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'right',labels:{color:'#94a3b8',font:{family:"'DM Mono',monospace",size:10},boxWidth:7,boxHeight:7,padding:7}},tooltip:TT_OPT}}});
-new Chart(document.getElementById('disDonutOther'),{type:'doughnut',data:{labels:OTHER_DIS.map(d=>d.d),datasets:[{data:OTHER_DIS.map(d=>d.n),backgroundColor:OTHER_COLS,borderWidth:0,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'right',labels:{color:'#94a3b8',font:{family:"'DM Mono',monospace",size:10},boxWidth:7,boxHeight:7,padding:7}},tooltip:TT_OPT}}});
-
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
 // SEASONAL CHARTS
-// ═══════════════════════════════════════════════
-let tsChart=null;
-
+// ═══════════════════════════════════════
+let tsChart = null;
 function buildSeasonalCharts() {
-  // Monthly totals split
-  const RESP_MONTH_COVID= SEA_DATA['COVID-19'];
-  const RESP_MONTH_FLU=   SEA_DATA['Influenza'];
-  const RESP_MONTH_RSV=   SEA_DATA['RSV'];
-  const RESP_MONTH_TOTAL= MONTHS.map((_,i)=>RESP_MONTH_COVID[i]+RESP_MONTH_FLU[i]+RESP_MONTH_RSV[i]);
-  const OTHER_MONTH=      ALL_MONTH.map((v,i)=>v-RESP_MONTH_TOTAL[i]);
+  const RESP_M_COVID=SEA_DATA['COVID-19'],RESP_M_FLU=SEA_DATA['Influenza'],RESP_M_RSV=SEA_DATA['RSV'];
+  const RESP_TOTAL=MONTHS.map((_,i)=>RESP_M_COVID[i]+RESP_M_FLU[i]+RESP_M_RSV[i]);
+  const OTHER_MONTH=ALL_MONTH.map((v,i)=>v-RESP_TOTAL[i]);
 
-  // Respiratory stacked monthly
   new Chart(document.getElementById('respMonthBar'),{type:'bar',data:{labels:MONTHS,datasets:[
-    {label:'COVID-19',data:RESP_MONTH_COVID,backgroundColor:'rgba(0,212,170,0.75)',stack:'resp'},
-    {label:'Influenza',data:RESP_MONTH_FLU, backgroundColor:'rgba(79,156,249,0.75)',stack:'resp'},
-    {label:'RSV',      data:RESP_MONTH_RSV,  backgroundColor:'rgba(56,189,248,0.75)',stack:'resp'},
+    {label:'COVID-19',data:RESP_M_COVID,backgroundColor:'rgba(26,122,110,0.75)',stack:'resp'},
+    {label:'Influenza',data:RESP_M_FLU,backgroundColor:'rgba(30,95,168,0.75)',stack:'resp'},
+    {label:'RSV',data:RESP_M_RSV,backgroundColor:'rgba(30,140,122,0.75)',stack:'resp'},
   ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:LEG,tooltip:{...TT_OPT,mode:'index',intersect:false}},scales:{x:{...SC.x,stacked:true},y:{...SC.y,stacked:true,beginAtZero:true}}}});
-
-  // Other monthly
-  new Chart(document.getElementById('otherMonthBar'),{type:'bar',data:{labels:MONTHS,datasets:[
-    {label:'Other Conditions',data:OTHER_MONTH,backgroundColor:MONTHS.map((_,i)=>{const t=OTHER_MONTH[i]/Math.max(...OTHER_MONTH,1);return `rgba(249,115,22,${0.2+t*0.7})`;}),borderRadius:5,borderSkipped:false}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:TT_OPT},scales:SC}});
-
-  // All-month total (reference)
-  new Chart(document.getElementById('allMonthBar'),{type:'bar',data:{labels:MONTHS,datasets:[{label:'Total Cases',data:ALL_MONTH,backgroundColor:MONTHS.map((_,i)=>{const t=ALL_MONTH[i]/Math.max(...ALL_MONTH);return `rgba(0,212,170,${0.2+t*0.8})`;}),borderRadius:5,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:TT_OPT},scales:SC}});
-
+  new Chart(document.getElementById('otherMonthBar'),{type:'bar',data:{labels:MONTHS,datasets:[{label:'Other Conditions',data:OTHER_MONTH,backgroundColor:MONTHS.map((_,i)=>{const t=OTHER_MONTH[i]/Math.max(...OTHER_MONTH,1);return `rgba(196,88,10,${0.2+t*0.7})`;}),borderRadius:5,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:TT_OPT},scales:SC}});
+  new Chart(document.getElementById('allMonthBar'),{type:'bar',data:{labels:MONTHS,datasets:[{label:'Total Cases',data:ALL_MONTH,backgroundColor:MONTHS.map((_,i)=>{const t=ALL_MONTH[i]/Math.max(...ALL_MONTH);return `rgba(26,122,110,${0.2+t*0.75})`;}),borderRadius:5,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:TT_OPT},scales:SC}});
   new Chart(document.getElementById('radarResp'),{type:'radar',data:{labels:MONTHS,datasets:[
-    {label:'COVID-19',data:SEA_DATA['COVID-19'],borderColor:'#00d4aa',backgroundColor:'rgba(0,212,170,0.1)',pointBackgroundColor:'#00d4aa',borderWidth:2,pointRadius:3},
-    {label:'Influenza',data:SEA_DATA['Influenza'],borderColor:'#4f9cf9',backgroundColor:'rgba(79,156,249,0.1)',pointBackgroundColor:'#4f9cf9',borderWidth:2,pointRadius:3},
-    {label:'RSV',data:SEA_DATA['RSV'],borderColor:'#f97316',backgroundColor:'rgba(249,115,22,0.1)',pointBackgroundColor:'#f97316',borderWidth:2,pointRadius:3},
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:LEG,tooltip:TT_OPT},scales:{r:{ticks:{color:'#64748b',backdropColor:'transparent',font:{family:"'DM Mono',monospace",size:9}},grid:{color:'rgba(255,255,255,0.06)'},pointLabels:{color:'#94a3b8',font:{family:"'DM Mono',monospace",size:10}},angleLines:{color:'rgba(255,255,255,0.06)'}}}}});
+    {label:'COVID-19',data:SEA_DATA['COVID-19'],borderColor:'#1a7a6e',backgroundColor:'rgba(26,122,110,0.1)',pointBackgroundColor:'#1a7a6e',borderWidth:2,pointRadius:3},
+    {label:'Influenza',data:SEA_DATA['Influenza'],borderColor:'#1e5fa8',backgroundColor:'rgba(30,95,168,0.1)',pointBackgroundColor:'#1e5fa8',borderWidth:2,pointRadius:3},
+    {label:'RSV',data:SEA_DATA['RSV'],borderColor:'#c4580a',backgroundColor:'rgba(196,88,10,0.1)',pointBackgroundColor:'#c4580a',borderWidth:2,pointRadius:3},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:LEG,tooltip:TT_OPT},scales:{r:{ticks:{color:'#9e9282',backdropColor:'transparent',font:{family:"'JetBrains Mono',monospace",size:10}},grid:{color:'rgba(0,0,0,0.08)'},pointLabels:{color:'#7a6e5f',font:{family:"'JetBrains Mono',monospace",size:11}},angleLines:{color:'rgba(0,0,0,0.08)'}}}}});
   new Chart(document.getElementById('radarOther'),{type:'radar',data:{labels:MONTHS,datasets:[
-    {label:'Chlamydia',data:SEA_DATA['Chlamydia'],borderColor:'#a78bfa',backgroundColor:'rgba(167,139,250,0.1)',pointBackgroundColor:'#a78bfa',borderWidth:2,pointRadius:3},
-    {label:'Giardiasis',data:SEA_DATA['Giardiasis'],borderColor:'#fbbf24',backgroundColor:'rgba(251,191,36,0.1)',pointBackgroundColor:'#fbbf24',borderWidth:2,pointRadius:3},
-    {label:'Campylobacteriosis',data:SEA_DATA['Campylobacteriosis'],borderColor:'#34d399',backgroundColor:'rgba(52,211,153,0.1)',pointBackgroundColor:'#34d399',borderWidth:2,pointRadius:3},
-    {label:'Salmonellosis',data:SEA_DATA['Salmonellosis'],borderColor:'#fb7185',backgroundColor:'rgba(251,113,133,0.1)',pointBackgroundColor:'#fb7185',borderWidth:2,pointRadius:3},
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:LEG,tooltip:TT_OPT},scales:{r:{ticks:{color:'#64748b',backdropColor:'transparent',font:{family:"'DM Mono',monospace",size:9}},grid:{color:'rgba(255,255,255,0.06)'},pointLabels:{color:'#94a3b8',font:{family:"'DM Mono',monospace",size:10}},angleLines:{color:'rgba(255,255,255,0.06)'}}}}});
+    {label:'Chlamydia',data:SEA_DATA['Chlamydia'],borderColor:'#6b3fa0',backgroundColor:'rgba(107,63,160,0.1)',pointBackgroundColor:'#6b3fa0',borderWidth:2,pointRadius:3},
+    {label:'Giardiasis',data:SEA_DATA['Giardiasis'],borderColor:'#b07c0a',backgroundColor:'rgba(176,124,10,0.1)',pointBackgroundColor:'#b07c0a',borderWidth:2,pointRadius:3},
+    {label:'Campylobacteriosis',data:SEA_DATA['Campylobacteriosis'],borderColor:'#2a7a3b',backgroundColor:'rgba(42,122,59,0.1)',pointBackgroundColor:'#2a7a3b',borderWidth:2,pointRadius:3},
+    {label:'Salmonellosis',data:SEA_DATA['Salmonellosis'],borderColor:'#b5284e',backgroundColor:'rgba(181,40,78,0.1)',pointBackgroundColor:'#b5284e',borderWidth:2,pointRadius:3},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:LEG,tooltip:TT_OPT},scales:{r:{ticks:{color:'#9e9282',backdropColor:'transparent',font:{family:"'JetBrains Mono',monospace",size:10}},grid:{color:'rgba(0,0,0,0.08)'},pointLabels:{color:'#7a6e5f',font:{family:"'JetBrains Mono',monospace",size:11}},angleLines:{color:'rgba(0,0,0,0.08)'}}}}});
   buildSeaTable();
   buildTsChart();
-  document.getElementById('tsSelect').addEventListener('change', buildTsChart);
+  document.getElementById('tsSelect').addEventListener('change',buildTsChart);
 }
 
 function buildSeaTable() {
-  const scale = document.getElementById('seaScale').value;
+  const scale=document.getElementById('seaScale').value;
   let gmax=0;
   Object.values(SEA_DATA).forEach(arr=>arr.forEach(v=>{if(v>gmax)gmax=v;}));
   const RESP_NAMES=["COVID-19","Influenza","RSV"];
@@ -1181,38 +1783,33 @@ function buildSeaTable() {
   const respDiseases=diseases.filter(d=>RESP_NAMES.includes(d));
   const otherDiseases=diseases.filter(d=>!RESP_NAMES.includes(d));
 
-  function buildRows(list, cssClass){
+  function buildRows(list,cssClass){
     let html='';
     list.forEach(dis=>{
       const arr=SEA_DATA[dis];
       const rowMax=Math.max(...arr);
       const total=arr.reduce((a,b)=>a+b,0);
-      html+=`<tr class="${cssClass}"><td class="dis-td">${dis}</td>`;
+      const hasDetail=!!DISEASE_DETAILS[dis];
+      html+=`<tr class="${cssClass}"><td class="dis-td" style="cursor:${hasDetail?'pointer':'default'}" ${hasDetail?`onclick="openDrillDown('${dis}')" title="Click for breakdown"`:''}>${dis}${hasDetail?' 👆':''}</td>`;
       arr.forEach((v,mi)=>{
         let t=0;
-        if(v>0){
-          if(scale==='global') t=v/Math.max(gmax,1);
-          else if(scale==='row') t=v/Math.max(rowMax,1);
-          else t=Math.log(v+1)/Math.log(Math.max(gmax,2)+1);
-        }
+        if(v>0){if(scale==='global')t=v/Math.max(gmax,1);else if(scale==='row')t=v/Math.max(rowMax,1);else t=Math.log(v+1)/Math.log(Math.max(gmax,2)+1);}
         const col=v===0?null:lerpColor(Math.max(0.12,t));
         html+=`<td ${col?`style="background:${col}"`:''}
           onmouseenter="showTTSea(event,'${dis}',${v},'${MONTHS[mi]}')"
           onmouseleave="hideTT()">
-          <div class="sea-cell ${v===0?'sea-zero':''}">${v>0?v:'·'}</div>
+          <div class="sea-cell ${v===0?'sea-zero':''}" style="${col?'color:white':''}">${v>0?v:'·'}</div>
         </td>`;
       });
-      html+=`<td style="padding:5px 8px;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)">${total}</td></tr>`;
+      html+=`<td style="padding:5px 8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">${total}</td></tr>`;
     });
     return html;
   }
 
-  let html=`<thead><tr>
-    <th class="dis-th">Disease</th>${MONTHS.map(m=>`<th>${m}</th>`).join('')}<th>Total</th>
-  </tr></thead><tbody>`;
-  html+=`<tr><td class="dis-td sea-group-header resp" style="padding:10px 8px 4px;font-size:9px;letter-spacing:.1em;color:#4f9cf9;background:transparent;text-transform:uppercase;font-family:'DM Mono',monospace;" colspan="${MONTHS.length+2}">🫁 Respiratory Viruses</td></tr>`;
+  let html=`<thead><tr><th class="dis-th">Disease</th>${MONTHS.map(m=>`<th>${m}</th>`).join('')}<th>Total</th></tr></thead><tbody>`;
+  html+=`<tr><td class="dis-td" style="padding:10px 8px 4px;font-size:10px;letter-spacing:.1em;color:var(--blue);background:transparent;text-transform:uppercase;font-family:'JetBrains Mono',monospace;" colspan="${MONTHS.length+2}">🫁 Respiratory Viruses</td></tr>`;
   html+=buildRows(respDiseases,'is-resp');
-  html+=`<tr><td class="dis-td" style="padding:10px 8px 4px;font-size:9px;letter-spacing:.1em;color:#f97316;background:transparent;text-transform:uppercase;font-family:'DM Mono',monospace;" colspan="${MONTHS.length+2}">🦠 Other Conditions</td></tr>`;
+  html+=`<tr><td class="dis-td" style="padding:10px 8px 4px;font-size:10px;letter-spacing:.1em;color:var(--orange);background:transparent;text-transform:uppercase;font-family:'JetBrains Mono',monospace;" colspan="${MONTHS.length+2}">🦠 Other Conditions</td></tr>`;
   html+=buildRows(otherDiseases,'is-other');
   html+='</tbody>';
   document.getElementById('seaTable').innerHTML=html;
@@ -1222,36 +1819,30 @@ function buildTsChart() {
   const sel=document.getElementById('tsSelect');
   const chosen=[...sel.selectedOptions].map(o=>o.value);
   const labels=[];
-  for(let yr=2023;yr<=2025;yr++){
-    const maxMo=yr===2025?1:12;
-    for(let mo=1;mo<=maxMo;mo++) labels.push(`${MONTHS[mo-1]} ${yr}`);
-  }
+  for(let yr=2023;yr<=2025;yr++){const mx=yr===2025?4:12;for(let mo=1;mo<=mx;mo++)labels.push(`${MONTHS[mo-1]} ${yr}`);}
   const datasets=chosen.map((dis,i)=>{
     const data=labels.map(lbl=>{
-      const [mStr,yrStr]=lbl.split(' ');
-      const yr=parseInt(yrStr), mo=MONTHS.indexOf(mStr)+1;
-      const entry=TS_ENTRIES.find(e=>e.d===dis&&e.yr===yr&&e.mo===mo);
-      return entry?entry.n:0;
+      const [ms,ys]=lbl.split(' ');const yr=parseInt(ys),mo=MONTHS.indexOf(ms)+1;
+      const e=TS_ENTRIES.find(e=>e.d===dis&&e.yr===yr&&e.mo===mo);return e?e.n:0;
     });
     const col=PAL[i%PAL.length];
-    return {label:dis,data,borderColor:col,backgroundColor:col+'22',fill:true,tension:0.35,borderWidth:2,pointRadius:2.5,pointHoverRadius:5};
+    return {label:dis,data,borderColor:col,backgroundColor:col+'22',fill:true,tension:0.35,borderWidth:2.5,pointRadius:3,pointHoverRadius:5};
   });
   if(tsChart){tsChart.destroy();}
   tsChart=new Chart(document.getElementById('timeSeries'),{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:LEG,tooltip:{...TT_OPT,mode:'index',intersect:false}},scales:{x:{...SC.x,ticks:{...SC.x.ticks,maxRotation:45,minRotation:45,maxTicksLimit:20}},y:{...SC.y,beginAtZero:true}}}});
 }
 
-// ═══════════════════════════════════════════════
-// ZIP HEATMAP PAGE
-// ═══════════════════════════════════════════════
-let activeZip=null;
-let zipSearch='';
-
-function buildZipPage() { buildMap(); buildZipLegend(); buildZipTable(); }
+// ═══════════════════════════════════════
+// ZIP HEATMAP
+// ═══════════════════════════════════════
+let activeZip=null, zipSearch='';
+function buildZipPage(){buildMap();buildZipLegend();buildZipTable();}
 
 function lerpColor(t){
-  const lo=[26,34,52],hi=[0,212,170];
+  const lo=[248,244,237],hi=[26,122,110];
   return `rgb(${Math.round(lo[0]+(hi[0]-lo[0])*t)},${Math.round(lo[1]+(hi[1]-lo[1])*t)},${Math.round(lo[2]+(hi[2]-lo[2])*t)})`;
 }
+function lerpTextColor(t){ return t>0.5?'white':'var(--text)'; }
 
 function buildMap(){
   const svg=document.getElementById('mapSvg');
@@ -1263,20 +1854,20 @@ function buildMap(){
   const yS=lat=>pad+(1-(lat-minLat)/(maxLat-minLat))*(H-2*pad);
   const maxT=Math.max(...ZIPS.map(z=>z.total));
   let h='';
-  for(let i=0;i<ZIPS.length;i++) for(let j=i+1;j<ZIPS.length;j++){
+  for(let i=0;i<ZIPS.length;i++)for(let j=i+1;j<ZIPS.length;j++){
     const a=ZIPS[i],b=ZIPS[j];
-    h+=`<line x1="${xS(a.lon).toFixed(1)}" y1="${yS(a.lat).toFixed(1)}" x2="${xS(b.lon).toFixed(1)}" y2="${yS(b.lat).toFixed(1)}" stroke="#1e2d47" stroke-width="1"/>`;
+    h+=`<line x1="${xS(a.lon).toFixed(1)}" y1="${yS(a.lat).toFixed(1)}" x2="${xS(b.lon).toFixed(1)}" y2="${yS(b.lat).toFixed(1)}" stroke="#d8d0c0" stroke-width="1"/>`;
   }
   ZIPS.forEach((z,i)=>{
     const x=xS(z.lon).toFixed(1),y=yS(z.lat).toFixed(1);
-    const r=7+(z.total/maxT)*24;
+    const r=7+(z.total/maxT)*22;
     const col=ZIP_COLORS[i];
-    h+=`<circle cx="${x}" cy="${y}" r="${r.toFixed(1)}" fill="${col}" fill-opacity="0.18" stroke="${col}" stroke-width="1.5" style="cursor:pointer" data-zip="${z.zip}" class="mbub"/>`;
-    h+=`<text x="${x}" y="${(+y+4).toFixed(1)}" text-anchor="middle" font-family="'DM Mono',monospace" font-size="9" fill="${col}" style="pointer-events:none">${z.zip}</text>`;
+    h+=`<circle cx="${x}" cy="${y}" r="${r.toFixed(1)}" fill="${col}" fill-opacity="0.2" stroke="${col}" stroke-width="2" style="cursor:pointer" data-zip="${z.zip}" class="mbub"/>`;
+    h+=`<text x="${x}" y="${(+y+4).toFixed(1)}" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="${col}" font-weight="600" style="pointer-events:none">${z.zip}</text>`;
   });
   svg.innerHTML=h;
   svg.querySelectorAll('.mbub').forEach(el=>{
-    el.addEventListener('click',()=>{ activeZip=activeZip===el.dataset.zip?null:el.dataset.zip; updateZipAll(); });
+    el.addEventListener('click',()=>{activeZip=activeZip===el.dataset.zip?null:el.dataset.zip;updateZipAll();});
   });
 }
 
@@ -1295,8 +1886,8 @@ function zipSearchChanged(){zipSearch=document.getElementById('zipSearch').value
 function updateZipAll(){
   document.querySelectorAll('.mbub').forEach(el=>{
     const sel=!activeZip||el.dataset.zip===activeZip;
-    el.setAttribute('fill-opacity',sel?'0.18':'0.04');
-    el.setAttribute('stroke-width',sel?'1.5':'0.5');
+    el.setAttribute('fill-opacity',sel?'0.2':'0.04');
+    el.setAttribute('stroke-width',sel?'2':'0.5');
   });
   document.querySelectorAll('.zli').forEach(el=>{el.classList.toggle('active',el.dataset.zip===activeZip);});
   buildZipTable();
@@ -1310,40 +1901,39 @@ function buildZipTable(){
   const rows=ZIP_DISEASES.map((dis,di)=>{
     const vals=ZIPS.map(z=>ZIP_MATRIX[z.zip][di]||0);
     const total=vals.reduce((a,b)=>a+b,0);
-    if(show==='nonzero'&&total===0) return null;
-    if(zipSearch&&!dis.toLowerCase().includes(zipSearch)) return null;
+    if(show==='nonzero'&&total===0)return null;
+    if(zipSearch&&!dis.toLowerCase().includes(zipSearch))return null;
     return {dis,di,vals,total,rowMax:Math.max(...vals)};
   }).filter(Boolean);
-  let html=`<thead><tr><th class="dn-th">Disease</th>${ZIPS.map((z,i)=>`<th><div style="display:flex;flex-direction:column;align-items:center;gap:2px"><span style="color:${ZIP_COLORS[i]};cursor:pointer;font-size:11px" onclick="toggleZip('${z.zip}')">${z.zip}</span><span style="font-size:9px;color:var(--muted)">${z.town}</span><span style="font-size:9px;color:var(--muted)">n=${z.total}</span></div></th>`).join('')}<th style="padding:5px 8px;color:var(--muted)">Total</th></tr></thead><tbody>`;
+
+  let html=`<thead><tr><th class="dn-th">Disease</th>${ZIPS.map((z,i)=>`<th><div style="display:flex;flex-direction:column;align-items:center;gap:2px"><span style="color:${ZIP_COLORS[i]};cursor:pointer;font-size:12px;font-weight:600" onclick="toggleZip('${z.zip}')">${z.zip}</span><span style="font-size:10px;color:var(--muted)">${z.town}</span><span style="font-size:10px;color:var(--muted)">n=${z.total}</span></div></th>`).join('')}<th style="padding:5px 8px;color:var(--muted)">Total</th></tr></thead><tbody>`;
+
   rows.forEach(({dis,vals,total,rowMax})=>{
-    html+=`<tr><td class="dn-td" title="${dis}">${dis}</td>`;
+    const hasDetail=!!DISEASE_DETAILS[dis];
+    html+=`<tr><td class="dn-td" title="${dis}${hasDetail?' · Click for breakdown':''}" ${hasDetail?`style="cursor:pointer;color:var(--teal)" onclick="openDrillDown('${dis}')"`:''}>${dis}</td>`;
     ZIPS.forEach((z,zi)=>{
       const v=vals[zi];
       let t=0;
-      if(v>0){
-        if(scale==='global') t=v/Math.max(gmax,1);
-        else if(scale==='row') t=v/Math.max(rowMax,1);
-        else t=Math.log(v+1)/Math.log(Math.max(gmax,2)+1);
-      }
+      if(v>0){if(scale==='global')t=v/Math.max(gmax,1);else if(scale==='row')t=v/Math.max(rowMax,1);else t=Math.log(v+1)/Math.log(Math.max(gmax,2)+1);}
       const col=v>0?lerpColor(Math.max(0.12,t)):null;
       const dim=activeZip&&z.zip!==activeZip?'z-dim':'';
       const hl=activeZip===z.zip?'z-hl':'';
       html+=`<td class="${dim} ${hl}" ${col?`style="background:${col}"`:''}
         onmouseenter="showTTZip(event,'${dis}','${z.zip}','${z.town}',${v},${total})"
         onmouseleave="hideTT()">
-        <div class="ht-cell ${!col?'ht-zero':''}">${v>0?v:'·'}</div>
+        <div class="ht-cell ${!col?'ht-zero':''}" style="${col?'color:'+lerpTextColor(t):''}">${v>0?v:'·'}</div>
       </td>`;
     });
-    html+=`<td style="padding:5px 10px;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)">${total}</td></tr>`;
+    html+=`<td style="padding:5px 10px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">${total}</td></tr>`;
   });
-  if(!rows.length) html+=`<tr><td colspan="${ZIPS.length+2}" style="padding:20px;text-align:center;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px">No results</td></tr>`;
+  if(!rows.length)html+=`<tr><td colspan="${ZIPS.length+2}" style="padding:20px;text-align:center;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:13px">No results</td></tr>`;
   html+='</tbody>';
   document.getElementById('htTable').innerHTML=html;
 }
 
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
 // TOOLTIPS
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
 function showTTSea(e,dis,val,month){
   if(!val){hideTT();return;}
   const tot=SEA_DATA[dis].reduce((a,b)=>a+b,0);
@@ -1352,7 +1942,7 @@ function showTTSea(e,dis,val,month){
 }
 function showTTZip(e,dis,zip,town,val,total){
   if(!val){hideTT();return;}
-  document.getElementById('tt').innerHTML=`<div class="tt-title">${dis}</div><div class="tt-row"><span>ZIP</span><span class="tt-val">${zip} · ${town}</span></div><div class="tt-row"><span>Cases</span><span class="tt-val">${val}</span></div><div class="tt-row"><span>% of disease total</span><span class="tt-val">${total>0?(val/total*100).toFixed(1):0}%</span></div>`;
+  document.getElementById('tt').innerHTML=`<div class="tt-title">${dis}</div><div class="tt-row"><span>ZIP</span><span class="tt-val">${zip} · ${town}</span></div><div class="tt-row"><span>Cases</span><span class="tt-val">${val}</span></div><div class="tt-row"><span>% of total</span><span class="tt-val">${total>0?(val/total*100).toFixed(1):0}%</span></div>`;
   document.getElementById('tt').style.display='block';moveTT(e);
 }
 function hideTT(){document.getElementById('tt').style.display='none';}
