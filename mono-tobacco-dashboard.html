@@ -178,7 +178,7 @@ body {
       <div class="dash-title">Mono County — Tobacco &amp; Vaping</div>
       <div class="dash-sub">
         Tobacco use, cessation, secondhand exposure, retail environment &amp; health outcomes<br>
-        Sources: CHKS 2023–24 (Eastern Sierra Unified) · CDPH CTPP County Dashboard · CYTS 2023 · CTHAT 2025 · CDC BRFSS · CHR 2024
+        Sources: CHKS 2023–25 (Mono County, CalSCHLS Public Dashboard) · CHKS 2023–24 item-level (Eastern Sierra Unified) · CDPH CTPP County Dashboard · CYTS 2023 · CTHAT 2025 · CDC BRFSS · CHR 2024
       </div>
     </div>
     <div class="dash-badge">MONO COUNTY</div>
@@ -189,7 +189,7 @@ body {
     <span><span class="legend-dot" style="background:#2E7D32;"></span> Mono County — direct data</span>
     <span><span class="legend-dot" style="background:#E6A817;"></span> Alpine/Amador/Calaveras/Inyo/Mariposa/<strong>Mono</strong>/Tuolumne region (Mono grouped)</span>
     <span><span class="legend-dot" style="background:#3949AB;"></span> California statewide</span>
-    <span><span class="legend-dot" style="background:#880E4F;"></span> Eastern Sierra Unified (school-based)</span>
+    <span><span class="legend-dot" style="background:#880E4F;"></span> Eastern Sierra Unified (single-district, school-based)</span>
   </div>
 
   <div class="tabs">
@@ -229,18 +229,18 @@ body {
         <div class="metric-sub" style="margin-top:4px;">CHIS 2022–23 · CDPH</div>
       </div>
       <div class="metric-card">
-        <div class="metric-label">Gr. 11 ever vaped (ESU)</div>
-        <div class="metric-value">28%</div>
-        <div class="metric-warn">▲ CA 9–12 avg ~14%</div>
-        <div class="metric-scope">School-based</div>
-        <div class="metric-sub" style="margin-top:4px;">CHKS 2023–24 · Eastern Sierra Unified</div>
+        <div class="metric-label">Gr. 11 current tobacco vaping (Mono Co.)</div>
+        <div class="metric-value">5%</div>
+        <div class="metric-good">▼ Below CA 9–12 avg ~14%</div>
+        <div class="metric-scope">Mono County</div>
+        <div class="metric-sub" style="margin-top:4px;">CHKS 2023–25 · CalSCHLS Public Dashboard</div>
       </div>
       <div class="metric-card">
-        <div class="metric-label">Gr. 5 — ever vaped (ESU)</div>
-        <div class="metric-value">6%</div>
+        <div class="metric-label">Gr. 5 — lifetime vaping (Mono Co.)</div>
+        <div class="metric-value">10%</div>
         <div class="metric-warn">Notable for 10-yr-olds</div>
-        <div class="metric-scope">School-based</div>
-        <div class="metric-sub" style="margin-top:4px;">CHKS 2023–24 · Eastern Sierra Unified</div>
+        <div class="metric-scope">Mono County</div>
+        <div class="metric-sub" style="margin-top:4px;">CHKS 2023–25 · CalSCHLS Public Dashboard</div>
       </div>
       <div class="metric-card">
         <div class="metric-label">Schools within 500' of tobacco retailer</div>
@@ -270,7 +270,7 @@ body {
       <div style="position:relative;height:280px;"><canvas id="overviewChart"></canvas></div>
       <div class="chart-note">
         ⬛ Dark bars = Mono County direct or school-specific data &nbsp;|&nbsp; 🟨 Yellow = regional estimate (Mono grouped with 6 other small counties) &nbsp;|&nbsp; 🔵 Blue = California statewide.
-        Adult smoking (Mono): CDC BRFSS/CHR 2022. Regional any-tobacco: CHIS 2022–23 grouped county. CA statewide: CHIS 2022–23. Youth vaping Gr.11: CHKS 2023–24 ESU. CA youth vaping: CDPH CYTS 2022.
+        Adult smoking (Mono): CDC BRFSS/CHR 2022. Regional any-tobacco: CHIS 2022–23 grouped county. CA statewide: CHIS 2022–23. Youth current vaping Gr.11: CHKS 2023–25, Mono County (CalSCHLS Public Dashboard). CA youth current vaping: CDPH CYTS 2022.
       </div>
     </div>
 
@@ -373,47 +373,56 @@ body {
   <div id="youth" class="section">
 
     <div class="scope-banner scope-mono">
-      <strong>School-based data — Eastern Sierra Unified (ESU):</strong> CHKS 2023–24 surveyed Grades 5, 7, 9, and 11 in ESU, which serves Mono County students. Note small sample sizes: Gr. 7 n≈15, Gr. 9 n≈13, Gr. 11 n≈18. Percentages are directional signals, not precise prevalence. Elementary (Gr. 5) n=32 across 4 schools. County-level CYTS data for Mono is grouped in the "Central region" (Fresno, Inyo, Kern, Kings, Madera, Mariposa, Merced, <strong>Mono</strong>, Stanislaus, Tulare).
+      <strong>Two school-based scopes shown on this tab:</strong> (1) <strong>Mono County — countywide</strong> results from the official CalSCHLS Public Dashboard, 2023–25 Biennial CHKS, aggregating all participating Mono County schools (Mammoth Unified + Eastern Sierra Unified). Secondary results cover Grades 7, 9, and 11; Non-Traditional schools are suppressed (small n). Elementary results reflect Grade 5 only. This dashboard exposes <em>current</em> (past-30-day) substance-use rates, not lifetime/"ever used" rates. (2) <strong>Eastern Sierra Unified (ESU) — single district, item-level</strong>, CHKS 2023–24, Grade 5 only (n=32), pulled from CalSCHLS's item-level dashboard — used here to add perception/norms detail (e.g., "is vaping bad for you?") not available in the countywide export. The two scopes are complementary, not directly comparable to each other.
     </div>
 
     <div class="metrics-grid">
       <div class="metric-card">
-        <div class="metric-label">Ever vaped — Grade 11 (ESU)</div>
-        <div class="metric-value">28%</div>
-        <div class="metric-warn">▲ CA 9–12 avg ~14%</div>
-        <div class="metric-scope">School-based (ESU)</div>
-        <div class="metric-sub" style="margin-top:4px;">CHKS 2023–24 Secondary</div>
+        <div class="metric-label">Current tobacco vaping — Gr. 11</div>
+        <div class="metric-value">5%</div>
+        <div class="metric-good">▼ CA 9–12 avg ~14%</div>
+        <div class="metric-scope">Mono County</div>
+        <div class="metric-sub" style="margin-top:4px;">CHKS 2023–25 Secondary</div>
       </div>
       <div class="metric-card">
-        <div class="metric-label">Ever used any tobacco — Grade 11</div>
-        <div class="metric-value">22%</div>
-        <div class="metric-warn">Gr. 7 &amp; 9: 0%</div>
-        <div class="metric-scope">School-based (ESU)</div>
-        <div class="metric-sub" style="margin-top:4px;">CHKS 2023–24 Secondary</div>
+        <div class="metric-label">Current tobacco use (any) — Gr. 11</div>
+        <div class="metric-value">5%</div>
+        <div class="metric-sub">Gr. 9: 3% · Gr. 7: 0%</div>
+        <div class="metric-scope">Mono County</div>
+        <div class="metric-sub" style="margin-top:4px;">CHKS 2023–25 Secondary</div>
       </div>
       <div class="metric-card">
-        <div class="metric-label">Current vaping (past 30 days) — Gr. 11</div>
-        <div class="metric-value">6%</div>
-        <div class="metric-scope">School-based (ESU)</div>
-        <div class="metric-sub" style="margin-top:4px;">CHKS 2023–24 Secondary</div>
+        <div class="metric-label">Current use of any vape product — Gr. 11</div>
+        <div class="metric-value">5%</div>
+        <div class="metric-sub">Gr. 9: 4% · Gr. 7: 0%</div>
+        <div class="metric-scope">Mono County</div>
+        <div class="metric-sub" style="margin-top:4px;">CHKS 2023–25 Secondary</div>
       </div>
       <div class="metric-card">
-        <div class="metric-label">Current tobacco use (past 30 days) — Gr. 11</div>
-        <div class="metric-value">6%</div>
-        <div class="metric-scope">School-based (ESU)</div>
-        <div class="metric-sub" style="margin-top:4px;">CHKS 2023–24 Secondary</div>
+        <div class="metric-label">Current cigarette smoking — all grades</div>
+        <div class="metric-value">0%</div>
+        <div class="metric-good">Gr. 7, 9, 11 all 0%</div>
+        <div class="metric-scope">Mono County</div>
+        <div class="metric-sub" style="margin-top:4px;">CHKS 2023–25 Secondary</div>
       </div>
       <div class="metric-card">
-        <div class="metric-label">Ever vaped — Grade 5 (ESU)</div>
-        <div class="metric-value">6%</div>
+        <div class="metric-label">Current marijuana vaping — Gr. 11</div>
+        <div class="metric-value">2%</div>
+        <div class="metric-sub">Gr. 9: 3% · Gr. 7: 0%</div>
+        <div class="metric-scope">Mono County</div>
+        <div class="metric-sub" style="margin-top:4px;">CHKS 2023–25 Secondary</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Grade 5 — lifetime vaping</div>
+        <div class="metric-value">10%</div>
         <div class="metric-warn">Notable: age 10–11</div>
-        <div class="metric-scope">School-based (ESU)</div>
-        <div class="metric-sub" style="margin-top:4px;">CHKS 2023–24 Elementary</div>
+        <div class="metric-scope">Mono County</div>
+        <div class="metric-sub" style="margin-top:4px;">CHKS 2023–25 Elementary</div>
       </div>
       <div class="metric-card">
-        <div class="metric-label">Friends who vape — Grade 5 (ESU)</div>
-        <div class="metric-value">13%</div>
-        <div class="metric-warn">Social exposure at young age</div>
+        <div class="metric-label">Grade 5 — ever vaped (ESU detail)</div>
+        <div class="metric-value">6%</div>
+        <div class="metric-sub">2 of 32 students, item-level</div>
         <div class="metric-scope">School-based (ESU)</div>
         <div class="metric-sub" style="margin-top:4px;">CHKS 2023–24 Elementary</div>
       </div>
@@ -434,60 +443,43 @@ body {
 
     <div class="two-col">
       <div class="chart-card">
-        <div class="chart-title">Lifetime tobacco &amp; vaping use by grade — ESU (CHKS 2023–24)</div>
+        <div class="chart-title">Current tobacco &amp; vaping use by grade — Mono County (CHKS 2023–25)</div>
         <div style="position:relative;height:230px;"><canvas id="youthLifetimeChart"></canvas></div>
         <div class="chart-note">
-          <span class="pill pill-school">Eastern Sierra Unified</span> Tobacco and vaping use concentrated in Grade 11. Grades 7 and 9 report zero lifetime use — consistent with statewide patterns at those ages. ESU Gr. 11 lifetime vaping (28%) notably exceeds CA 9–12 average of ~14%. n: Gr.7≈15, Gr.9≈13, Gr.11≈18.
+          <span class="pill pill-mono">Mono County</span> Past-30-day use, all Mono County schools combined. Cigarette smoking is at 0% across all grades; tobacco vaping and any-vape-product use rise to 5% by Grade 11. Non-Traditional schools suppressed (small n). Source: CalSCHLS Public Dashboard, 2023–25 Biennial CHKS.
         </div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Current (past 30-day) use by grade — ESU (CHKS 2023–24)</div>
+        <div class="chart-title">Current marijuana &amp; alcohol use by grade — Mono County (CHKS 2023–25)</div>
         <div style="position:relative;height:230px;"><canvas id="youthCurrentChart"></canvas></div>
         <div class="chart-note">
-          <span class="pill pill-school">Eastern Sierra Unified</span> No current cigarette smoking across any grade. Current vaping and tobacco nicotine use both at 6% among 11th graders. Zero current use in Gr. 7 and Gr. 9.
+          <span class="pill pill-mono">Mono County</span> Past-30-day use. Alcohol and overall AOD (alcohol/drug) use are notably higher than tobacco/vaping by Grade 11 (18% AOD, 14% alcohol), suggesting alcohol is the more prevalent substance locally. Source: CalSCHLS Public Dashboard, 2023–25 Biennial CHKS.
         </div>
       </div>
     </div>
 
     <div class="two-col">
       <div class="chart-card">
-        <div class="chart-title">Grade 5 tobacco/vaping norms &amp; behaviors — ESU (CHKS 2023–24)</div>
+        <div class="chart-title">Grade 5 — lifetime substance use: Mono County vs. Eastern Sierra Unified</div>
         <div style="position:relative;height:230px;"><canvas id="elemTobaccoChart"></canvas></div>
         <div class="chart-note">
-          <span class="pill pill-school">Eastern Sierra Unified</span> Strong anti-tobacco norms (94% think smoking "very bad") but early exposure exists: 6% have ever vaped and 13% report friends who vape. 66% say their class discussed smoking dangers; 56% discussed vaping harms — indicating some curriculum coverage. n=32.
+          <span class="pill pill-mono">Mono County</span> <span class="pill pill-school">Eastern Sierra Unified</span> Countywide Grade 5 lifetime vaping (10%) runs higher than the ESU-only figure (6%), suggesting Mammoth Unified's Grade 5 rate may pull the county average up — plausible given Mammoth's larger elementary enrollment, though this dashboard can't confirm the MUSD-only figure directly. Cigarette figures are closer (4% county vs. 3% ESU). Sources: CalSCHLS Public Dashboard 2023–25 (county); CalSCHLS item-level dashboard 2023–24 (ESU).
         </div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Perceived harm of tobacco/vaping — Gr. 11 ESU vs. younger grades</div>
+        <div class="chart-title">Grade 5 — perceived harm of substances, Eastern Sierra Unified (item-level, 2023–24)</div>
         <div style="position:relative;height:230px;"><canvas id="harmPerceptionChart"></canvas></div>
         <div class="chart-note">
-          <span class="pill pill-school">Eastern Sierra Unified</span> % rating "great harm." Occasional vaping is less recognized as harmful than daily use — especially among younger students. Prevention messaging gap identified around light/occasional use. Source: CHKS 2023–24 Secondary.
+          <span class="pill pill-school">Eastern Sierra Unified</span> % of 5th graders answering "yes, very bad." Anti-smoking and anti-vaping norms are strong (94% and 81%). Marijuana is different: only 50% say "very bad," and 34% say they don't know what marijuana is — a real knowledge gap at this age, not necessarily a permissive attitude. n=32.
         </div>
       </div>
     </div>
 
     <div class="chart-card">
-      <div class="chart-title">ESU Gr. 11 lifetime vaping vs. California &amp; national comparisons</div>
+      <div class="chart-title">Mono County Gr. 11 current vaping vs. California &amp; national comparisons</div>
       <div style="position:relative;height:200px;"><canvas id="youthContextChart"></canvas></div>
       <div class="chart-note">
-        <span class="pill pill-school">Eastern Sierra Unified</span> <span class="pill pill-state">California statewide</span> ESU 11th grade lifetime vaping (28%) is double the CA 9–12 current vaping rate (~14%) and nearly triple the national high school current vaping rate (~10%). Note: ESU figure is "lifetime" use, CA/national figures are "current" (past 30 days) — direct comparison overstates the gap but the magnitude is still noteworthy. Sources: CHKS 2023–24; CDPH CYTS 2022; CDC NYTS 2023.
-      </div>
-    </div>
-
-    <div class="two-col">
-      <div class="chart-card">
-        <div class="chart-title">Perceived difficulty getting tobacco/vaping — by grade (CHKS 2023–24)</div>
-        <div style="position:relative;height:200px;"><canvas id="accessChart"></canvas></div>
-        <div class="chart-note">
-          <span class="pill pill-school">Eastern Sierra Unified</span> % rating "very difficult" to obtain. 56% of 11th graders say cigarettes or vapes are "fairly/very easy" to get — suggesting enforcement and access gaps by late secondary school. Aligns with retailer proximity data.
-        </div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-title">School anti-tobacco policy awareness — by grade (CHKS 2023–24)</div>
-        <div style="position:relative;height:200px;"><canvas id="policyAwareChart"></canvas></div>
-        <div class="chart-note">
-          <span class="pill pill-school">Eastern Sierra Unified</span> % who agree school bans tobacco use and vaping. Lower awareness among 9th graders (54%) vs. 7th (73%) and 11th (83%) — a mid-secondary messaging gap. No students in any grade reported secondhand smoke on school grounds in past 30 days.
-        </div>
+        <span class="pill pill-mono">Mono County</span> <span class="pill pill-state">California statewide</span> All figures shown here are on a like-for-like "current" (past 30-day) basis. Mono County's Grade 11 current tobacco vaping rate (5%) is below both the CA 9–12 average (~14%) and the national high school average (~10%) — a more favorable picture than earlier single-district (ESU) figures suggested, now that the countywide 2023–25 CHKS data is available. Sources: CalSCHLS Public Dashboard 2023–25; CDPH CYTS 2022; CDC NYTS 2023.
       </div>
     </div>
 
@@ -863,10 +855,10 @@ const pctY = (max=100) => ({
 new Chart(document.getElementById('overviewChart'), {
   type: 'bar',
   data: {
-    labels: ['Mono adult\nsmoking rate', 'Region any\ntobacco (adult)', 'CA statewide any\ntobacco (adult)', 'ESU Gr.11\nlifetime vaping', 'CA 9–12\ncurrent vaping'],
+    labels: ['Mono adult\nsmoking rate', 'Region any\ntobacco (adult)', 'CA statewide any\ntobacco (adult)', 'Mono Gr.11\ncurrent vaping', 'CA 9–12\ncurrent vaping'],
     datasets: [{
-      data: [11, 16, 10.8, 28, 14],
-      backgroundColor: [C.mono, C.region, C.state, C.school, C.stateLt],
+      data: [11, 16, 10.8, 5, 14],
+      backgroundColor: [C.mono, C.region, C.state, C.mono, C.stateLt],
       borderRadius: 5,
     }]
   },
@@ -953,11 +945,11 @@ new Chart(document.getElementById('smokingTrendChart'), {
 new Chart(document.getElementById('youthLifetimeChart'), {
   type: 'bar',
   data: {
-    labels: ['Ever vaped', 'Lifetime tobacco\n(any)', 'Ever smoked\ncigarette', 'Lifetime alcohol'],
+    labels: ['Current cigarette\nsmoking', 'Current tobacco\nvaping', 'Current use of\nany vape product', 'Current tobacco\nuse (any)'],
     datasets: [
-      { label: 'Grade 7', data: [0, 0, 0, 0], backgroundColor: C.schoolLt, borderRadius: 3 },
-      { label: 'Grade 9', data: [0, 0, 0, 0], backgroundColor: '#E8A0BB', borderRadius: 3 },
-      { label: 'Grade 11', data: [28, 22, 6, 35], backgroundColor: C.school, borderRadius: 3 }
+      { label: 'Grade 7', data: [0, 0, 0, 0], backgroundColor: C.monoLt, borderRadius: 3 },
+      { label: 'Grade 9', data: [0, 3, 4, 3], backgroundColor: C.region, borderRadius: 3 },
+      { label: 'Grade 11', data: [0, 5, 5, 5], backgroundColor: C.mono, borderRadius: 3 }
     ]
   },
   options: {
@@ -965,7 +957,7 @@ new Chart(document.getElementById('youthLifetimeChart'), {
     plugins: { legend: { display: true, labels: { color: C.text, font: { size: 11 }, boxWidth: 12, boxHeight: 12 } } },
     scales: {
       x: { ticks: { color: C.text, font: { size: 10 } }, grid: { color: C.grid } },
-      y: { min: 0, max: 45, ticks: { color: C.text, font: { size: 11 }, callback: v => v + '%' }, grid: { color: C.grid } }
+      y: { min: 0, max: 10, ticks: { color: C.text, font: { size: 11 }, callback: v => v + '%' }, grid: { color: C.grid } }
     }
   }
 });
@@ -973,18 +965,18 @@ new Chart(document.getElementById('youthLifetimeChart'), {
 new Chart(document.getElementById('youthCurrentChart'), {
   type: 'bar',
   data: {
-    labels: ['Current tobacco\n(any)', 'Current vaping', 'Current cigarettes', 'Current marijuana'],
+    labels: ['Current\nAOD use', 'Current\nalcohol use', 'Current\nbinge drinking', 'Current\nmarijuana use', 'Current\nmarijuana vaping'],
     datasets: [
-      { label: 'Grade 7', data: [0, 0, 0, 0], backgroundColor: C.schoolLt, borderRadius: 3 },
-      { label: 'Grade 9', data: [0, 0, 0, 0], backgroundColor: '#E8A0BB', borderRadius: 3 },
-      { label: 'Grade 11', data: [6, 6, 0, 11], backgroundColor: C.school, borderRadius: 3 }
+      { label: 'Grade 7', data: [2, 2, 0, 0, 0], backgroundColor: C.monoLt, borderRadius: 3 },
+      { label: 'Grade 9', data: [8, 7, 3, 4, 3], backgroundColor: C.region, borderRadius: 3 },
+      { label: 'Grade 11', data: [18, 14, 2, 7, 2], backgroundColor: C.mono, borderRadius: 3 }
     ]
   },
   options: {
     responsive: true, maintainAspectRatio: false,
     plugins: { legend: { display: true, labels: { color: C.text, font: { size: 11 }, boxWidth: 12, boxHeight: 12 } } },
     scales: {
-      x: { ticks: { color: C.text, font: { size: 10 } }, grid: { color: C.grid } },
+      x: { ticks: { color: C.text, font: { size: 9 } }, grid: { color: C.grid } },
       y: { min: 0, max: 20, ticks: { color: C.text, font: { size: 11 }, callback: v => v + '%' }, grid: { color: C.grid } }
     }
   }
@@ -993,68 +985,38 @@ new Chart(document.getElementById('youthCurrentChart'), {
 new Chart(document.getElementById('elemTobaccoChart'), {
   type: 'bar',
   data: {
-    labels: ['Think smoking\nvery bad', 'Think vaping\nvery bad', 'Friends\nwho vape', 'Ever vaped\n(lifetime)', 'Class discussed\nsmoking', 'Class discussed\nvaping'],
-    datasets: [{ data: [94, 81, 13, 6, 66, 56], backgroundColor: [C.mono, C.mono, C.warn, C.warn, C.state, C.state], borderRadius: 4 }]
+    labels: ['Lifetime\ncigarette use', 'Lifetime\nmarijuana use', 'Lifetime\nvaping'],
+    datasets: [
+      { label: 'Mono County (all schools)', data: [4, 4, 10], backgroundColor: C.mono, borderRadius: 4 },
+      { label: 'Eastern Sierra Unified (item-level)', data: [3, 0, 6], backgroundColor: C.school, borderRadius: 4 }
+    ]
   },
-  options: { ...pctY(110), plugins: { legend: { display: false } }, scales: { x: { ticks: { color: C.text, font: { size: 9 } }, grid: { color: C.grid } }, y: { min:0, max:110, ticks: { color: C.text, font: { size: 11 }, callback: v => v + '%' }, grid: { color: C.grid } } } }
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: true, labels: { color: C.text, font: { size: 10.5 }, boxWidth: 12, boxHeight: 12 } } },
+    scales: {
+      x: { ticks: { color: C.text, font: { size: 10 } }, grid: { color: C.grid } },
+      y: { min: 0, max: 12, ticks: { color: C.text, font: { size: 11 }, callback: v => v + '%' }, grid: { color: C.grid } }
+    }
+  }
 });
 
 new Chart(document.getElementById('harmPerceptionChart'), {
   type: 'bar',
   data: {
-    labels: ['Smoke\noccasionally', 'Smoke 1+ packs\n/ day', 'Vape\noccasionally', 'Vape several\ntimes / day'],
-    datasets: [
-      { label: 'Grade 7', data: [13, 53, 21, 47], backgroundColor: C.schoolLt, borderRadius: 3 },
-      { label: 'Grade 9', data: [8, 46, 8, 54], backgroundColor: '#E8A0BB', borderRadius: 3 },
-      { label: 'Grade 11', data: [22, 72, 39, 89], backgroundColor: C.school, borderRadius: 3 }
-    ]
+    labels: ['Smoking cigarettes\nis "very bad"', 'Vaping is\n"very bad"', 'Marijuana use is\n"very bad"', 'Don\'t know what\nmarijuana is'],
+    datasets: [{ data: [94, 81, 50, 34], backgroundColor: [C.mono, C.mono, C.region, '#8a8780'], borderRadius: 4 }]
   },
-  options: {
-    responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: true, labels: { color: C.text, font: { size: 11 }, boxWidth: 12, boxHeight: 12 } } },
-    scales: {
-      x: { ticks: { color: C.text, font: { size: 9 } }, grid: { color: C.grid } },
-      y: { min: 0, max: 100, ticks: { color: C.text, font: { size: 11 }, callback: v => v + '%' }, grid: { color: C.grid } }
-    }
-  }
+  options: { ...pctY(100), plugins: { legend: { display: false } } }
 });
 
 new Chart(document.getElementById('youthContextChart'), {
   type: 'bar',
   data: {
-    labels: ['ESU Gr. 11\nlifetime vaping\n(CHKS 2024)', 'CA 9–12\ncurrent vaping\n(CYTS 2022)', 'National HS\ncurrent vaping\n(CDC NYTS 2023)', 'Mono adult\nsmoking rate\n(BRFSS 2022)'],
-    datasets: [{ data: [28, 14, 10, 11], backgroundColor: [C.school, C.stateLt, C.stateLt, C.mono], borderRadius: 5 }]
+    labels: ['Mono Gr. 11\ncurrent tobacco\nvaping (CHKS 2023–25)', 'CA 9–12\ncurrent vaping\n(CYTS 2022)', 'National HS\ncurrent vaping\n(CDC NYTS 2023)', 'Mono adult\nsmoking rate\n(BRFSS 2022)'],
+    datasets: [{ data: [5, 14, 10, 11], backgroundColor: [C.mono, C.stateLt, C.stateLt, C.mono], borderRadius: 5 }]
   },
-  options: { ...pctY(38), plugins: { legend: { display: false } } }
-});
-
-new Chart(document.getElementById('accessChart'), {
-  type: 'bar',
-  data: {
-    labels: ["Cigarettes\n'very difficult'", "Vape products\n'very difficult'"],
-    datasets: [
-      { label: 'Grade 7', data: [73, 67], backgroundColor: C.schoolLt, borderRadius: 3 },
-      { label: 'Grade 9', data: [31, 23], backgroundColor: '#E8A0BB', borderRadius: 3 },
-      { label: 'Grade 11', data: [33, 22], backgroundColor: C.school, borderRadius: 3 }
-    ]
-  },
-  options: {
-    responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: true, labels: { color: C.text, font: { size: 10 }, boxWidth: 12, boxHeight: 12 } } },
-    scales: {
-      x: { ticks: { color: C.text, font: { size: 10 } }, grid: { color: C.grid } },
-      y: { min: 0, max: 100, ticks: { color: C.text, font: { size: 11 }, callback: v => v + '%' }, grid: { color: C.grid } }
-    }
-  }
-});
-
-new Chart(document.getElementById('policyAwareChart'), {
-  type: 'bar',
-  data: {
-    labels: ['Grade 7', 'Grade 9', 'Grade 11'],
-    datasets: [{ label: 'Aware school bans tobacco/vaping', data: [73, 54, 83], backgroundColor: [C.monoLt, C.region, C.monoLt], borderRadius: 5 }]
-  },
-  options: { ...pctY(100), plugins: { legend: { display: false } } }
+  options: { ...pctY(18), plugins: { legend: { display: false } } }
 });
 
 new Chart(document.getElementById('cytsByTypeChart'), {
@@ -1203,20 +1165,29 @@ const allMetrics = [
   { ind: 'CA adult cigarette smoking', val: '5.1%', scope: 'state', year: '2023', src: 'CHIS / CDPH' },
   { ind: 'CA adult vaping', val: '7.3%', scope: 'state', year: '2022', src: 'CHIS / CDPH' },
   // Youth
-  { ind: 'ESU Gr. 11 — ever vaped (lifetime)', val: '28%', scope: 'school', year: '2023–24', src: 'CHKS Secondary, ESU' },
-  { ind: 'ESU Gr. 11 — lifetime any tobacco', val: '22%', scope: 'school', year: '2023–24', src: 'CHKS Secondary, ESU' },
-  { ind: 'ESU Gr. 11 — lifetime cigarette', val: '6%', scope: 'school', year: '2023–24', src: 'CHKS Secondary, ESU' },
-  { ind: 'ESU Gr. 11 — current tobacco (30 days)', val: '6%', scope: 'school', year: '2023–24', src: 'CHKS Secondary, ESU' },
-  { ind: 'ESU Gr. 11 — current vaping (30 days)', val: '6%', scope: 'school', year: '2023–24', src: 'CHKS Secondary, ESU' },
-  { ind: 'ESU Gr. 11 — current marijuana (30 days)', val: '11%', scope: 'school', year: '2023–24', src: 'CHKS Secondary, ESU' },
-  { ind: 'ESU Gr. 11 — lifetime alcohol', val: '35%', scope: 'school', year: '2023–24', src: 'CHKS Secondary, ESU' },
-  { ind: 'ESU Gr. 9 — lifetime tobacco/vaping', val: '0%', scope: 'school', year: '2023–24', src: 'CHKS Secondary, ESU' },
-  { ind: 'ESU Gr. 7 — lifetime tobacco/vaping', val: '0%', scope: 'school', year: '2023–24', src: 'CHKS Secondary, ESU' },
-  { ind: 'ESU Gr. 5 — ever vaped (lifetime)', val: '6%', scope: 'school', year: '2023–24', src: 'CHKS Elementary, ESU' },
-  { ind: 'ESU Gr. 5 — friends who vape', val: '13%', scope: 'school', year: '2023–24', src: 'CHKS Elementary, ESU' },
-  { ind: 'ESU Gr. 5 — think smoking very bad', val: '94%', scope: 'school', year: '2023–24', src: 'CHKS Elementary, ESU' },
-  { ind: 'ESU Gr. 5 — class discussed smoking', val: '66%', scope: 'school', year: '2023–24', src: 'CHKS Elementary, ESU' },
-  { ind: 'ESU Gr. 5 — class discussed vaping', val: '56%', scope: 'school', year: '2023–24', src: 'CHKS Elementary, ESU' },
+  { ind: 'Mono Gr. 7 — current tobacco vaping', val: '0%', scope: 'mono', year: '2023–25', src: 'CHKS Secondary, Mono County (CalSCHLS)' },
+  { ind: 'Mono Gr. 9 — current tobacco vaping', val: '3%', scope: 'mono', year: '2023–25', src: 'CHKS Secondary, Mono County (CalSCHLS)' },
+  { ind: 'Mono Gr. 11 — current tobacco vaping', val: '5%', scope: 'mono', year: '2023–25', src: 'CHKS Secondary, Mono County (CalSCHLS)' },
+  { ind: 'Mono Gr. 7 — current tobacco use (any)', val: '0%', scope: 'mono', year: '2023–25', src: 'CHKS Secondary, Mono County (CalSCHLS)' },
+  { ind: 'Mono Gr. 9 — current tobacco use (any)', val: '3%', scope: 'mono', year: '2023–25', src: 'CHKS Secondary, Mono County (CalSCHLS)' },
+  { ind: 'Mono Gr. 11 — current tobacco use (any)', val: '5%', scope: 'mono', year: '2023–25', src: 'CHKS Secondary, Mono County (CalSCHLS)' },
+  { ind: 'Mono Gr. 7/9/11 — current cigarette smoking', val: '0%', scope: 'mono', year: '2023–25', src: 'CHKS Secondary, Mono County (CalSCHLS)' },
+  { ind: 'Mono Gr. 11 — current use of any vape product', val: '5%', scope: 'mono', year: '2023–25', src: 'CHKS Secondary, Mono County (CalSCHLS)' },
+  { ind: 'Mono Gr. 11 — current marijuana vaping', val: '2%', scope: 'mono', year: '2023–25', src: 'CHKS Secondary, Mono County (CalSCHLS)' },
+  { ind: 'Mono Gr. 11 — current marijuana use', val: '7%', scope: 'mono', year: '2023–25', src: 'CHKS Secondary, Mono County (CalSCHLS)' },
+  { ind: 'Mono Gr. 11 — current alcohol use', val: '14%', scope: 'mono', year: '2023–25', src: 'CHKS Secondary, Mono County (CalSCHLS)' },
+  { ind: 'Mono Gr. 11 — current AOD use (any)', val: '18%', scope: 'mono', year: '2023–25', src: 'CHKS Secondary, Mono County (CalSCHLS)' },
+  { ind: 'Mono Gr. 5 — lifetime vaping', val: '10%', scope: 'mono', year: '2023–25', src: 'CHKS Elementary, Mono County (CalSCHLS)' },
+  { ind: 'Mono Gr. 5 — lifetime cigarette use', val: '4%', scope: 'mono', year: '2023–25', src: 'CHKS Elementary, Mono County (CalSCHLS)' },
+  { ind: 'Mono Gr. 5 — lifetime marijuana use', val: '4%', scope: 'mono', year: '2023–25', src: 'CHKS Elementary, Mono County (CalSCHLS)' },
+  { ind: 'Mono Gr. 5 — lifetime AOD use', val: '24%', scope: 'mono', year: '2023–25', src: 'CHKS Elementary, Mono County (CalSCHLS)' },
+  { ind: 'ESU Gr. 5 — ever vaped (item-level)', val: '6%', scope: 'school', year: '2023–24', src: 'CHKS Elementary item-level, ESU' },
+  { ind: 'ESU Gr. 5 — ever smoked a cigarette', val: '3%', scope: 'school', year: '2023–24', src: 'CHKS Elementary item-level, ESU' },
+  { ind: 'ESU Gr. 5 — ever used marijuana', val: '~0%', scope: 'school', year: '2023–24', src: 'CHKS Elementary item-level, ESU' },
+  { ind: 'ESU Gr. 5 — smoking is "very bad"', val: '94%', scope: 'school', year: '2023–24', src: 'CHKS Elementary item-level, ESU' },
+  { ind: 'ESU Gr. 5 — vaping is "very bad"', val: '81%', scope: 'school', year: '2023–24', src: 'CHKS Elementary item-level, ESU' },
+  { ind: 'ESU Gr. 5 — marijuana use is "very bad"', val: '50%', scope: 'school', year: '2023–24', src: 'CHKS Elementary item-level, ESU' },
+  { ind: 'ESU Gr. 5 — "don\'t know what marijuana is"', val: '34%', scope: 'school', year: '2023–24', src: 'CHKS Elementary item-level, ESU' },
   { ind: 'CA HS current any tobacco use', val: '7.3%', scope: 'state', year: '2023', src: 'CDPH CYTS' },
   { ind: 'CA HS current vaping', val: '5.9%', scope: 'state', year: '2022–23', src: 'CDPH CYTS' },
   { ind: 'CA HS current cigarette smoking', val: '1.2%', scope: 'state', year: '2022', src: 'CDPH CYTS' },
