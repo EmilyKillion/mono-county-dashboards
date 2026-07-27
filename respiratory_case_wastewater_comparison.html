@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  :root {
+    --ink: #1a2332;
+    --muted: #5b6b7c;
+    --line: #e2e6ea;
+    --bg: #fdfcfa;
+    --covid-case: #b3472b;
+    --covid-ww: #2f6690;
+    --flu-case: #9c6b1f;
+    --flu-ww: #4d7c3f;
+    --rsv-case: #7a4a8f;
+    --rsv-ww: #2f8f8a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    margin: 0;
+    padding: 24px;
+  }
+  .wrap { max-width: 1000px; margin: 0 auto; }
+  h1 { font-size: 19px; font-weight: 650; margin: 0 0 2px 0; }
+  .sub { font-size: 12.5px; color: var(--muted); margin-bottom: 16px; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+  .tab {
+    padding: 7px 16px; border-radius: 6px; font-size: 13px; font-weight: 600;
+    cursor: pointer; border: 1px solid var(--line); background: #fff; color: var(--muted);
+    user-select: none;
+  }
+  .tab.active { color: #fff; border-color: transparent; }
+  .tab[data-d="covid"].active { background: var(--covid-case); }
+  .tab[data-d="flu"].active { background: var(--flu-case); }
+  .tab[data-d="rsv"].active { background: var(--rsv-case); }
+  .controls {
+    display: flex; gap: 18px; align-items: center; flex-wrap: wrap;
+    margin-bottom: 10px; font-size: 12.5px; color: var(--muted);
+  }
+  .controls label { display: flex; align-items: center; gap: 5px; cursor: pointer; user-select: none; }
+  .legend { display: flex; gap: 18px; margin-bottom: 8px; font-size: 12.5px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .swatch { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
+  svg { width: 100%; height: auto; display: block; }
+  .axis-label { font-size: 11px; fill: var(--muted); }
+  .grid-line { stroke: var(--line); stroke-width: 1; }
+  .tick-text { font-size: 10.5px; fill: var(--muted); }
+  .case-bar { opacity: 0.82; }
+  .case-bar:hover { opacity: 1; }
+  .ww-line { fill: none; stroke-width: 2; }
+  .ww-dot { stroke: var(--bg); stroke-width: 1; }
+  .tooltip {
+    position: absolute; pointer-events: none; background: var(--ink); color: #fff;
+    font-size: 11.5px; padding: 7px 10px; border-radius: 5px; line-height: 1.5;
+    opacity: 0; transition: opacity 0.1s; white-space: nowrap; z-index: 10;
+  }
+  .note {
+    font-size: 12px; color: var(--muted); margin-top: 14px; padding-top: 12px;
+    border-top: 1px solid var(--line); line-height: 1.6;
+  }
+  .chart-container { position: relative; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 id="title">Mono County: Confirmed Cases vs. Wastewater Signal</h1>
+  <div class="sub">Weekly, Oct 2024 &ndash; present &middot; Mammoth Community Water District &middot; wastewater normalized to PMMoV</div>
+
+  <div class="tabs">
+    <div class="tab active" data-d="covid">SARS-CoV-2</div>
+    <div class="tab" data-d="flu">Influenza</div>
+    <div class="tab" data-d="rsv">RSV</div>
+  </div>
+
+  <div class="legend" id="legend"></div>
+  <div class="controls">
+    <label><input type="checkbox" id="logToggle"> Log scale for wastewater axis</label>
+    <label><input type="checkbox" id="smoothToggle" checked> 3-week rolling average (wastewater)</label>
+  </div>
+
+  <div class="chart-container">
+    <svg id="chart" viewBox="0 0 960 460"></svg>
+    <div class="tooltip" id="tooltip"></div>
+  </div>
+
+  <div class="note" id="footnote"></div>
+</div>
+
+<script>
+const raw = [{"week_ending": "2024-10-06", "covid_cases": 1.0, "covid_ww": 0.0, "covid_ww_n": 1, "flu_cases": 0.0, "flu_ww": 0.0, "flu_ww_n": 2, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 1}, {"week_ending": "2024-10-13", "covid_cases": 1.0, "covid_ww": 198.73773548161392, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 4.610091077248394, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2024-10-20", "covid_cases": 2.0, "covid_ww": 124.52470114474016, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 1.0904886526757989, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2024-10-27", "covid_cases": 3.0, "covid_ww": 68.45850795296916, "covid_ww_n": 2, "flu_cases": 2.0, "flu_ww": 0.0, "flu_ww_n": 4, "rsv_cases": 2.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2024-11-03", "covid_cases": 2.0, "covid_ww": 345.67536387527593, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 0.0, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2024-11-10", "covid_cases": 2.0, "covid_ww": 355.7022761952124, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 2.1704026552782483, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2024-11-17", "covid_cases": 1.0, "covid_ww": 250.53362513168884, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 5.79733103636523, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 3.0892056330478614, "rsv_ww_n": 2}, {"week_ending": "2024-11-24", "covid_cases": 0.0, "covid_ww": 254.8780109660684, "covid_ww_n": 2, "flu_cases": 1.0, "flu_ww": 46.4865603683091, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2024-12-01", "covid_cases": 1.0, "covid_ww": 169.97249477736273, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 66.3942155524112, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 3.4869759850862145, "rsv_ww_n": 2}, {"week_ending": "2024-12-08", "covid_cases": 2.0, "covid_ww": 263.4258371791825, "covid_ww_n": 2, "flu_cases": 4.0, "flu_ww": 150.16913203908612, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 5.98735241862969, "rsv_ww_n": 2}, {"week_ending": "2024-12-15", "covid_cases": 1.0, "covid_ww": 194.6571281205182, "covid_ww_n": 2, "flu_cases": 5.0, "flu_ww": 129.2911737058167, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 25.8964921774985, "rsv_ww_n": 2}, {"week_ending": "2024-12-22", "covid_cases": 4.0, "covid_ww": 331.0801138487437, "covid_ww_n": 2, "flu_cases": 11.0, "flu_ww": 227.4524504854417, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 10.31702759822374, "rsv_ww_n": 2}, {"week_ending": "2024-12-29", "covid_cases": 1.0, "covid_ww": 192.19918752793802, "covid_ww_n": 2, "flu_cases": 19.0, "flu_ww": 446.6035875155605, "flu_ww_n": 4, "rsv_cases": 4.0, "rsv_ww": 74.80869141255319, "rsv_ww_n": 2}, {"week_ending": "2025-01-05", "covid_cases": 2.0, "covid_ww": 292.18879836286743, "covid_ww_n": 2, "flu_cases": 33.0, "flu_ww": 260.77499919952123, "flu_ww_n": 4, "rsv_cases": 4.0, "rsv_ww": 40.322334555581506, "rsv_ww_n": 2}, {"week_ending": "2025-01-12", "covid_cases": 3.0, "covid_ww": 308.20752934541065, "covid_ww_n": 2, "flu_cases": 16.0, "flu_ww": 175.3529129615754, "flu_ww_n": 4, "rsv_cases": 1.0, "rsv_ww": 26.745216518535752, "rsv_ww_n": 2}, {"week_ending": "2025-01-19", "covid_cases": 4.0, "covid_ww": 141.39877276053122, "covid_ww_n": 2, "flu_cases": 11.0, "flu_ww": 144.31009755780772, "flu_ww_n": 4, "rsv_cases": 1.0, "rsv_ww": 40.39156212527863, "rsv_ww_n": 2}, {"week_ending": "2025-01-26", "covid_cases": 3.0, "covid_ww": 87.69788470708582, "covid_ww_n": 1, "flu_cases": 11.0, "flu_ww": 185.35890986085428, "flu_ww_n": 2, "rsv_cases": 6.0, "rsv_ww": 84.04008351240289, "rsv_ww_n": 1}, {"week_ending": "2025-02-02", "covid_cases": 1.0, "covid_ww": 392.57304530664675, "covid_ww_n": 2, "flu_cases": 19.0, "flu_ww": 470.5163254236901, "flu_ww_n": 4, "rsv_cases": 12.0, "rsv_ww": 157.40210902510245, "rsv_ww_n": 2}, {"week_ending": "2025-02-09", "covid_cases": 4.0, "covid_ww": 502.0413597010729, "covid_ww_n": 2, "flu_cases": 22.0, "flu_ww": 501.88892844814825, "flu_ww_n": 4, "rsv_cases": 7.0, "rsv_ww": 246.30167778928075, "rsv_ww_n": 2}, {"week_ending": "2025-02-16", "covid_cases": 0.0, "covid_ww": 438.96769335417974, "covid_ww_n": 2, "flu_cases": 13.0, "flu_ww": 197.73003798312527, "flu_ww_n": 4, "rsv_cases": 2.0, "rsv_ww": 52.22992668258244, "rsv_ww_n": 2}, {"week_ending": "2025-02-23", "covid_cases": 0.0, "covid_ww": 210.20250394145248, "covid_ww_n": 2, "flu_cases": 8.0, "flu_ww": 98.19498218702394, "flu_ww_n": 4, "rsv_cases": 11.0, "rsv_ww": 665.6264730986336, "rsv_ww_n": 2}, {"week_ending": "2025-03-02", "covid_cases": 2.0, "covid_ww": 37.06419824267126, "covid_ww_n": 2, "flu_cases": 8.0, "flu_ww": 91.46644744806534, "flu_ww_n": 4, "rsv_cases": 3.0, "rsv_ww": 18.754473042985467, "rsv_ww_n": 2}, {"week_ending": "2025-03-09", "covid_cases": 1.0, "covid_ww": 116.86108985444277, "covid_ww_n": 2, "flu_cases": 2.0, "flu_ww": 27.161836997090532, "flu_ww_n": 4, "rsv_cases": 8.0, "rsv_ww": 36.77625695751725, "rsv_ww_n": 2}, {"week_ending": "2025-03-16", "covid_cases": 1.0, "covid_ww": 131.91787722772082, "covid_ww_n": 2, "flu_cases": 6.0, "flu_ww": 28.126582328168062, "flu_ww_n": 4, "rsv_cases": 2.0, "rsv_ww": 63.29287574657431, "rsv_ww_n": 2}, {"week_ending": "2025-03-23", "covid_cases": 0.0, "covid_ww": 878.1267080594112, "covid_ww_n": 2, "flu_cases": 5.0, "flu_ww": 76.31862057007658, "flu_ww_n": 4, "rsv_cases": 2.0, "rsv_ww": 40.917432202630266, "rsv_ww_n": 2}, {"week_ending": "2025-03-30", "covid_cases": 4.0, "covid_ww": 154.57193360199778, "covid_ww_n": 2, "flu_cases": 3.0, "flu_ww": 35.503770285911166, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 12.339237162896575, "rsv_ww_n": 2}, {"week_ending": "2025-04-06", "covid_cases": 1.0, "covid_ww": 191.30964620435458, "covid_ww_n": 2, "flu_cases": 6.0, "flu_ww": 54.44203796359183, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 114.24549700581865, "rsv_ww_n": 2}, {"week_ending": "2025-04-13", "covid_cases": 1.0, "covid_ww": 151.6600192117287, "covid_ww_n": 2, "flu_cases": 1.0, "flu_ww": 6.641293741386589, "flu_ww_n": 4, "rsv_cases": 1.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2025-04-20", "covid_cases": 4.0, "covid_ww": 140.5140624475313, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 34.16740097689955, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 3.353845736036227, "rsv_ww_n": 2}, {"week_ending": "2025-04-27", "covid_cases": 1.0, "covid_ww": 91.45433832773986, "covid_ww_n": 2, "flu_cases": 2.0, "flu_ww": 21.489127565734726, "flu_ww_n": 4, "rsv_cases": 1.0, "rsv_ww": 34.644620630078556, "rsv_ww_n": 2}, {"week_ending": "2025-05-04", "covid_cases": 2.0, "covid_ww": 98.20440162172298, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 12.51732576091473, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 4.644467803979048, "rsv_ww_n": 2}, {"week_ending": "2025-05-11", "covid_cases": 1.0, "covid_ww": 131.6692997932274, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 4.47049127019298, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2025-05-18", "covid_cases": 0.0, "covid_ww": 125.13137631272068, "covid_ww_n": 2, "flu_cases": 1.0, "flu_ww": 4.206842078392867, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 1.7968914641180727, "rsv_ww_n": 2}, {"week_ending": "2025-05-25", "covid_cases": 1.0, "covid_ww": 228.8958303294509, "covid_ww_n": 2, "flu_cases": 1.0, "flu_ww": 84.30561473723475, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2025-06-01", "covid_cases": 1.0, "covid_ww": 113.05014443915516, "covid_ww_n": 2, "flu_cases": 2.0, "flu_ww": 72.66219917372415, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2025-06-08", "covid_cases": 0.0, "covid_ww": 89.3212249717864, "covid_ww_n": 2, "flu_cases": 29.0, "flu_ww": 29.045334686034117, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2025-06-15", "covid_cases": 0.0, "covid_ww": 109.15840037132915, "covid_ww_n": 2, "flu_cases": 26.0, "flu_ww": 38.392010194721465, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2025-06-22", "covid_cases": 1.0, "covid_ww": 140.71614046252876, "covid_ww_n": 2, "flu_cases": 6.0, "flu_ww": 14.699453798586315, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2025-06-29", "covid_cases": 0.0, "covid_ww": 302.22763522775307, "covid_ww_n": 2, "flu_cases": 5.0, "flu_ww": 45.62505337904091, "flu_ww_n": 4, "rsv_cases": 1.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2025-07-06", "covid_cases": 0.0, "covid_ww": 182.36200881351334, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 7.029613386793438, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2025-07-13", "covid_cases": 2.0, "covid_ww": 183.43054707584912, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 0.0, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2025-07-20", "covid_cases": 3.0, "covid_ww": 272.54066582024217, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 0.0, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2025-07-27", "covid_cases": 2.0, "covid_ww": 365.87569198733104, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 0.0, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2025-08-03", "covid_cases": 1.0, "covid_ww": 375.8455259778166, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 0.0, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2025-08-10", "covid_cases": 1.0, "covid_ww": 975.4589991586552, "covid_ww_n": 2, "flu_cases": 1.0, "flu_ww": 0.0, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2025-08-17", "covid_cases": 4.0, "covid_ww": 211.0861843821803, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 0.0, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2025-08-24", "covid_cases": 1.0, "covid_ww": 215.32305053412261, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 1.8833766502020954, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2025-08-31", "covid_cases": 6.0, "covid_ww": 135.98733880369502, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 0.0, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2025-09-07", "covid_cases": 3.0, "covid_ww": 303.8318539911398, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 1.1115177953405861, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 2.223124754435479, "rsv_ww_n": 2}, {"week_ending": "2025-09-14", "covid_cases": 3.0, "covid_ww": 270.4321718999306, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 0.0, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 1.047310597533591, "rsv_ww_n": 2}, {"week_ending": "2025-09-21", "covid_cases": 3.0, "covid_ww": 448.2952174451375, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 0.0, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2025-09-28", "covid_cases": 1.0, "covid_ww": 540.5122558486387, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 0.0, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2025-10-05", "covid_cases": 2.0, "covid_ww": 152.3036011351431, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 0.0, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2025-10-12", "covid_cases": 1.0, "covid_ww": 149.27542815853195, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 0.0, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 1.8745560599522348, "rsv_ww_n": 2}, {"week_ending": "2025-10-19", "covid_cases": 0.0, "covid_ww": 87.97021933759414, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 0.0, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2025-10-26", "covid_cases": 0.0, "covid_ww": 74.42273864598508, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 0.0, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2025-11-02", "covid_cases": 0.0, "covid_ww": 155.54358986742062, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 8.091353567033948, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2025-11-09", "covid_cases": 2.0, "covid_ww": 27.340464885561865, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 0.0, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2025-11-16", "covid_cases": 2.0, "covid_ww": 189.4296212857986, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 0.0, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2025-11-23", "covid_cases": 0.0, "covid_ww": 17.32404628747418, "covid_ww_n": 2, "flu_cases": 1.0, "flu_ww": 3.381879605351745, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2025-11-30", "covid_cases": 3.0, "covid_ww": 12.974108741419148, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 16.42967447081473, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2025-12-07", "covid_cases": 5.0, "covid_ww": 138.01242694915692, "covid_ww_n": 2, "flu_cases": 1.0, "flu_ww": 16.2533707799102, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2025-12-14", "covid_cases": 0.0, "covid_ww": 28.327172120343857, "covid_ww_n": 3, "flu_cases": 3.0, "flu_ww": 20.814902279359746, "flu_ww_n": 6, "rsv_cases": 1.0, "rsv_ww": 12.171731194625737, "rsv_ww_n": 3}, {"week_ending": "2025-12-21", "covid_cases": 0.0, "covid_ww": 16.985633622906267, "covid_ww_n": 1, "flu_cases": 4.0, "flu_ww": 53.208058426680836, "flu_ww_n": 2, "rsv_cases": 2.0, "rsv_ww": 0.0, "rsv_ww_n": 1}, {"week_ending": "2025-12-28", "covid_cases": 0.0, "covid_ww": 127.3472928657593, "covid_ww_n": 2, "flu_cases": 13.0, "flu_ww": 144.38951495408566, "flu_ww_n": 4, "rsv_cases": 1.0, "rsv_ww": 21.561029517044737, "rsv_ww_n": 2}, {"week_ending": "2026-01-04", "covid_cases": 1.0, "covid_ww": 47.60946152205295, "covid_ww_n": 2, "flu_cases": 10.0, "flu_ww": 128.74412986011941, "flu_ww_n": 4, "rsv_cases": 1.0, "rsv_ww": 16.802221529936126, "rsv_ww_n": 2}, {"week_ending": "2026-01-11", "covid_cases": 1.0, "covid_ww": 92.91955507971471, "covid_ww_n": 2, "flu_cases": 14.0, "flu_ww": 153.85391023762267, "flu_ww_n": 4, "rsv_cases": 2.0, "rsv_ww": 18.56785033053646, "rsv_ww_n": 2}, {"week_ending": "2026-01-18", "covid_cases": 0.0, "covid_ww": 85.55056733299101, "covid_ww_n": 2, "flu_cases": 16.0, "flu_ww": 124.11816004424814, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 4.441822271781924, "rsv_ww_n": 2}, {"week_ending": "2026-01-25", "covid_cases": 0.0, "covid_ww": 131.43799391915036, "covid_ww_n": 2, "flu_cases": 30.0, "flu_ww": 188.58892403792652, "flu_ww_n": 4, "rsv_cases": 4.0, "rsv_ww": 10.31241516823889, "rsv_ww_n": 2}, {"week_ending": "2026-02-01", "covid_cases": 4.0, "covid_ww": 51.4689129323689, "covid_ww_n": 2, "flu_cases": 63.0, "flu_ww": 170.7278698242162, "flu_ww_n": 4, "rsv_cases": 1.0, "rsv_ww": 8.634209120084499, "rsv_ww_n": 2}, {"week_ending": "2026-02-08", "covid_cases": 2.0, "covid_ww": 59.58050227709177, "covid_ww_n": 2, "flu_cases": 47.0, "flu_ww": 297.7624219970137, "flu_ww_n": 4, "rsv_cases": 6.0, "rsv_ww": 37.40857006754635, "rsv_ww_n": 2}, {"week_ending": "2026-02-15", "covid_cases": 1.0, "covid_ww": 76.77339377869785, "covid_ww_n": 2, "flu_cases": 15.0, "flu_ww": 189.26119336200026, "flu_ww_n": 4, "rsv_cases": 10.0, "rsv_ww": 20.323627898065205, "rsv_ww_n": 2}, {"week_ending": "2026-02-22", "covid_cases": 2.0, "covid_ww": 140.92295005676306, "covid_ww_n": 2, "flu_cases": 7.0, "flu_ww": 104.71194183409247, "flu_ww_n": 4, "rsv_cases": 5.0, "rsv_ww": 5.187251331467017, "rsv_ww_n": 2}, {"week_ending": "2026-03-01", "covid_cases": 2.0, "covid_ww": 41.84173706104033, "covid_ww_n": 2, "flu_cases": 7.0, "flu_ww": 206.29677632359855, "flu_ww_n": 4, "rsv_cases": 4.0, "rsv_ww": 22.931550443079065, "rsv_ww_n": 2}, {"week_ending": "2026-03-08", "covid_cases": 0.0, "covid_ww": 47.81915220953513, "covid_ww_n": 2, "flu_cases": 5.0, "flu_ww": 45.21496404513659, "flu_ww_n": 4, "rsv_cases": 6.0, "rsv_ww": 43.46183344384987, "rsv_ww_n": 2}, {"week_ending": "2026-03-15", "covid_cases": 0.0, "covid_ww": 257.15016552191355, "covid_ww_n": 2, "flu_cases": 5.0, "flu_ww": 41.261985208694796, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 13.985647902062654, "rsv_ww_n": 2}, {"week_ending": "2026-03-22", "covid_cases": 4.0, "covid_ww": 851.0397137739719, "covid_ww_n": 2, "flu_cases": 6.0, "flu_ww": 24.627898369616783, "flu_ww_n": 4, "rsv_cases": 2.0, "rsv_ww": 33.67185088369011, "rsv_ww_n": 2}, {"week_ending": "2026-03-29", "covid_cases": 1.0, "covid_ww": 91.51372373096093, "covid_ww_n": 2, "flu_cases": 7.0, "flu_ww": 14.068733016037816, "flu_ww_n": 4, "rsv_cases": 1.0, "rsv_ww": 28.071362805489713, "rsv_ww_n": 2}, {"week_ending": "2026-04-05", "covid_cases": 1.0, "covid_ww": 43.31177881476678, "covid_ww_n": 2, "flu_cases": 2.0, "flu_ww": 24.96122041022254, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 9.814185401829242, "rsv_ww_n": 2}, {"week_ending": "2026-04-12", "covid_cases": 1.0, "covid_ww": 28.666968365892814, "covid_ww_n": 2, "flu_cases": 1.0, "flu_ww": 4.935075925218597, "flu_ww_n": 4, "rsv_cases": 1.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2026-04-19", "covid_cases": 5.0, "covid_ww": 24.936219844710905, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 16.559636451641047, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2026-04-26", "covid_cases": 1.0, "covid_ww": 119.5504266634582, "covid_ww_n": 2, "flu_cases": 1.0, "flu_ww": 2.0792071759988637, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2026-05-03", "covid_cases": 0.0, "covid_ww": 50.12997981175701, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 6.668828610563562, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 1.3917097154518536, "rsv_ww_n": 2}, {"week_ending": "2026-05-10", "covid_cases": 0.0, "covid_ww": 43.730598767056335, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 0.0, "flu_ww_n": 4, "rsv_cases": 2.0, "rsv_ww": 9.486728407700873, "rsv_ww_n": 2}, {"week_ending": "2026-05-17", "covid_cases": 0.0, "covid_ww": 34.45195557826748, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 15.797993248648352, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2026-05-24", "covid_cases": 1.0, "covid_ww": 3.045928942911711, "covid_ww_n": 2, "flu_cases": 1.0, "flu_ww": 0.0, "flu_ww_n": 4, "rsv_cases": 2.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2026-05-31", "covid_cases": 1.0, "covid_ww": 10.801432799287868, "covid_ww_n": 2, "flu_cases": 2.0, "flu_ww": 20.79762211760347, "flu_ww_n": 4, "rsv_cases": 1.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2026-06-07", "covid_cases": 0.0, "covid_ww": 24.62710318948402, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 3.688387967299202, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2026-06-14", "covid_cases": 0.0, "covid_ww": 0.0, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 3.7867631255896543, "flu_ww_n": 4, "rsv_cases": 1.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2026-06-21", "covid_cases": 0.0, "covid_ww": 5.774050094489755, "covid_ww_n": 2, "flu_cases": 6.0, "flu_ww": 11.041882563710407, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 5.0237273527472714, "rsv_ww_n": 2}, {"week_ending": "2026-06-28", "covid_cases": 0.0, "covid_ww": 11.393559055852263, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 0.0, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 4.461416473848038, "rsv_ww_n": 2}, {"week_ending": "2026-07-05", "covid_cases": 0.0, "covid_ww": 23.975803793131163, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 0.0, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2026-07-12", "covid_cases": 1.0, "covid_ww": 48.64383682156502, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 0.0, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2026-07-19", "covid_cases": 0.0, "covid_ww": 77.1130543701653, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 0.0, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}, {"week_ending": "2026-07-26", "covid_cases": 0.0, "covid_ww": 14.892497309985947, "covid_ww_n": 2, "flu_cases": 0.0, "flu_ww": 0.0, "flu_ww_n": 4, "rsv_cases": 0.0, "rsv_ww": 0.0, "rsv_ww_n": 2}];
+
+const DISEASE_CFG = {
+  covid: {label: 'SARS-CoV-2', caseKey: 'covid_cases', wwKey: 'covid_ww', nKey: 'covid_ww_n',
+          caseColor: 'var(--covid-case)', wwColor: 'var(--covid-ww)',
+          caseColorHex: '#b3472b', wwColorHex: '#2f6690',
+          title: 'Mono County SARS-CoV-2: Confirmed Cases vs. Wastewater Signal',
+          caseNote: 'Confirmed cases, Mono County residents only.'},
+  flu: {label: 'Influenza', caseKey: 'flu_cases', wwKey: 'flu_ww', nKey: 'flu_ww_n',
+        caseColor: 'var(--flu-case)', wwColor: 'var(--flu-ww)',
+        caseColorHex: '#9c6b1f', wwColorHex: '#4d7c3f',
+        title: 'Mono County Influenza: Initial Reports vs. Wastewater Signal',
+        caseNote: 'Initial reports (Influenza A + B combined, not confirmation-status filtered \u2014 field not present in source). Wastewater is FLUAV + FLUBV combined.'},
+  rsv: {label: 'RSV', caseKey: 'rsv_cases', wwKey: 'rsv_ww', nKey: 'rsv_ww_n',
+        caseColor: 'var(--rsv-case)', wwColor: 'var(--rsv-ww)',
+        caseColorHex: '#7a4a8f', wwColorHex: '#2f8f8a',
+        title: 'Mono County RSV: Initial Reports vs. Wastewater Signal',
+        caseNote: 'Initial reports (not confirmation-status filtered \u2014 field not present in source). Wastewater target: RSV-A + RSV-B combined.'}
+};
+
+let currentDisease = 'covid';
+
+const margin = {top: 20, right: 66, bottom: 46, left: 55};
+const width = 960, height = 460;
+const plotW = width - margin.left - margin.right;
+const plotH = height - margin.top - margin.bottom;
+
+function rollingMean(arr, w) {
+  return arr.map((_, i) => {
+    const lo = Math.max(0, i - Math.floor(w/2));
+    const hi = Math.min(arr.length, i + Math.floor(w/2) + 1);
+    const slice = arr.slice(lo, hi).filter(v => v !== null && !isNaN(v));
+    return slice.length ? slice.reduce((a,b) => a+b, 0) / slice.length : null;
+  });
+}
+
+const dates = raw.map(d => new Date(d.week_ending + 'T00:00:00'));
+
+function render() {
+  const cfg = DISEASE_CFG[currentDisease];
+  const useLog = document.getElementById('logToggle').checked;
+  const useSmooth = document.getElementById('smoothToggle').checked;
+
+  document.getElementById('title').textContent = cfg.title;
+  document.getElementById('legend').innerHTML = `
+    <div class="legend-item"><span class="swatch" style="background:${cfg.caseColorHex}"></span>${cfg.label} cases (weekly count)</div>
+    <div class="legend-item"><span class="swatch" style="background:${cfg.wwColorHex}; border-radius:50%;"></span>Wastewater, PMMoV-normalized (weekly mean)</div>
+  `;
+
+  const cases = raw.map(d => d[cfg.caseKey]);
+  const wwRaw = raw.map(d => d[cfg.wwKey]);
+  const ww = useSmooth ? rollingMean(wwRaw, 3) : wwRaw;
+
+  const svg = document.getElementById('chart');
+  svg.innerHTML = '';
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+
+  const n = raw.length;
+  const xScale = i => margin.left + (i / (n - 1)) * plotW;
+  const barW = Math.max(2, plotW / n * 0.62);
+
+  const maxCases = Math.max(1, ...cases);
+  const yCasesScale = v => margin.top + plotH - (v / maxCases) * plotH;
+
+  const wwVals = ww.filter(v => v !== null && v > 0);
+  const maxWW = Math.max(1, ...ww.filter(v => v !== null));
+  const minWWLog = wwVals.length ? Math.max(0.5, Math.min(...wwVals)) : 1;
+  function yWWScale(v) {
+    if (v === null) return null;
+    if (useLog) {
+      const vv = Math.max(v, minWWLog * 0.5);
+      const logMax = Math.log10(maxWW);
+      const logMin = Math.log10(minWWLog * 0.5);
+      return margin.top + plotH - ((Math.log10(vv) - logMin) / (logMax - logMin)) * plotH;
+    }
+    return margin.top + plotH - (v / maxWW) * plotH;
+  }
+
+  function svgEl(tag, attrs) {
+    const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (const k in attrs) el.setAttribute(k, attrs[k]);
+    return el;
+  }
+
+  const nTicksY = 5;
+  for (let t = 0; t <= nTicksY; t++) {
+    const v = (maxCases / nTicksY) * t;
+    const y = yCasesScale(v);
+    svg.appendChild(svgEl('line', {x1: margin.left, x2: width - margin.right, y1: y, y2: y, class: 'grid-line'}));
+    const lbl = svgEl('text', {x: margin.left - 8, y: y + 3, class: 'tick-text', 'text-anchor': 'end'});
+    lbl.textContent = Math.round(v);
+    svg.appendChild(lbl);
+  }
+  const yAxisLabel = svgEl('text', {x: 14, y: margin.top + plotH/2, class: 'axis-label', 'text-anchor': 'middle', transform: `rotate(-90, 14, ${margin.top + plotH/2})`});
+  yAxisLabel.textContent = `${cfg.label} cases / week`;
+  svg.appendChild(yAxisLabel);
+
+  for (let t = 0; t <= nTicksY; t++) {
+    let v, y;
+    if (useLog) {
+      const logMax = Math.log10(maxWW);
+      const logMin = Math.log10(minWWLog * 0.5);
+      const logV = logMin + (logMax - logMin) * (t / nTicksY);
+      v = Math.pow(10, logV);
+      y = yWWScale(v);
+    } else {
+      v = (maxWW / nTicksY) * t;
+      y = yWWScale(v);
+    }
+    const lbl = svgEl('text', {x: width - margin.right + 8, y: y + 3, class: 'tick-text', 'text-anchor': 'start'});
+    lbl.textContent = v >= 100 ? Math.round(v) : v.toFixed(1);
+    svg.appendChild(lbl);
+  }
+  const yAxisLabel2 = svgEl('text', {x: width - 14, y: margin.top + plotH/2, class: 'axis-label', 'text-anchor': 'middle', transform: `rotate(-90, ${width-14}, ${margin.top + plotH/2})`});
+  yAxisLabel2.textContent = 'WW conc. / PMMoV (norm. units)';
+  svg.appendChild(yAxisLabel2);
+
+  const step = Math.ceil(n / 12);
+  for (let i = 0; i < n; i += step) {
+    const x = xScale(i);
+    const lbl = svgEl('text', {x: x, y: margin.top + plotH + 18, class: 'tick-text', 'text-anchor': 'middle'});
+    lbl.textContent = dates[i].toLocaleDateString('en-US', {month: 'short', year: '2-digit'});
+    svg.appendChild(lbl);
+  }
+
+  const tooltip = document.getElementById('tooltip');
+  const chartContainer = document.querySelector('.chart-container');
+
+  for (let i = 0; i < n; i++) {
+    const x = xScale(i) - barW/2;
+    const y = yCasesScale(cases[i]);
+    const h = margin.top + plotH - y;
+    const rect = svgEl('rect', {x, y, width: barW, height: Math.max(0,h), class: 'case-bar', fill: cfg.caseColorHex});
+    rect.addEventListener('mousemove', (e) => showTip(e, i));
+    rect.addEventListener('mouseleave', hideTip);
+    svg.appendChild(rect);
+  }
+
+  let pathD = '';
+  ww.forEach((v, i) => {
+    if (v === null) return;
+    const x = xScale(i);
+    const y = yWWScale(v);
+    pathD += (pathD === '' ? 'M' : 'L') + x + ',' + y + ' ';
+  });
+  svg.appendChild(svgEl('path', {d: pathD, class: 'ww-line', stroke: cfg.wwColorHex}));
+
+  ww.forEach((v, i) => {
+    if (v === null) return;
+    const x = xScale(i);
+    const y = yWWScale(v);
+    const dot = svgEl('circle', {cx: x, cy: y, r: 2.6, class: 'ww-dot', fill: cfg.wwColorHex});
+    dot.addEventListener('mousemove', (e) => showTip(e, i));
+    dot.addEventListener('mouseleave', hideTip);
+    svg.appendChild(dot);
+  });
+
+  function showTip(e, i) {
+    const rectBox = chartContainer.getBoundingClientRect();
+    tooltip.innerHTML = `<b>Week of ${dates[i].toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})}</b><br>
+      ${cfg.label} cases: ${cases[i]}<br>
+      WW (norm.${useSmooth ? ', smoothed' : ''}): ${ww[i] !== null ? ww[i].toFixed(1) : 'n/a'}<br>
+      WW samples that week: ${raw[i][cfg.nKey]}`;
+    tooltip.style.left = (e.clientX - rectBox.left + 14) + 'px';
+    tooltip.style.top = (e.clientY - rectBox.top - 10) + 'px';
+    tooltip.style.opacity = 1;
+  }
+  function hideTip() { tooltip.style.opacity = 0; }
+
+  document.getElementById('footnote').innerHTML =
+    `${n} weekly observations, ${cases.reduce((a,b)=>a+b,0)} ${cfg.label.toLowerCase()} cases in window. ${cfg.caseNote} ` +
+    `Wastewater normalized as (gene copies/L) &divide; (PMMoV copies/L), scaled &times;10&sup6; for readability.`;
+}
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentDisease = tab.dataset.d;
+    render();
+  });
+});
+document.getElementById('logToggle').addEventListener('change', render);
+document.getElementById('smoothToggle').addEventListener('change', render);
+render();
+</script>
+</body>
+</html>
