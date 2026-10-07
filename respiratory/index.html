@@ -95,12 +95,14 @@
   .zoom-seasons .sw{width:14px;height:4px;border-radius:2px;display:inline-block}
   .zoom-chart{height:min(62vh,560px)}
   @media print{.zoom{display:none!important}}
-  footer{padding:14px 32px;color:var(--muted);font-size:12.5px;border-top:1px solid var(--line)}
+  footer{padding:14px 32px;color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  footer .credit a{color:var(--navy);font-weight:600}
   @media screen and (max-width:700px){header,main{padding-left:16px;padding-right:16px}.g2{grid-template-columns:1fr}.hd-meta{text-align:left}}
   /* ---------- print / PDF report layout ---------- */
   .print-head{display:none}
   body.printing header, body.printing nav, body.printing .hd-actions, body.printing .banner, body.printing .drop,
-  body.printing .toolbar, body.printing .zoomhint, body.printing .no-print, body.printing footer, body.printing .zoom{display:none!important}
+  body.printing .toolbar, body.printing .zoomhint, body.printing .no-print, body.printing .zoom{display:none!important}
+  body.printing footer{padding:10px 0 0;margin-top:12px;font-size:10.5px;break-inside:avoid}
   body.printing{background:#fff}
   body.printing main{width:10.1in;max-width:none;padding:0;margin:0}
   body.printing h2, body.printing .lead, body.printing .khead{break-after:avoid;page-break-after:avoid}
@@ -354,7 +356,7 @@
 
   </div>
 </main>
-<footer>Mono County Health &amp; Human Services, Public Health Division. Case counts are provisional and may change as reports are received.</footer>
+<footer><div>Mono County Health &amp; Human Services, Public Health Division. Case counts are provisional and may change as reports are received.</div><div class="credit">Dashboard developed by <a href="https://coreepisolutions.com" target="_blank" rel="noopener">Core Epi Solutions</a></div></footer>
 
 <script>
 /* ============ configuration ============ */
