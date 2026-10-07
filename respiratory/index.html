@@ -10,14 +10,16 @@
   :root{
     --navy:#0F3A52; --navy-2:#13506E; --teal:#1E6B85;
     --ink:#1B2A33; --muted:#5E6E78; --line:#D9E1E6; --bg:#F5F8FA; --panel:#FFFFFF;
-    --covid:#C0392B; --flu:#1E7F3E; --rsv:#E8862B; --fluB:#F2B84B;
+    --covid:#7B4FA0; --flu:#2F6DB5; --rsv:#2E8B6E; --fluB:#8FB8E6;
     --state:#7A8B96; --us:#2C3E50; --local:#1E6B85;
     --ok:#1E7F3E; --warn:#B7791F; --bad:#B03A2E;
   }
   *{box-sizing:border-box}
   html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 "Segoe UI","Helvetica Neue",Arial,sans-serif}
   a{color:var(--teal)}
-  header{background:linear-gradient(100deg,var(--navy) 0%,var(--navy-2) 60%,#0B2A3C 100%);color:#fff;padding:22px 32px 0}
+  header{background:linear-gradient(180deg,rgba(8,28,44,.35) 0%,rgba(8,28,44,.55) 55%,rgba(8,28,44,.85) 100%),url('https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/June_Lake_Mammoth_September_2016_panorama.jpg/2560px-June_Lake_Mammoth_September_2016_panorama.jpg') center 58%/cover no-repeat,linear-gradient(100deg,var(--navy) 0%,var(--navy-2) 60%,#0B2A3C 100%);color:#fff;padding:40px 32px 0;text-shadow:0 1px 3px rgba(0,0,0,.45)}
+  header .btn{text-shadow:none;backdrop-filter:blur(2px)}
+  header nav{margin-left:-32px;margin-right:-32px;padding:0 32px;background:rgba(8,28,44,.55)}
   .hd-top{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap}
   .hd-title h1{margin:0;font-size:26px;font-weight:600;letter-spacing:-.2px}
   .hd-title .sub{margin:4px 0 0;font-size:14px;opacity:.85}
@@ -27,7 +29,7 @@
   .btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);color:#fff;padding:7px 12px;border-radius:4px;font-size:13px;cursor:pointer}
   .btn:hover{background:rgba(255,255,255,.22)}
   .btn.primary{background:#fff;color:var(--navy);border-color:#fff;font-weight:600}
-  nav{display:flex;gap:2px;margin-top:18px;overflow-x:auto}
+  nav{display:flex;gap:2px;margin-top:30px;overflow-x:auto}
   nav button{background:transparent;border:0;border-bottom:3px solid transparent;color:rgba(255,255,255,.8);padding:10px 14px;font-size:14px;cursor:pointer;white-space:nowrap}
   nav button:hover{color:#fff}
   nav button.active{color:#fff;border-bottom-color:#F2B84B;font-weight:600}
@@ -97,6 +99,8 @@
   @media print{.zoom{display:none!important}}
   footer{padding:14px 32px;color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
   footer .credit a{color:var(--navy);font-weight:600}
+  footer .photo-credit{flex-basis:100%;font-size:11px} footer .photo-credit a{color:var(--muted)}
+  body.printing footer .photo-credit{display:none}
   @media screen and (max-width:700px){header,main{padding-left:16px;padding-right:16px}.g2{grid-template-columns:1fr}.hd-meta{text-align:left}}
   /* ---------- print / PDF report layout ---------- */
   .print-head{display:none}
@@ -356,7 +360,7 @@
 
   </div>
 </main>
-<footer><div>Mono County Health &amp; Human Services, Public Health Division. Case counts are provisional and may change as reports are received.</div><div class="credit">Dashboard developed by <a href="https://coreepisolutions.com" target="_blank" rel="noopener">Core Epi Solutions</a></div></footer>
+<footer><div>Mono County Health &amp; Human Services, Public Health Division. Case counts are provisional and may change as reports are received.</div><div class="credit">Dashboard developed by <a href="https://coreepisolutions.com" target="_blank" rel="noopener">Core Epi Solutions</a></div><div class="photo-credit">Header photo: June Lake, Mono County, by King of Hearts, <a href="https://commons.wikimedia.org/wiki/File:June_Lake_Mammoth_September_2016_panorama.jpg" target="_blank" rel="noopener">Wikimedia Commons</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a></div></footer>
 
 <script>
 /* ============ configuration ============ */
@@ -373,7 +377,7 @@ const CFG = {
   },
   wvalLabels:['Very Low','Low','Moderate','High','Very High'],
   wvalColors:['#2E8B57','#8DC26F','#F2C14E','#E8862B','#B03A2E'],
-  color:{covid:'#C0392B',flu:'#1E7F3E',rsv:'#E8862B',fluB:'#F2B84B',state:'#7A8B96',us:'#2C3E50',local:'#1E6B85',region:'#9B59B6'},
+  color:{covid:'#7B4FA0',flu:'#2F6DB5',rsv:'#2E8B6E',fluB:'#8FB8E6',state:'#7A8B96',us:'#2C3E50',local:'#1E6B85',region:'#9B59B6'},
   // One fixed color per season, used on every season-comparison chart. Add a line here when a new season starts.
   fluMinSeason:'2024-25', // Flu detail tab shows this season onward (A/B and vaccination fields start here)
   seasonColors:{'2022-23':'#8E6CB5','2023-24':'#2A9D8F','2024-25':'#E9A03B','2025-26':'#3B6FD6','2026-27':'#C8102E','2027-28':'#1B7F5B','2028-29':'#D36AA5'}
@@ -580,7 +584,7 @@ function renderSeasons(){
   build('flu',CFG.color.flu,'cSeasonFlu'); build('covid',CFG.color.covid,'cSeasonCovid'); build('rsv',CFG.color.rsv,'cSeasonRsv');
   if(!document.getElementById('zoom').hidden) renderZoom();
   const hist=[...T.covidHist,...T.weekly.filter(r=>r.covid!=null).map(r=>({week:r.week,cases:r.covid}))].sort((a,b)=>a.week-b.week);
-  mk('cCovidHist',{type:'line',data:{labels:hist.map(r=>fmtD(r.week)),datasets:[lineDs('Covid-19 cases',hist.map(r=>r.cases),CFG.color.covid,{pointRadius:0,borderWidth:1.5,fill:true,backgroundColor:'rgba(192,57,43,.12)'})]},options:{plugins:{legend:{display:false}},scales:{x:{ticks:{maxTicksLimit:24,maxRotation:0}},y:{beginAtZero:true,ticks:{precision:0}}}}});
+  mk('cCovidHist',{type:'line',data:{labels:hist.map(r=>fmtD(r.week)),datasets:[lineDs('Covid-19 cases',hist.map(r=>r.cases),CFG.color.covid,{pointRadius:0,borderWidth:1.5,fill:true,backgroundColor:'rgba(123,79,160,.14)'})]},options:{plugins:{legend:{display:false}},scales:{x:{ticks:{maxTicksLimit:24,maxRotation:0}},y:{beginAtZero:true,ticks:{precision:0}}}}});
 }
 
 function fluSeason(){ const s=currentSeason(); return s<CFG.fluMinSeason?CFG.fluMinSeason:s; }
@@ -632,8 +636,8 @@ function renderWW(){
   const vmap=new Map(); T.wwHist.forEach(r=>vmap.set(iso(r.week),r)); T.verily.forEach(r=>vmap.set(iso(r.week),Object.assign({},vmap.get(iso(r.week))||{},r)));
   const vk=[...vmap.keys()].sort(); const vAll=[]; if(vk.length){ for(let d=toDate(vk[0]); iso(d)<=vk[vk.length-1]; d=addDays(d,7)) vAll.push(vmap.get(iso(d))||{week:d}); } const v=vAll.slice(-52); // continuous weekly axis so unsampled weeks show as breaks document.getElementById('verilyTitle').textContent=`Verily, ${siteName.replace(/\s*\(Verily\)/i,'')}, last 52 weeks`;
   document.querySelector('#verilyTitle').parentElement.querySelector('.note').textContent=`${T.config['Wastewater note']?T.config['Wastewater note']+' ':''}Ratio of virus to PMMoV × 1,000,000; Wastewater_History plus weekly entries in Wastewater_Local. Breaks in a line are weeks without sampling.`;
-  mk('cVerily',{type:'line',options:{plugins:{emptyMsg:{text:'No Verily values entered in Wastewater_Local'}}},data:{labels:v.map(r=>fmtD(r.week)),datasets:[lineDs('SARS-CoV-2',v.map(r=>r.covid),CFG.color.covid),lineDs('Influenza A',v.map(r=>r.fluA),CFG.color.flu),lineDs('Influenza B',v.map(r=>r.fluB),CFG.color.fluB),lineDs('RSV',v.map(r=>r.rsv),CFG.color.rsv),lineDs('Influenza A (H5)',v.map(r=>r.h5),'#7B2D8E',{borderDash:[3,3]})].map(d=>Object.assign(d,{spanGaps:false}))},options:{scales:{y:{beginAtZero:true,title:{display:true,text:'Virus : PMMoV × 1M'}},x:{ticks:{maxTicksLimit:12,maxRotation:0}}}}});
-  mk('cVerilyOther',{type:'line',data:{labels:v.map(r=>fmtD(r.week)),datasets:[lineDs('Influenza A (H1)',v.map(r=>r.h1),'#1E7F3E'),lineDs('Influenza A (H3)',v.map(r=>r.h3),'#8DC26F'),lineDs('Measles',v.map(r=>r.measles),'#C0392B'),lineDs('Mpox clade I',v.map(r=>r.mpox1),'#7B2D8E'),lineDs('Mpox clade II',v.map(r=>r.mpox2),'#B58BC4')].map(d=>Object.assign(d,{spanGaps:false}))},options:{plugins:{emptyMsg:{text:'No other-target values'}},scales:{y:{beginAtZero:true,title:{display:true,text:'Virus : PMMoV × 1M'}},x:{ticks:{maxTicksLimit:12,maxRotation:0}}}}});
+  mk('cVerily',{type:'line',options:{plugins:{emptyMsg:{text:'No Verily values entered in Wastewater_Local'}}},data:{labels:v.map(r=>fmtD(r.week)),datasets:[lineDs('SARS-CoV-2',v.map(r=>r.covid),CFG.color.covid),lineDs('Influenza A',v.map(r=>r.fluA),CFG.color.flu),lineDs('Influenza B',v.map(r=>r.fluB),CFG.color.fluB),lineDs('RSV',v.map(r=>r.rsv),CFG.color.rsv),lineDs('Influenza A (H5)',v.map(r=>r.h5),'#5E6E78',{borderDash:[3,3]})].map(d=>Object.assign(d,{spanGaps:false}))},options:{scales:{y:{beginAtZero:true,title:{display:true,text:'Virus : PMMoV × 1M'}},x:{ticks:{maxTicksLimit:12,maxRotation:0}}}}});
+  mk('cVerilyOther',{type:'line',data:{labels:v.map(r=>fmtD(r.week)),datasets:[lineDs('Influenza A (H1)',v.map(r=>r.h1),'#153B66'),lineDs('Influenza A (H3)',v.map(r=>r.h3),'#8FB8E6'),lineDs('Measles',v.map(r=>r.measles),'#C0392B'),lineDs('Mpox clade I',v.map(r=>r.mpox1),'#7B2D8E'),lineDs('Mpox clade II',v.map(r=>r.mpox2),'#B58BC4')].map(d=>Object.assign(d,{spanGaps:false}))},options:{plugins:{emptyMsg:{text:'No other-target values'}},scales:{y:{beginAtZero:true,title:{display:true,text:'Virus : PMMoV × 1M'}},x:{ticks:{maxTicksLimit:12,maxRotation:0}}}}});
   const lvlColor={low:'#8DC26F',medium:'#F2C14E',high:'#B03A2E'};
   document.querySelector('#ucdTable tbody').innerHTML=T.ucd.length?T.ucd.map(r=>`<tr><td>${r.pathogen}</td><td>${r.trend??''}</td><td>${r.pc??''}</td><td>${r.level?`<span class="lvl-pill" style="background:${lvlColor[String(r.level).toLowerCase()]||'#7A8B96'}">${r.level}</span>`:''}</td></tr>`).join(''):'<tr><td colspan="4" style="color:var(--muted)">No UC Davis table entered.</td></tr>';
   document.getElementById('ucdNote').innerHTML=`${T.ucd[0]?.asOf?`As of ${fmtD(T.ucd[0].asOf)}. `:''}Mann-Kendall trend test for consistently increasing or decreasing trends, with statistical significance. <a href="https://cricelio.shinyapps.io/Monodashboard/" target="_blank" rel="noopener">Source: UC Davis dashboard</a>`;
@@ -655,7 +659,7 @@ function renderCvW(){
       {type:'line',label:`Wastewater${smooth?' (3-wk avg)':''}`,data:ww,borderColor:wcolor,backgroundColor:wcolor,borderWidth:2,pointRadius:2,tension:.2,spanGaps:false,yAxisID:'y2',order:1}]},
       options:{scales:{x:{ticks:{maxTicksLimit:14,maxRotation:0}},y:{beginAtZero:true,position:'left',title:{display:true,text:'Cases / week'}},
         y2:{type:useLog?'logarithmic':'linear',position:'right',beginAtZero:!useLog,grid:{drawOnChartArea:false},title:{display:true,text:'Virus : PMMoV × 1M'}}}}}); };
-  one('cCvwFlu','cFlu','wFlu',CFG.color.flu,'#4D7C3F'); one('cCvwCovid','cCovid','wCovid',CFG.color.covid,'#2F6690'); one('cCvwRsv','cRsv','wRsv',CFG.color.rsv,'#2F8F8A');
+  one('cCvwFlu','cFlu','wFlu',CFG.color.flu,'#153B66'); one('cCvwCovid','cCovid','wCovid',CFG.color.covid,'#3F2357'); one('cCvwRsv','cRsv','wRsv',CFG.color.rsv,'#165140');
   const lastW=[...weeks].reverse().find(w=>map.get(w).wCovid!=null||map.get(w).wFlu!=null||map.get(w).wRsv!=null);
   document.getElementById('cvwNote').textContent=`${T.config['Wastewater note']?T.config['Wastewater note']+' ':''}${weeks.length} weeks shown; wastewater through week of ${lastW?fmtD(toDate(lastW)):'—'}. Cases: CalREDIE reports by report date, Mono County residents (Covid confirmed + probable; flu and RSV initial reports). Wastewater: Wastewater_History plus weekly Verily entries in Wastewater_Local.`;
 }
