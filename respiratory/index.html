@@ -253,11 +253,11 @@
   <!-- MH -->
   <section class="tab" id="tab-mh">
     <h2>Mammoth Hospital</h2>
-    <p class="lead">Weekly counts reported by Mammoth Hospital. “Total” includes visitors; “local” is Mono County residents.</p>
+    <p class="lead">Weekly counts reported by Mammoth Hospital: influenza and RSV cases, and Covid-19 admissions. “All patients” includes visitors; “Mono residents” are local.</p>
     <div class="toolbar"><label for="seasonSelMh">Season</label><select id="seasonSelMh" class="seasonMirror"></select></div>
     <div class="grid g3">
       <div class="panel"><h3>Influenza</h3><div class="chart"><canvas id="cMhFlu"></canvas></div></div>
-      <div class="panel"><h3>Covid-19</h3><div class="chart"><canvas id="cMhCovid"></canvas></div></div>
+      <div class="panel"><h3>Covid-19 admits</h3><div class="chart"><canvas id="cMhCovid"></canvas></div></div>
       <div class="panel"><h3>RSV</h3><div class="chart"><canvas id="cMhRsv"></canvas></div></div>
     </div>
   </section>
@@ -596,8 +596,8 @@ function renderMH(){
   const s=currentSeason(); const rows=seasonRows(s).filter(r=>r.mhFluT!=null||r.mhCovT!=null||r.mhRsvT!=null); const lab=rows.map(r=>fmtD(r.week));
   const g=(id,t,l,color)=>mk(id,{type:'bar',data:{labels:lab,datasets:[{label:'All patients',data:rows.map(r=>r[t]),backgroundColor:color+'66',borderColor:color,borderWidth:1},{label:'Mono residents',data:rows.map(r=>r[l]),backgroundColor:color}]},options:{scales:{y:{beginAtZero:true}}}});
   g('cMhFlu','mhFluT','mhFluL',CFG.color.flu); g('cMhCovid','mhCovT','mhCovL',CFG.color.covid); g('cMhRsv','mhRsvT','mhRsvL',CFG.color.rsv);
-  [['cMhFlu','mhFluT','influenza'],['cMhCovid','mhCovT','Covid-19'],['cMhRsv','mhRsvT','RSV']].forEach(([id,k,name])=>{ const c=charts[id]; if(!c) return; const tot=rows.reduce((a,r)=>a+(r[k]||0),0);
-    c.options.plugins.emptyMsg={text:`No ${name} cases reported, ${s}`}; if(rows.length&&tot===0){ c.data.datasets.forEach(d=>d.data=d.data.map(()=>null)); } c.options.scales.y.ticks={precision:0}; c.update('none'); });
+  [['cMhFlu','mhFluT','influenza cases'],['cMhCovid','mhCovT','Covid-19 admits'],['cMhRsv','mhRsvT','RSV cases']].forEach(([id,k,name])=>{ const c=charts[id]; if(!c) return; const tot=rows.reduce((a,r)=>a+(r[k]||0),0);
+    c.options.plugins.emptyMsg={text:`No ${name} reported, ${s}`}; if(rows.length&&tot===0){ c.data.datasets.forEach(d=>d.data=d.data.map(()=>null)); } c.options.scales.y.ticks={precision:0}; c.update('none'); });
 }
 
 function renderTesting(){
