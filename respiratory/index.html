@@ -251,9 +251,9 @@
     <p class="lead">Influenza type and vaccination status among flu-positive patients reported by Mammoth Hospital, .</p>
     <div class="toolbar"><label for="seasonSelFlu">Season</label><select id="seasonSelFlu" class="seasonMirror"></select></div>
     <div class="grid g2">
-      <div class="panel"><h3>Flu A / B distribution</h3><div class="chart"><canvas id="cFluAB"></canvas></div></div>
-      <div class="panel"><h3>Flu vaccination status</h3><div class="chart"><canvas id="cFluVax"></canvas></div></div>
-      <div class="panel"><h3>Weekly vaccination rate among flu cases</h3><div class="chart short"><canvas id="cFluVaxRate"></canvas></div></div>
+      <div class="panel zoomable" data-chart="cFluAB" data-title="Flu A / B distribution" title="Click to enlarge"><h3>Flu A / B distribution <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cFluAB"></canvas></div></div>
+      <div class="panel zoomable" data-chart="cFluVax" data-title="Flu vaccination status" title="Click to enlarge"><h3>Flu vaccination status <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cFluVax"></canvas></div></div>
+      <div class="panel zoomable" data-chart="cFluVaxRate" data-title="Weekly vaccination rate among flu cases" title="Click to enlarge"><h3>Weekly vaccination rate among flu cases <span class="zoomhint">⤢ enlarge</span></h3><div class="chart short"><canvas id="cFluVaxRate"></canvas></div></div>
     </div>
   </section>
 
@@ -263,9 +263,9 @@
     <p class="lead">Weekly counts reported by Mammoth Hospital: influenza and RSV cases, and Covid-19 admissions. “All patients” includes visitors; “Mono residents” are local.</p>
     <div class="toolbar"><label for="seasonSelMh">Season</label><select id="seasonSelMh" class="seasonMirror"></select></div>
     <div class="grid g3">
-      <div class="panel"><h3>Influenza</h3><div class="chart"><canvas id="cMhFlu"></canvas></div></div>
-      <div class="panel"><h3>Covid-19 admits</h3><div class="chart"><canvas id="cMhCovid"></canvas></div></div>
-      <div class="panel"><h3>RSV</h3><div class="chart"><canvas id="cMhRsv"></canvas></div></div>
+      <div class="panel zoomable" data-chart="cMhFlu" data-title="Mammoth Hospital, influenza cases" title="Click to enlarge"><h3>Influenza <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cMhFlu"></canvas></div></div>
+      <div class="panel zoomable" data-chart="cMhCovid" data-title="Mammoth Hospital, Covid-19 admits" title="Click to enlarge"><h3>Covid-19 admits <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cMhCovid"></canvas></div></div>
+      <div class="panel zoomable" data-chart="cMhRsv" data-title="Mammoth Hospital, RSV cases" title="Click to enlarge"><h3>RSV <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cMhRsv"></canvas></div></div>
     </div>
   </section>
 
@@ -276,9 +276,9 @@
     <div class="grid g2">
       <div class="panel" style="grid-column:1/-1"><h3>Mono County ELR positivity, all viruses</h3><div class="chart"><canvas id="cElrAll"></canvas></div></div>
       <div class="grid g3" style="grid-column:1/-1">
-      <div class="panel"><h3>Influenza</h3><div class="chart"><canvas id="cPosFlu"></canvas></div><p class="note">Mono ELRs and CDPH Respiratory Virus Report (Southern California region, entered in State_National). Gaps are weeks without ELRs.</p></div>
-      <div class="panel"><h3>Covid-19</h3><div class="chart"><canvas id="cPosCovid"></canvas></div><p class="note" id="nPosCovid"></p></div>
-      <div class="panel"><h3>RSV</h3><div class="chart"><canvas id="cPosRsv"></canvas></div><p class="note" id="nPosRsv"></p></div>
+      <div class="panel zoomable" data-chart="cPosFlu" data-title="Influenza test positivity, Mono vs California" title="Click to enlarge"><h3>Influenza <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cPosFlu"></canvas></div><p class="note">Mono ELRs and CDPH Respiratory Virus Report (Southern California region, entered in State_National). Gaps are weeks without ELRs.</p></div>
+      <div class="panel zoomable" data-chart="cPosCovid" data-title="Covid-19 test positivity, Mono vs California" title="Click to enlarge"><h3>Covid-19 <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cPosCovid"></canvas></div><p class="note" id="nPosCovid"></p></div>
+      <div class="panel zoomable" data-chart="cPosRsv" data-title="RSV test positivity, Mono vs California" title="Click to enlarge"><h3>RSV <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cPosRsv"></canvas></div><p class="note" id="nPosRsv"></p></div>
       </div>
       <div class="panel" style="grid-column:1/-1"><h3>Weekly ELR volume, Mono County</h3><div class="chart"><canvas id="cElrVol"></canvas></div></div>
     </div>
