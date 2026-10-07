@@ -82,6 +82,7 @@
   .banner{background:#FFF6DD;border:1px solid #F2D58A;border-radius:6px;padding:10px 14px;font-size:13.5px;margin-bottom:14px;display:none}
   .banner.show{display:block}
   .print-only{display:none}
+  .subhead{font-size:17px;color:var(--navy);margin:26px 0 4px;padding-top:16px;border-top:1px solid var(--line)}
   .zoomable{cursor:zoom-in} .zoomable:hover{border-color:var(--teal)}
   .zoomhint{font-size:11.5px;font-weight:500;color:var(--muted);margin-left:6px}
   .zoom{position:fixed;inset:0;background:rgba(15,42,60,.55);z-index:50;display:flex;align-items:center;justify-content:center;padding:24px}
@@ -125,8 +126,9 @@
   body.printing #tab-sources > .panel:first-of-type, body.printing #tab-sources > .panel:last-of-type, body.printing #tab-sources > .lead{display:none}
   body.printing #wwNote{display:none}
   body.printing #tab-ww .grid.g2{grid-template-columns:1fr 1fr 1fr}
-  body.printing #tab-cvw .chart{height:130px}
-  body.printing #tab-cvw .note{display:none}
+  body.printing #cvwBlock{break-before:page;page-break-before:always} body.printing #cvwBlock .subhead{border-top:0;margin-top:0;padding-top:0;border-left:5px solid var(--navy);padding-left:8px}
+  body.printing #cvwBlock .chart{height:130px}
+  body.printing #cvwBlock .note{display:none}
   body.printing #tab-overview .grid.g2{grid-template-columns:1.15fr 1fr;align-items:start}
   body.printing #tab-overview .grid.g2 > .panel{grid-column:auto!important}
   body.printing #tab-overview .chart.tall{height:150px}
@@ -146,7 +148,7 @@
   body.printing #tab-testing .grid.g3 .note{display:none}
   body.printing #tab-ww .chart{height:150px}
   body.printing #tab-ww .grid.g2 .note{font-size:10px}
-  body.printing #tab-cvw .grid{gap:8px}
+  body.printing #cvwBlock .grid{gap:8px}
   body.printing img.chart-img{width:100%;height:100%;object-fit:contain;display:block}
   body.printing canvas.has-img{display:none!important}
   @media print{
@@ -182,7 +184,6 @@
     <button data-tab="mh">Mammoth Hospital</button>
     <button data-tab="testing">Test positivity</button>
     <button data-tab="ww">Wastewater</button>
-    <button data-tab="cvw">Cases vs wastewater</button>
     <button data-tab="highlights">Highlights</button>
     <button data-tab="sources">Sources &amp; status</button>
   </nav>
@@ -296,11 +297,8 @@
         <p class="note" id="ucdNote">Mann-Kendall trend test for consistently increasing or decreasing trends, with statistical significance. <a href="https://cricelio.shinyapps.io/Monodashboard/" target="_blank" rel="noopener">Source: UC Davis dashboard</a></p>
       </div>
     </div>
-  </section>
-
-  <!-- CASES VS WASTEWATER -->
-  <section class="tab" id="tab-cvw">
-    <h2>Cases vs wastewater</h2>
+    <div id="cvwBlock">
+    <h3 class="subhead">Cases vs wastewater</h3>
     <p class="lead">Weekly reported cases (bars, left axis) against the Mammoth Community Water District wastewater signal (line, right axis), October 2024 to present. Wastewater is the weekly mean of gene copies normalized to PMMoV, × 1,000,000.</p>
     <div class="toolbar">
       <label><input type="checkbox" id="cvwLog"> Log scale for wastewater axis</label>
@@ -312,7 +310,9 @@
       <div class="panel"><h3>RSV</h3><div class="chart"><canvas id="cCvwRsv"></canvas></div></div>
     </div>
     <p class="note" id="cvwNote"></p>
+    </div>
   </section>
+
 
   <!-- HIGHLIGHTS -->
   <section class="tab" id="tab-highlights">
@@ -685,7 +685,7 @@ function renderSources(){
     ['<a href="https://www.cdc.gov/wastewater/respiratory-viruses/index.html" target="_blank" rel="noopener">CDC NWSS wastewater viral activity level</a>','Wastewater, Overview','Live: data.cdc.gov atcp-73re (Mono site, CA median, US median)',st('nwss')],
     ['<a href="https://www.cdc.gov/nrevss/php/dashboard/index.html" target="_blank" rel="noopener">CDC NREVSS Covid-19 positivity</a>','Overview','Live: data.cdc.gov gvsb-yw6g (national, HHS Region 9)',st('nrevss_covid')],
     ['<a href="https://www.cdc.gov/nrevss/php/dashboard/index.html" target="_blank" rel="noopener">CDC NREVSS RSV positivity</a>','Overview','Live: data.cdc.gov 3cxc-4k8q (national, HHS Region 9)',st('nrevss_rsv')],
-    ['<a href="https://publichealth.verily.com/plants/4b49eb68" target="_blank" rel="noopener">Verily wastewater, Mammoth plant</a>','Wastewater, Cases vs wastewater','Tracker: Wastewater_Local (no public API); history in Wastewater_History',tr],
+    ['<a href="https://publichealth.verily.com/plants/4b49eb68" target="_blank" rel="noopener">Verily wastewater, Mammoth plant</a>','Wastewater','Tracker: Wastewater_Local (no public API); history in Wastewater_History',tr],
     ['<a href="https://cricelio.shinyapps.io/Monodashboard/" target="_blank" rel="noopener">UC Davis Mono wastewater dashboard</a>','Wastewater','Tracker: Wastewater_Local trend table',tr],
     ['<a href="https://www.cdph.ca.gov/Programs/CID/DCDC/Pages/RespiratoryVirusReport.aspx" target="_blank" rel="noopener">CDPH Respiratory Virus Report</a>','Test positivity, Overview','Tracker: State_National (CDPH files are download-only)',tr],
     ['<a href="https://skylab4.cdph.ca.gov/calcat/" target="_blank" rel="noopener">CalCAT</a>','Links','Tracker: State_National (R-eff); link for forecasts',tr],
