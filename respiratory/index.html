@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mono County Respiratory Virus Report</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --navy:#0F3A52; --navy-2:#13506E; --teal:#1E6B85;
+    --ink:#1B2A33; --muted:#5E6E78; --line:#D9E1E6; --bg:#F5F8FA; --panel:#FFFFFF;
+    --covid:#C0392B; --flu:#1E7F3E; --rsv:#E8862B; --fluB:#F2B84B;
+    --state:#7A8B96; --us:#2C3E50; --local:#1E6B85;
+    --ok:#1E7F3E; --warn:#B7791F; --bad:#B03A2E;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 "Segoe UI","Helvetica Neue",Arial,sans-serif}
+  a{color:var(--teal)}
+  header{background:linear-gradient(100deg,var(--navy) 0%,var(--navy-2) 60%,#0B2A3C 100%);color:#fff;padding:22px 32px 0}
+  .hd-top{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap}
+  .hd-title h1{margin:0;font-size:26px;font-weight:600;letter-spacing:-.2px}
+  .hd-title .sub{margin:4px 0 0;font-size:14px;opacity:.85}
+  .hd-meta{text-align:right;font-size:13px;opacity:.9;line-height:1.6}
+  .hd-meta strong{font-weight:600}
+  .hd-actions{display:flex;gap:8px;margin-top:6px;justify-content:flex-end;flex-wrap:wrap}
+  .btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);color:#fff;padding:7px 12px;border-radius:4px;font-size:13px;cursor:pointer}
+  .btn:hover{background:rgba(255,255,255,.22)}
+  .btn.primary{background:#fff;color:var(--navy);border-color:#fff;font-weight:600}
+  nav{display:flex;gap:2px;margin-top:18px;overflow-x:auto}
+  nav button{background:transparent;border:0;border-bottom:3px solid transparent;color:rgba(255,255,255,.8);padding:10px 14px;font-size:14px;cursor:pointer;white-space:nowrap}
+  nav button:hover{color:#fff}
+  nav button.active{color:#fff;border-bottom-color:#F2B84B;font-weight:600}
+  main{padding:22px 32px 48px;max-width:1440px;margin:0 auto}
+  section.tab{display:none}
+  section.tab.active{display:block}
+  h2{font-size:20px;font-weight:600;margin:0 0 4px;color:var(--navy)}
+  h3{font-size:15px;font-weight:600;margin:0 0 6px;color:var(--ink)}
+  .lead{color:var(--muted);margin:0 0 16px;font-size:14px;max-width:80ch}
+  .grid{display:grid;gap:16px}
+  .g2{grid-template-columns:repeat(auto-fit,minmax(440px,1fr))}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px 18px}
+  .panel .note{color:var(--muted);font-size:12.5px;margin:6px 0 0}
+  .chart{position:relative;height:300px}
+  .chart.tall{height:360px}
+  .chart.short{height:230px}
+  .kpis{display:block;margin-bottom:16px}
+  .kpi{background:#fff;border:1px solid var(--line);border-left:5px solid var(--navy);border-radius:6px;padding:12px 14px}
+  .kpi .lab{font-size:12.5px;color:var(--muted)}
+  .kpi .val{font-size:28px;font-weight:600;line-height:1.1;margin:4px 0 2px}
+  .kpi .delta{font-size:12.5px;color:var(--muted)}
+  .kpi.covid{border-left-color:var(--covid)} .kpi.flu{border-left-color:var(--flu)} .kpi.rsv{border-left-color:var(--rsv)}
+  .kpi .lvl{display:inline-block;padding:2px 8px;border-radius:3px;font-size:12px;font-weight:600;color:#fff;margin-top:4px}
+  .vrow{display:grid;grid-template-columns:150px repeat(4,1fr);gap:12px;align-items:stretch;margin-bottom:12px}
+  .vrow .vname{display:flex;flex-direction:column;justify-content:center;padding:12px 14px;border-radius:6px;color:#fff;font-weight:600;font-size:16px}
+  .vrow .vname small{font-weight:400;font-size:12px;opacity:.85}
+  .vrow.flu .vname{background:var(--flu)} .vrow.covid .vname{background:var(--covid)} .vrow.rsv .vname{background:var(--rsv)}
+  .vrow .kpi{border-left-width:1px}
+  .kpi .val.sm{font-size:22px}
+  .kpi .delta.up{color:var(--bad)} .kpi .delta.down{color:var(--ok)}
+  .khead{display:grid;grid-template-columns:150px repeat(4,1fr);gap:12px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 6px;padding:0 2px}
+  .khead span:first-child{visibility:hidden}
+  @media (max-width:900px){.vrow,.khead{grid-template-columns:1fr 1fr}.khead{display:none}.vrow .vname{grid-column:1/-1}}
+  table{border-collapse:collapse;width:100%;font-size:13.5px}
+  th,td{border-bottom:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+  th{background:#EEF3F6;font-weight:600;color:var(--navy)}
+  td.num,th.num{text-align:right}
+  .lvl-pill{display:inline-block;padding:2px 9px;border-radius:3px;font-size:12.5px;font-weight:600;color:#fff}
+  .status{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
+  .status.ok{background:var(--ok)} .status.warn{background:var(--warn)} .status.bad{background:var(--bad)} .status.na{background:#B8C2C9}
+  ul.hl{margin:0;padding-left:18px} ul.hl li{margin:0 0 8px}
+  ul.hl .d{color:var(--muted);font-size:12.5px;margin-left:6px}
+  .drop{border:2px dashed #9FB3C0;border-radius:8px;padding:38px;text-align:center;background:#fff;margin:24px auto;max-width:720px}
+  .drop p{margin:6px 0;color:var(--muted)}
+  .drop input{display:none}
+  .toolbar{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:0 0 14px;font-size:13.5px}
+  .toolbar label{color:var(--muted)}
+  select{font:inherit;padding:4px 8px;border:1px solid var(--line);border-radius:4px;background:#fff}
+  .legend-bands{display:flex;gap:8px;flex-wrap:wrap;font-size:12px;margin-top:8px}
+  .legend-bands span{padding:2px 8px;border-radius:3px;color:#fff;font-weight:600}
+  .banner{background:#FFF6DD;border:1px solid #F2D58A;border-radius:6px;padding:10px 14px;font-size:13.5px;margin-bottom:14px;display:none}
+  .banner.show{display:block}
+  .print-only{display:none}
+  .zoomable{cursor:zoom-in} .zoomable:hover{border-color:var(--teal)}
+  .zoomhint{font-size:11.5px;font-weight:500;color:var(--muted);margin-left:6px}
+  .zoom{position:fixed;inset:0;background:rgba(15,42,60,.55);z-index:50;display:flex;align-items:center;justify-content:center;padding:24px}
+  .zoom[hidden]{display:none}
+  .zoom-box{background:#fff;border-radius:8px;width:min(1300px,100%);max-height:100%;overflow:auto;padding:18px 22px 16px;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+  .zoom-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px} .zoom-head h3{font-size:18px;margin:0;color:var(--navy)}
+  .btn-close{background:none;border:1px solid var(--line);border-radius:4px;font-size:15px;padding:4px 10px;cursor:pointer;color:var(--muted)} .btn-close:hover{color:var(--ink)}
+  .zoom-seasons{display:flex;gap:16px;flex-wrap:wrap;font-size:13.5px;margin:0 0 10px}
+  .zoom-seasons label{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+  .zoom-seasons .sw{width:14px;height:4px;border-radius:2px;display:inline-block}
+  .zoom-chart{height:min(62vh,560px)}
+  @media print{.zoom{display:none!important}}
+  footer{padding:14px 32px;color:var(--muted);font-size:12.5px;border-top:1px solid var(--line)}
+  @media (max-width:700px){header,main{padding-left:16px;padding-right:16px}.g2{grid-template-columns:1fr}.hd-meta{text-align:left}}
+  @media print{
+    @page{size:letter landscape;margin:12mm}
+    body{background:#fff}
+    header{padding:14px 20px 0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    nav,.hd-actions,.drop,.toolbar,.no-print{display:none!important}
+    main{padding:12px 0;max-width:none}
+    section.tab{display:block!important;page-break-before:always;break-before:page}
+    section.tab:first-of-type{page-break-before:auto;break-before:auto}
+    .print-only{display:block}
+    .panel,.kpi{page-break-inside:avoid;break-inside:avoid;box-shadow:none}
+    .g2{grid-template-columns:1fr 1fr}
+    body{font-size:12.5px}
+    .chart{height:210px}
+    .chart.tall{height:250px}
+    .chart.short{height:180px}
+    .kpi .val{font-size:22px}
+    .banner{display:none!important}
+    footer{display:none}
+    canvas{max-width:100%}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="hd-top">
+    <div class="hd-title">
+      <h1>Respiratory Virus Report</h1>
+      <p class="sub" id="subTitle">Mono County Health &amp; Human Services, Public Health Division</p>
+    </div>
+    <div class="hd-meta">
+      <div><strong id="seasonLabel">Season —</strong></div>
+      <div id="dataThrough">Data through —</div>
+      <div id="reportDate"></div>
+      <div class="hd-actions">
+        <label class="btn" for="fileIn">Load tracker (.xlsx)</label>
+        <input id="fileIn" type="file" accept=".xlsx" style="display:none">
+        <button class="btn" id="btnRefresh" title="Re-pull CDC live data">Refresh live data</button>
+        <button class="btn primary" id="btnPrint">Print / save PDF</button>
+      </div>
+    </div>
+  </div>
+  <nav id="nav">
+    <button data-tab="overview" class="active">Overview</button>
+    <button data-tab="seasons">Cases by season</button>
+    <button data-tab="flu">Flu detail</button>
+    <button data-tab="mh">Mammoth Hospital</button>
+    <button data-tab="testing">Test positivity</button>
+    <button data-tab="ww">Wastewater</button>
+    <button data-tab="cvw">Cases vs wastewater</button>
+    <button data-tab="highlights">Highlights</button>
+    <button data-tab="sources">Sources &amp; status</button>
+  </nav>
+</header>
+<div id="zoom" class="zoom" hidden>
+  <div class="zoom-box">
+    <div class="zoom-head"><h3 id="zoomTitle"></h3><button class="btn-close" id="zoomClose" aria-label="Close">✕</button></div>
+    <div class="zoom-seasons" id="zoomSeasons"></div>
+    <div class="chart zoom-chart"><canvas id="cZoom"></canvas></div>
+    <p class="note" id="zoomNote"></p>
+  </div>
+</div>
+
+<main>
+  <div class="banner" id="banner"></div>
+  <div class="drop" id="drop">
+    <h3>Load the weekly tracker to build the report</h3>
+    <p>Drop <code>RV_Tracker.xlsx</code> here or use “Load tracker”. When this page is hosted alongside the tracker file, it loads automatically.</p>
+  </div>
+
+  <div id="app" style="display:none">
+
+  <!-- OVERVIEW -->
+  <section class="tab active" id="tab-overview">
+    <h2>Overview</h2>
+    <p class="lead" id="ovLead"></p>
+    <div class="kpis" id="kpis"></div>
+    <div class="grid g2">
+      <div class="panel" style="grid-column:1/-1">
+        <h3>Reported cases, Mono County residents, current season</h3>
+        <div class="chart tall"><canvas id="cCombined"></canvas></div>
+        <p class="note">Source: CalREDIE. Week = Monday start date.</p>
+      </div>
+      <div class="panel" style="grid-column:1/-1">
+        <h3>Where Mono stands this week</h3>
+        <table id="standTable"><thead><tr><th>Indicator</th><th>Mono</th><th>California</th><th>United States</th></tr></thead><tbody></tbody></table>
+        <p class="note">Wastewater viral activity level (WVAL) from CDC NWSS; positivity from Mono ELRs, CDPH (tracker), and CDC NREVSS. Blank cells: not available for this week.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEASONS -->
+  <section class="tab" id="tab-seasons">
+    <h2>Cases by season</h2>
+    <p class="lead">Weekly reported cases among Mono County residents by MMWR week, compared with prior seasons. The dashed line marks the most recent week of the selected season.</p>
+    <div class="toolbar"><label for="seasonSel">Season to highlight</label><select id="seasonSel"></select></div>
+    <div class="grid g3">
+      <div class="panel zoomable" data-virus="flu" title="Click to enlarge"><h3>Influenza <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cSeasonFlu"></canvas></div></div>
+      <div class="panel zoomable" data-virus="covid" title="Click to enlarge"><h3>Covid-19 <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cSeasonCovid"></canvas></div></div>
+      <div class="panel zoomable" data-virus="rsv" title="Click to enlarge"><h3>RSV <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cSeasonRsv"></canvas></div></div>
+    </div>
+    <div class="panel" style="margin-top:16px"><h3>Covid-19 epi curve [Nov 2022–current]</h3><div class="chart"><canvas id="cCovidHist"></canvas></div></div>
+  </section>
+
+  <!-- FLU -->
+  <section class="tab" id="tab-flu">
+    <h2>Flu detail</h2>
+    <p class="lead">Influenza type and vaccination status among flu-positive patients reported by Mammoth Hospital, .</p>
+    <div class="toolbar"><label for="seasonSelFlu">Season</label><select id="seasonSelFlu" class="seasonMirror"></select></div>
+    <div class="grid g2">
+      <div class="panel"><h3>Flu A / B distribution</h3><div class="chart"><canvas id="cFluAB"></canvas></div></div>
+      <div class="panel"><h3>Flu vaccination status</h3><div class="chart"><canvas id="cFluVax"></canvas></div></div>
+      <div class="panel"><h3>Weekly vaccination rate among flu cases</h3><div class="chart short"><canvas id="cFluVaxRate"></canvas></div></div>
+    </div>
+  </section>
+
+  <!-- MH -->
+  <section class="tab" id="tab-mh">
+    <h2>Mammoth Hospital</h2>
+    <p class="lead">Weekly counts reported by Mammoth Hospital. “Total” includes visitors; “local” is Mono County residents.</p>
+    <div class="toolbar"><label for="seasonSelMh">Season</label><select id="seasonSelMh" class="seasonMirror"></select></div>
+    <div class="grid g3">
+      <div class="panel"><h3>Influenza</h3><div class="chart"><canvas id="cMhFlu"></canvas></div></div>
+      <div class="panel"><h3>Covid-19</h3><div class="chart"><canvas id="cMhCovid"></canvas></div></div>
+      <div class="panel"><h3>RSV</h3><div class="chart"><canvas id="cMhRsv"></canvas></div></div>
+    </div>
+  </section>
+
+  <!-- TESTING -->
+  <section class="tab" id="tab-testing">
+    <h2>Test positivity</h2>
+    <p class="lead">Percent of tests positive: Mono County electronic lab reports (ELRs) compared with California (CDPH Respiratory Virus Report, entered in the tracker). National comparisons are on the Overview tab. <span id="elrWindow"></span></p>
+    <div class="grid g2">
+      <div class="panel" style="grid-column:1/-1"><h3>Mono County ELR positivity, all viruses</h3><div class="chart"><canvas id="cElrAll"></canvas></div></div>
+      <div class="grid g3" style="grid-column:1/-1">
+      <div class="panel"><h3>Influenza</h3><div class="chart"><canvas id="cPosFlu"></canvas></div><p class="note">Mono ELRs and CDPH Respiratory Virus Report (Southern California region, entered in State_National). Gaps are weeks without ELRs.</p></div>
+      <div class="panel"><h3>Covid-19</h3><div class="chart"><canvas id="cPosCovid"></canvas></div><p class="note" id="nPosCovid"></p></div>
+      <div class="panel"><h3>RSV</h3><div class="chart"><canvas id="cPosRsv"></canvas></div><p class="note" id="nPosRsv"></p></div>
+      </div>
+      <div class="panel" style="grid-column:1/-1"><h3>Weekly ELR volume, Mono County</h3><div class="chart"><canvas id="cElrVol"></canvas></div></div>
+    </div>
+  </section>
+
+  <!-- WASTEWATER -->
+  <section class="tab" id="tab-ww">
+    <h2>Wastewater</h2>
+    <p class="lead">CDC wastewater viral activity level (WVAL) for the Mono County sampling site compared with the California and national medians, plus local Verily concentrations and the UC Davis trend table.</p>
+    <div class="legend-bands" id="wvalLegend"></div>
+    <div class="grid g3" style="margin-top:12px">
+      <div class="panel zoomable" data-chart="cWwCovid" data-title="SARS-CoV-2 wastewater, Mono vs California vs US" title="Click to enlarge"><h3>SARS-CoV-2 <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cWwCovid"></canvas></div></div>
+      <div class="panel zoomable" data-chart="cWwFlu" data-title="Influenza A wastewater, Mono vs California vs US" title="Click to enlarge"><h3>Influenza A <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cWwFlu"></canvas></div></div>
+      <div class="panel zoomable" data-chart="cWwRsv" data-title="RSV wastewater, Mono vs California vs US" title="Click to enlarge"><h3>RSV <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cWwRsv"></canvas></div></div>
+    </div>
+    <p class="note" id="wwNote" style="margin:8px 0 16px"></p>
+    <div class="grid g2">
+      <div class="panel zoomable" data-chart="cVerily" data-title="Verily wastewater, Mammoth Lakes plant" title="Click to enlarge"><h3 id="verilyTitle">Verily, Mammoth Lakes plant <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cVerily"></canvas></div><p class="note">Ratio of virus to PMMoV × 1,000,000, entered weekly in the tracker from the Verily dashboard.</p></div>
+      <div class="panel zoomable" data-chart="cVerilyOther" data-title="Verily, other targets" title="Click to enlarge"><h3>Verily, other targets (H1/H3 subtypes, measles, mpox) <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cVerilyOther"></canvas></div><p class="note">From Wastewater_History; these targets are not entered weekly in Wastewater_Local.</p></div>
+      <div class="panel"><h3>UC Davis Mono wastewater dashboard</h3>
+        <table id="ucdTable"><thead><tr><th>Pathogen</th><th>Trend</th><th>Percent change</th><th>Level</th></tr></thead><tbody></tbody></table>
+        <p class="note" id="ucdNote">Mann-Kendall trend test for consistently increasing or decreasing trends, with statistical significance. <a href="https://cricelio.shinyapps.io/Monodashboard/" target="_blank" rel="noopener">Source: UC Davis dashboard</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CASES VS WASTEWATER -->
+  <section class="tab" id="tab-cvw">
+    <h2>Cases vs wastewater</h2>
+    <p class="lead">Weekly reported cases (bars, left axis) against the Mammoth Community Water District wastewater signal (line, right axis), October 2024 to present. Wastewater is the weekly mean of gene copies normalized to PMMoV, × 1,000,000.</p>
+    <div class="toolbar">
+      <label><input type="checkbox" id="cvwLog"> Log scale for wastewater axis</label>
+      <label><input type="checkbox" id="cvwSmooth" checked> 3-week rolling average (wastewater)</label>
+    </div>
+    <div class="grid" style="grid-template-columns:1fr">
+      <div class="panel"><h3>Influenza</h3><div class="chart"><canvas id="cCvwFlu"></canvas></div><p class="note">Wastewater: influenza A + B combined.</p></div>
+      <div class="panel"><h3>SARS-CoV-2</h3><div class="chart"><canvas id="cCvwCovid"></canvas></div></div>
+      <div class="panel"><h3>RSV</h3><div class="chart"><canvas id="cCvwRsv"></canvas></div></div>
+    </div>
+    <p class="note" id="cvwNote"></p>
+  </section>
+
+  <!-- HIGHLIGHTS -->
+  <section class="tab" id="tab-highlights">
+    <h2>Highlights</h2>
+    <p class="lead" id="hlLead">Key messages for the week, with source links. Entered in the Highlights sheet of the tracker.</p>
+    <div class="panel"><ul class="hl" id="highlights"></ul></div>
+  </section>
+
+  <!-- SOURCES -->
+  <section class="tab" id="tab-sources">
+    <h2>Sources &amp; state/national dashboards</h2>
+    <p class="lead">Where each panel gets its data and whether the live pulls succeeded on this load.</p>
+    <div class="panel">
+      <table id="srcTable"><thead><tr><th>Source</th><th>Feeds</th><th>How it loads</th><th>Status</th></tr></thead><tbody></tbody></table>
+    </div>
+
+    <div class="panel" style="margin-top:16px">
+        <h3>State and national dashboards</h3>
+        <table>
+          <tbody>
+            <tr><td><a href="https://www.cdph.ca.gov/Programs/CID/DCDC/Pages/RespiratoryVirusReport.aspx" target="_blank" rel="noopener">CDPH Respiratory Virus Report</a></td><td>Combined burden, test positivity by region, ED visits, hospitalizations, deaths</td></tr>
+            <tr><td><a href="https://skylab4.cdph.ca.gov/calcat/" target="_blank" rel="noopener">CalCAT</a></td><td>Statewide Covid R-effective and short-term influenza forecasts</td></tr>
+            <tr><td><a href="https://skylab.cdph.ca.gov/calwws/" target="_blank" rel="noopener">CalSewers</a></td><td>Statewide wastewater for Covid, flu A/B, RSV; SARS-CoV-2 variants</td></tr>
+            <tr><td><a href="https://www.cdc.gov/wastewater/respiratory-viruses/state.html" target="_blank" rel="noopener">CDC NWSS state trends</a></td><td>State and territory wastewater viral activity levels</td></tr>
+            <tr><td><a href="https://www.cdc.gov/nwss/rv/wwd-h5.html" target="_blank" rel="noopener">CDC H5 wastewater</a></td><td>Avian influenza A(H5) detections in wastewater</td></tr>
+            <tr><td><a href="https://www.cdc.gov/fluview/" target="_blank" rel="noopener">CDC FluView</a></td><td>National influenza clinical lab positivity and ILI</td></tr>
+            <tr><td><a href="https://www.cdc.gov/respiratory-viruses/data/activity-levels.html" target="_blank" rel="noopener">CDC respiratory activity levels</a></td><td>Acute respiratory illness levels by state</td></tr>
+          </tbody>
+        </table>
+      </div>    <div class="panel" style="margin-top:16px">
+      <h3>Weekly update</h3>
+      <ol style="margin:0;padding-left:20px;font-size:14px">
+        <li>Fill the yellow cells in <code>RV_Tracker.xlsx</code> (Weekly_Local, Weekly_ELR, Wastewater_Local, State_National, Flu_Age_Vax, Highlights, Config). Wastewater_History is read-only history.</li>
+        <li>Commit the tracker to the GitHub repository next to <code>index.html</code>. The page loads it automatically; CDC data refresh on every page load.</li>
+        <li>Use “Print / save PDF” for the leadership copy. All tabs print in order, one section per page.</li>
+      </ol>
+    </div>
+  </section>
+
+  </div>
+</main>
+<footer>Mono County Health &amp; Human Services, Public Health Division. Case counts are provisional and may change as reports are received.</footer>
+
+<script>
+/* ============ configuration ============ */
+const CFG = {
+  trackerFile: 'RV_Tracker.xlsx',
+  nwss: 'https://data.cdc.gov/resource/atcp-73re.json',
+  nrevssCovid: 'https://data.cdc.gov/resource/gvsb-yw6g.json',
+  nrevssRsv: 'https://data.cdc.gov/resource/3cxc-4k8q.json',
+  // CDC WVAL category thresholds (cdc.gov/wastewater, 2025-26). Update if CDC revises.
+  wval: {
+    'SARS-CoV-2':       {key:'covid', cuts:[2,3.4,5.3,7.8]},
+    'Influenza A virus':{key:'flu',   cuts:[2.7,6.2,11.2,17.6]},
+    'RSV':              {key:'rsv',   cuts:[2.5,5.2,8,11]}
+  },
+  wvalLabels:['Very Low','Low','Moderate','High','Very High'],
+  wvalColors:['#2E8B57','#8DC26F','#F2C14E','#E8862B','#B03A2E'],
+  color:{covid:'#C0392B',flu:'#1E7F3E',rsv:'#E8862B',fluB:'#F2B84B',state:'#7A8B96',us:'#2C3E50',local:'#1E6B85',region:'#9B59B6'},
+  // One fixed color per season, used on every season-comparison chart. Add a line here when a new season starts.
+  seasonColors:{'2022-23':'#8E6CB5','2023-24':'#2A9D8F','2024-25':'#E9A03B','2025-26':'#3B6FD6','2026-27':'#C8102E','2027-28':'#1B7F5B','2028-29':'#D36AA5'}
+};
+const charts = {};
+const live = {nwss:{us:{},ca:{},mono:{},siteInfo:null}, nrevss:{covid:null,rsv:null}, status:{}};
+let T = null; // tracker data
+
+/* ============ utilities ============ */
+const fmtD = d => d ? `${d.getMonth()+1}/${d.getDate()}/${String(d.getFullYear()).slice(2)}` : '';
+const fmtP = v => (v==null||isNaN(v)) ? '—' : (v*100).toFixed(v*100<10?1:0)+'%';
+const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; // local date, never UTC
+function toDate(v){ if(v instanceof Date) return new Date(v.getFullYear(),v.getMonth(),v.getDate()); if(typeof v==='number'){const o=XLSX.SSF.parse_date_code(v); return new Date(o.y,o.m-1,o.d);} if(typeof v==='string'&&v){const m=v.match(/^(\d{4})-(\d{2})-(\d{2})/); if(m) return new Date(+m[1],+m[2]-1,+m[3]); const d=new Date(v); return isNaN(d)?null:new Date(d.getFullYear(),d.getMonth(),d.getDate());} return null; }
+function num(v){ if(v===''||v==null) return null; const n=+v; return isNaN(n)?null:n; }
+function addDays(d,n){const x=new Date(d); x.setDate(x.getDate()+n); return x;}
+function mmwr(d){ // returns {year, week} for the MMWR week containing date d
+  const sat = addDays(d, 6 - d.getDay());
+  let y = sat.getFullYear();
+  const w1 = yr => { const j4=new Date(yr,0,4); return addDays(j4,-j4.getDay()); };
+  if (sat < w1(y)) y -= 1;
+  if (sat >= w1(y+1)) y += 1;
+  const week = Math.floor((sat - w1(y))/(7*864e5)) + 1;
+  return {year:y, week};
+}
+function seasonOf(d){ const m=mmwr(d); const y = m.week>=36 ? m.year : m.year-1; return `${y}-${String(y+1).slice(2)}`; }
+function seasonIdx(week){ return week>=36 ? week-36 : week+18; }
+const SEASON_WEEKS = [...Array(18)].map((_,i)=>36+i).concat([...Array(35)].map((_,i)=>i+1)); // 36..53, 1..35; week 53 exists only in some years
+function median(a){ const s=a.filter(x=>x!=null&&!isNaN(x)).sort((x,y)=>x-y); if(!s.length) return null; const m=s.length>>1; return s.length%2?s[m]:(s[m-1]+s[m])/2; }
+function wvalCat(pathogenKey, v){ if(v==null) return null; const cuts=Object.values(CFG.wval).find(x=>x.key===pathogenKey).cuts; let i=0; while(i<cuts.length && v>cuts[i]) i++; return i; }
+function pill(i){ return i==null?'—':`<span class="lvl-pill" style="background:${CFG.wvalColors[i]}">${CFG.wvalLabels[i]}</span>`; }
+function setStatus(k, s, msg){ live.status[k]={s,msg}; }
+
+/* ============ tracker parsing ============ */
+function parseTracker(buf){
+  const wb = XLSX.read(buf,{type:'array',cellDates:true});
+  const sh = n => wb.Sheets[n] ? XLSX.utils.sheet_to_json(wb.Sheets[n],{defval:null,raw:true}) : [];
+  const cfgRows = sh('Config'); const config={};
+  cfgRows.forEach(r=>{ if(r.Setting) config[r.Setting]=r.Value; });
+  const weekly = sh('Weekly_Local').filter(r=>r['Week (Mon)']).map(r=>({
+    week: toDate(r['Week (Mon)']), covid:num(r['Covid-19 cases']), flu:num(r['Flu cases']), rsv:num(r['RSV cases']),
+    mhCovT:num(r['MH Covid (total)']), mhCovL:num(r['MH Covid (local)']), mhFluT:num(r['MH Flu (total)']), mhFluL:num(r['MH Flu (local)']),
+    mhRsvT:num(r['MH RSV (total)']), mhRsvL:num(r['MH RSV (local)']), fluA:num(r['MH Flu A']), fluB:num(r['MH Flu B']),
+    vaxY:num(r["MH Flu vax 'Yes'"]), vaxN:num(r["MH Flu vax 'No'/'Unknown'"])
+  })).filter(r=>r.week && Object.keys(r).some(k=>k!=='week'&&r[k]!=null)).sort((a,b)=>a.week-b.week);
+  weekly.forEach(r=>{ const m=mmwr(r.week); r.mmwr=m.week; r.season=seasonOf(r.week); });
+  const elr = sh('Weekly_ELR').filter(r=>r['Week (Mon)']).map(r=>{
+    const o={week:toDate(r['Week (Mon)'])};
+    ['Covid','Flu','RSV'].forEach(v=>{ const p=num(r[`${v} positive`]), n=num(r[`${v} negative`]); const k=v.toLowerCase(); o[k+'P']=p; o[k+'N']=n; o[k]=(p!=null&&n!=null&&p+n>0)?p/(p+n):null; });
+    return o; }).filter(r=>r.week && [r.covidP,r.covidN,r.fluP,r.fluN,r.rsvP,r.rsvN].some(x=>x!=null)).sort((a,b)=>a.week-b.week);
+  // Seasons sheet: blocks per virus, each with a header row 'MMWR week' + season labels
+  const prior=[]; const seSheet=wb.Sheets['Seasons']||wb.Sheets['Prior_Seasons'];
+  if(seSheet){ const rows=XLSX.utils.sheet_to_json(seSheet,{header:1,defval:null,raw:true}); let virus=null, seasons=null;
+    rows.forEach(row=>{ const a=row[0];
+      if(typeof a==='string'&&/^(covid|flu|rsv)/i.test(a)&&row[1]==null){ virus=a; seasons=null; return; }
+      if(a==='MMWR week'){ seasons=row.slice(1).map(x=>(x!=null&&/^\d{4}-\d{2}$/.test(String(x)))?String(x):null); return; }
+      if(virus&&seasons&&typeof a==='number'){ seasons.forEach((se,i)=>{ const v=num(row[i+1]); if(se&&v!=null) prior.push({week:a,virus,season:se,cases:v}); }); }
+    }); }
+  const casesHist = (wb.Sheets['Cases_History']?sh('Cases_History'):sh('Covid_History')).filter(r=>r['Week (Mon)']).map(r=>({week:toDate(r['Week (Mon)']),covid:num(r['Covid-19 cases']),flu:num(r['Flu cases']),rsv:num(r['RSV cases'])})).filter(r=>r.week).sort((a,b)=>a.week-b.week);
+  const covidHist = casesHist.filter(r=>r.covid!=null).map(r=>({week:r.week,cases:r.covid}));
+  const wwHist = sh('Wastewater_History').filter(r=>r['Week (Mon)']).map(r=>{ const fa=num(r['Influenza A']), fb=num(r['Influenza B']); return {week:toDate(r['Week (Mon)']),covid:num(r['SARS-CoV-2']),fluA:fa,fluB:fb,flu:(fa!=null||fb!=null)?(fa||0)+(fb||0):num(r['Influenza (A+B)']),rsv:num(r['RSV']),h5:num(r['Influenza A (H5)']),h1:num(r['Influenza A (H1)']),h3:num(r['Influenza A (H3)']),measles:num(r['Measles']),mpox1:num(r['Mpox clade I']),mpox2:num(r['Mpox clade II']),noro:num(r['Norovirus GII']),n:num(r['Samples'])}; }).filter(r=>r.week).sort((a,b)=>a.week-b.week);
+  // Wastewater_Local: rows with a date are weekly values; the UC Davis table is read by scanning for 'Pathogen' header
+  const wwSheet = wb.Sheets['Wastewater_Local'];
+  const wwRows = wwSheet ? XLSX.utils.sheet_to_json(wwSheet,{header:1,defval:null,raw:true}) : [];
+  const verily=[]; const ucd=[]; let ucdMode=false;
+  wwRows.forEach((row,i)=>{ if(i===0) return;
+    if(row[0]==='Pathogen'){ucdMode=true; return;}
+    if(ucdMode){ if(row[0]&&typeof row[0]==='string'&&(row[1]!=null||row[3]!=null)) ucd.push({pathogen:row[0],trend:row[1],pc:row[2],level:row[3],asOf:toDate(row[4])}); return; }
+    const d=toDate(row[0]); if(!d) return;
+    const note=String(row[6]||'').toLowerCase(); if(note.startsWith('example')) return;
+    const vals=[1,2,3,4,5].map(i=>num(row[i])); if(vals.every(x=>x==null)) return;
+    verily.push({week:d,covid:vals[0],fluA:vals[1],fluB:vals[2],rsv:vals[3],h5:vals[4]});
+  });
+  const stateNat = sh('State_National').filter(r=>r['Week (Mon)']&&!String(r.Notes||'').toLowerCase().startsWith('example')).map(r=>({
+    week:toDate(r['Week (Mon)']), caCovid:num(r['CA Covid % pos']), caFlu:num(r['CA Flu % pos']), caRsv:num(r['CA RSV % pos']), burden:r['CA combined burden'],
+    reff:num(r['CA Covid R-eff']), usCovid:num(r['US Covid % pos']), usRsv:num(r['US RSV % pos'])})).filter(r=>r.week && (r.burden||[r.caCovid,r.caFlu,r.caRsv,r.reff,r.usCovid,r.usRsv].some(x=>x!=null))).sort((a,b)=>a.week-b.week);
+  const fluAge = sh('Flu_Age_Vax').filter(r=>r['Age group']).map(r=>({season:String(r.Season),age:r['Age group'],no:num(r['Vax No'])||0,yes:num(r['Vax Yes'])||0,unk:num(r['Vax Unknown'])||0}));
+  const highlights = sh('Highlights').filter(r=>r.Highlight).map(r=>({date:toDate(r.Date),text:r.Highlight,link:r['Source link']})).sort((a,b)=>(b.date||0)-(a.date||0));
+  return {config,weekly,elr,prior,covidHist,casesHist,wwHist,verily,ucd,stateNat,fluAge,highlights};
+}
+
+/* ============ CDC live pulls ============ */
+async function getJSON(url){ const r=await fetch(url,{cache:'no-store'}); if(!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }
+function sinceDate(){ const s=T?.config?.['Season start date']?toDate(T.config['Season start date']):new Date(); const y=(s||new Date()).getFullYear(); return `${y-1}-08-01`; }
+async function loadNWSS(){
+  const since=sinceDate(); const enc=encodeURIComponent;
+  const agg=(where)=>`${CFG.nwss}?$select=week_end,pathogen_target,median(site_wval)%20AS%20wval,count(site)%20AS%20n&$group=week_end,pathogen_target&$where=${enc(where)}&$limit=5000`;
+  const tidy=rows=>{ const o={}; rows.forEach(r=>{ const k=CFG.wval[r.pathogen_target]?.key; if(!k) return; (o[k]=o[k]||[]).push({week:toDate(r.week_end),v:+r.wval,n:+r.n}); }); Object.values(o).forEach(a=>a.sort((x,y)=>x.week-y.week)); return o; };
+  try{
+    const [us,ca,mono]=await Promise.all([
+      getJSON(agg(`week_end >= '${since}'`)),
+      getJSON(agg(`week_end >= '${since}' AND state_territory = 'California'`)),
+      getJSON(`${CFG.nwss}?$select=week_end,pathogen_target,site,site_wval,site_wval_category,population_served,counties_served&$where=${enc(`week_end >= '${since}' AND state_territory = 'California' AND counties_served like '%Mono%'`)}&$limit=5000`)
+    ]);
+    live.nwss.us=tidy(us); live.nwss.ca=tidy(ca);
+    // Mono: average across sites per week if more than one
+    const m={}; const sites=new Set();
+    mono.forEach(r=>{ const k=CFG.wval[r.pathogen_target]?.key; if(!k) return; sites.add(`${r.site} (${r.counties_served}, pop ${(+r.population_served).toLocaleString()})`); const w=iso(toDate(r.week_end)); m[k]=m[k]||{}; (m[k][w]=m[k][w]||[]).push(+r.site_wval); });
+    live.nwss.mono={}; Object.keys(m).forEach(k=>{ live.nwss.mono[k]=Object.keys(m[k]).sort().map(w=>({week:toDate(w),v:median(m[k][w])})); });
+    live.nwss.siteInfo=[...sites];
+    setStatus('nwss','ok',`Loaded ${us.length+ca.length+mono.length} rows; Mono site${sites.size===1?'':'s'}: ${sites.size? [...sites].join('; ') : 'none found in NWSS for Mono County'}`);
+  }catch(e){ setStatus('nwss','bad',`Live pull failed (${e.message}).`); }
+}
+function pickKey(keys,rx){ return keys.find(k=>rx.test(k)); }
+async function loadNREVSS(which,url){
+  try{
+    const probe=await getJSON(`${url}?$limit=1`); if(!probe.length) throw new Error('empty dataset');
+    const keys=Object.keys(probe[0]);
+    const first=(...cands)=>cands.map(c=>keys.find(k=>c instanceof RegExp?c.test(k):k===c)).find(Boolean);
+    const kPosted=first('posted',/post_date|publish/i), kLevel=first('level',/^level/i), kRegion=first('region',/region/i),
+          kWeek=first('mmwrweek_end','week_end','mmwr_week_end','week_ending','weekend','date',/week_end/i),
+          kPct=first('percent_pos','pcr_percent_positive','percent_positive',/^percent_pos/i,/percent/i),
+          kN=first('number_tested','pcr_tests',/tested|tests|specimens/i);
+    if(!kPct||!kWeek) throw new Error(`unrecognized columns: ${keys.join(', ')}`);
+    let where='';
+    if(kPosted){ const mx=await getJSON(`${url}?$select=max(${kPosted})%20AS%20mx`); if(mx[0]?.mx) where=`&$where=${encodeURIComponent(`${kPosted} = '${mx[0].mx}'`)}`; }
+    const rows=await getJSON(`${url}?$limit=20000${where}`);
+    const out={us:[],r9:[]};
+    rows.forEach(r=>{ const lvl=String(r[kLevel]||'').toLowerCase(); const reg=String(r[kRegion]||'').toLowerCase(); const p=num(r[kPct]); if(p==null) return; const rec={week:toDate(r[kWeek]),v:p,n:num(r[kN])}; if(!rec.week) return;
+      const where=lvl||reg; if(where.includes('national')||(!kLevel&&!kRegion)) out.us.push(rec); else if(/region\s*9$|(^|\D)9$/.test(where)) out.r9.push(rec); });
+    ['us','r9'].forEach(g=>{ out[g].sort((a,b)=>a.week-b.week); const mx=Math.max(...out[g].map(x=>x.v)); if(mx>1) out[g].forEach(x=>x.v=x.v/100); });
+    live.nrevss[which]=out;
+    setStatus('nrevss_'+which,'ok',`Loaded ${rows.length} rows (${out.us.length} national, ${out.r9.length} Region 9 weeks). Columns: ${kWeek}, ${kPct}${kLevel?', '+kLevel:''}${kRegion?', '+kRegion:''}.`);
+  }catch(e){ live.nrevss[which]=null; setStatus('nrevss_'+which,'bad',`Live pull failed (${e.message}).`); }
+}
+async function loadLive(){ await Promise.all([loadNWSS(),loadNREVSS('covid',CFG.nrevssCovid),loadNREVSS('rsv',CFG.nrevssRsv)]); }
+
+/* ============ chart helpers ============ */
+Chart.defaults.font.family='"Segoe UI","Helvetica Neue",Arial,sans-serif'; Chart.defaults.font.size=12; Chart.defaults.color='#3E4C55';
+const hereLine={ id:'hereLine', afterDatasetsDraw(c,args,o){ if(o.index==null) return; const x=c.scales.x.getPixelForValue(o.index); const {top,bottom}=c.chartArea; const ctx=c.ctx; ctx.save(); ctx.setLineDash([5,4]); ctx.strokeStyle='#B03A2E'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(x,top); ctx.lineTo(x,bottom); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle='#B03A2E'; ctx.font='600 11px "Segoe UI",Arial'; ctx.textAlign=x>c.chartArea.right-70?'right':'left'; ctx.fillText(o.label||'Latest week',x+(x>c.chartArea.right-70?-4:4),top+12); ctx.restore(); } };
+const bandPlugin={ id:'bands', beforeDatasetsDraw(c,args,o){ if(!o.cuts) return; const y=c.scales.y; const {left,right}=c.chartArea; const ctx=c.ctx; const edges=[y.min,...o.cuts,Math.max(y.max,o.cuts[3]*1.05)]; ctx.save(); for(let i=0;i<5;i++){ const y0=y.getPixelForValue(Math.min(edges[i+1],y.max)), y1=y.getPixelForValue(Math.max(edges[i],y.min)); if(y1<=y0) continue; ctx.fillStyle=CFG.wvalColors[i]+'22'; ctx.fillRect(left,y0,right-left,y1-y0);} ctx.restore(); } };
+const emptyMsg={ id:'emptyMsg', afterDraw(c,args,o){ const has=c.data.datasets.some(d=>d.data.some(v=>v!=null)); if(has) return; const {left,right,top,bottom}=c.chartArea; const ctx=c.ctx; ctx.save(); ctx.fillStyle='#7A8B96'; ctx.font='13px "Segoe UI",Arial'; ctx.textAlign='center'; ctx.fillText(o.text||'No data loaded',(left+right)/2,(top+bottom)/2); ctx.restore(); } };
+Chart.register(hereLine,bandPlugin,emptyMsg);
+function mk(id,cfg){ if(charts[id]) charts[id].destroy(); const el=document.getElementById(id); if(!el) return; const base={responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom',labels:{boxWidth:12,usePointStyle:true}},hereLine:{},bands:{},emptyMsg:{}}}; const o=cfg.options||{}; cfg.options=Object.assign(base,o,{plugins:Object.assign(base.plugins,o.plugins||{})}); charts[id]=new Chart(el,cfg); }
+const lineDs=(label,data,color,extra={})=>Object.assign({label,data,borderColor:color,backgroundColor:color,borderWidth:2,pointRadius:2,pointHoverRadius:4,tension:.2,spanGaps:true},extra);
+const pctAxis={ticks:{callback:v=>Math.round(v*100)+'%'},beginAtZero:true};
+
+/* ============ rendering ============ */
+function currentSeason(){ const sel=document.getElementById('seasonSel'); return sel.value || defaultSeason(); }
+function defaultSeason(){ const cfgS=T.config['Current season']; const have=[...new Set(T.weekly.map(r=>r.season))]; if(cfgS&&have.includes(String(cfgS))) return String(cfgS); return have.sort().pop()||String(cfgS||''); }
+function seasonRows(s){ return T.weekly.filter(r=>r.season===s); }
+function latestRow(s){ const r=seasonRows(s); return r[r.length-1]; }
+
+function renderHeader(){
+  const s=defaultSeason(); document.getElementById('seasonLabel').textContent=`Season ${T.config['Current season']||s}`;
+  const lr=T.weekly[T.weekly.length-1]; document.getElementById('dataThrough').textContent= lr?`Data through week of ${fmtD(lr.week)} (MMWR week ${lr.mmwr})`:'No weekly data yet';
+  const rd=toDate(T.config['Report date']); document.getElementById('reportDate').textContent= rd?`Report date ${rd.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}`:'';
+  if(T.config['Prepared by']) document.getElementById('subTitle').textContent=T.config['Prepared by'];
+  const sel=document.getElementById('seasonSel'); const seasons=[...new Set([...T.weekly.map(r=>r.season),...T.prior.map(r=>r.season)])].sort();
+  sel.innerHTML=seasons.map(x=>`<option ${x===s?'selected':''}>${x}</option>`).join('');
+  document.querySelectorAll('.seasonMirror').forEach(m=>{ m.innerHTML=sel.innerHTML; m.value=sel.value; });
+  const cur=String(T.config['Current season']||''); const b=document.getElementById('banner');
+  if(cur && !T.weekly.some(r=>r.season===cur)){ b.textContent=`No weekly rows yet for season ${cur}. Charts show the most recent season with data (${s}). Add rows to Weekly_Local to start the new season.`; b.classList.add('show'); } else b.classList.remove('show');
+}
+
+function renderOverview(){
+  const s=defaultSeason(); const rows=seasonRows(s).filter(r=>r.flu!=null||r.covid!=null||r.rsv!=null); const n=rows.length; const last=rows[n-1], prev=rows[n-2];
+  const k=document.getElementById('kpis');
+  const e=T.elr[T.elr.length-1];
+  const tot=v=>rows.reduce((a,r)=>a+(r[v]||0),0);
+  const delta=(a,b)=>{ if(a==null||b==null) return '<div class="delta">—</div>'; const d=a-b; if(d===0) return '<div class="delta">no change from prior week</div>'; return `<div class="delta ${d>0?'up':'down'}">${d>0?'▲ +':'▼ '}${d} vs prior week</div>`; };
+  const box=(lab,val,sub)=>`<div class="kpi"><div class="lab">${lab}</div><div class="val">${val}</div>${sub||''}</div>`;
+  const paused=T.config['Wastewater note']?`<div class="delta up">Local wastewater sampling temporarily paused</div>`:'';
+  const wwBox=v=>{ const a=live.nwss.mono[v]; if(a&&a.length){ const x=a[a.length-1]; const c=wvalCat(v,x.v); return `<div class="kpi"><div class="lab">Mono wastewater level</div><div class="val sm">${x.v.toFixed(1)} <span class="lvl" style="background:${CFG.wvalColors[c]}">${CFG.wvalLabels[c]}</span></div><div class="delta">CDC NWSS Mono site, week ending ${fmtD(x.week)}</div>${paused}</div>`; }
+    const vk=v==='flu'?'flu':v; const loc=[...T.wwHist.map(r=>({week:r.week,v:r[vk]})),...T.verily.map(r=>({week:r.week,v:v==='flu'?((r.fluA!=null||r.fluB!=null)?(r.fluA||0)+(r.fluB||0):null):r[v]}))].filter(r=>r.v!=null).sort((a,b)=>a.week-b.week); const x=loc[loc.length-1];
+    return `<div class="kpi"><div class="lab">Mono wastewater (Verily)</div><div class="val sm">${x?x.v.toFixed(1):'—'}</div><div class="delta">${x?`virus : PMMoV × 1M, week of ${fmtD(x.week)}`:'no local value'}</div>${paused}</div>`; };
+  const virusRow=(cls,name,vk,ek,wk)=>`<div class="vrow ${cls}"><div class="vname">${name}<small>Mono County</small></div>
+    ${box('Cases this week',last?(last[vk]??'—'):'—',last?delta(last[vk],prev?.[vk]):'')}
+    ${box('Season to date',tot(vk),`<div class="delta">${n} week${n===1?'':'s'} reported</div>`)}
+    ${box('Mono ELR positivity',e?fmtP(e[ek]):'—',e?`<div class="delta">${(e[ek+'P']||0)} of ${(e[ek+'P']||0)+(e[ek+'N']||0)} tests, week of ${fmtD(e.week)}</div>`:'')}
+    ${wwBox(wk)}</div>`;
+  k.innerHTML=`<div class="khead"><span>Virus</span><span>This week</span><span>Season to date</span><span>Local test positivity</span><span>Local wastewater</span></div>`
+    +virusRow('flu','Influenza','flu','flu','flu')+virusRow('covid','Covid-19','covid','covid','covid')+virusRow('rsv','RSV','rsv','rsv','rsv');
+  document.getElementById('ovLead').textContent=`Weekly summary of respiratory virus activity in Mono County for the ${s} season, with state and national comparisons.`;
+  // previous season plus current season on one time axis; dashed line marks the current season's first week
+  mk('cCombined',{type:'line',data:{labels:rows.map(r=>fmtD(r.week)),datasets:[lineDs('Influenza',rows.map(r=>r.flu),CFG.color.flu),lineDs('Covid-19',rows.map(r=>r.covid),CFG.color.covid),lineDs('RSV',rows.map(r=>r.rsv),CFG.color.rsv)]},options:{scales:{y:{beginAtZero:true,ticks:{precision:0},title:{display:true,text:'Reported cases'}}}}});
+  const hls=T.highlights.filter(h=>!h.date||seasonOf(h.date)===s); document.getElementById('highlights').innerHTML=hls.length?hls.map(h=>`<li>${h.text}${h.link?` <a href="${h.link}" target="_blank" rel="noopener">source</a>`:''}<span class="d">${h.date?fmtD(h.date):''}</span></li>`).join(''):'<li style="color:var(--muted)">No highlights for this season yet. Add rows to the Highlights sheet.</li>';
+  // stand table
+  const sn=T.stateNat[T.stateNat.length-1]; const tb=document.querySelector('#standTable tbody'); const rowsHtml=[];
+  const wvRow=(v,label)=>{ const mo=live.nwss.mono[v]?.slice(-1)[0], ca=live.nwss.ca[v]?.slice(-1)[0], us=live.nwss.us[v]?.slice(-1)[0]; rowsHtml.push(`<tr><td>Wastewater level, ${label}</td><td>${pill(mo?wvalCat(v,mo.v):null)}</td><td>${pill(ca?wvalCat(v,ca.v):null)}</td><td>${pill(us?wvalCat(v,us.v):null)}</td></tr>`); };
+  wvRow('flu','flu A'); wvRow('covid','SARS-CoV-2'); wvRow('rsv','RSV');
+  rowsHtml.push(`<tr><td>Test positivity, flu</td><td>${e?fmtP(e.flu):'—'}</td><td>${sn?fmtP(sn.caFlu):'—'}</td><td>—</td></tr>`);
+  const usC=live.nrevss.covid?.us.slice(-1)[0], usR=live.nrevss.rsv?.us.slice(-1)[0];
+  rowsHtml.push(`<tr><td>Test positivity, Covid-19</td><td>${e?fmtP(e.covid):'—'}</td><td>${sn?fmtP(sn.caCovid):'—'}</td><td>${usC?fmtP(usC.v):(sn&&sn.usCovid!=null?fmtP(sn.usCovid):'—')}</td></tr>`);
+  rowsHtml.push(`<tr><td>Test positivity, RSV</td><td>${e?fmtP(e.rsv):'—'}</td><td>${sn?fmtP(sn.caRsv):'—'}</td><td>${usR?fmtP(usR.v):(sn&&sn.usRsv!=null?fmtP(sn.usRsv):'—')}</td></tr>`);
+  tb.innerHTML=rowsHtml.join('');
+}
+
+function renderSeasons(){
+  const s=currentSeason(); const seasons=[...new Set([...T.weekly.map(r=>r.season),...T.prior.map(r=>r.season)])].sort();
+  const fallback=['#6C7A89','#A67C52','#4A8FB5','#B5654A'];
+  const build=(virus,color,id,only,zoom)=>{
+    const ds=[]; let gi=0;
+    seasons.filter(se=>!only||only.has(se)).forEach(se=>{ const arr=new Array(SEASON_WEEKS.length).fill(null);
+      if(T.weekly.some(r=>r.season===se)) T.weekly.filter(r=>r.season===se).forEach(r=>{ arr[seasonIdx(r.mmwr)]=r[virus]; });
+      else T.prior.filter(r=>r.season===se&&r.virus.toLowerCase().startsWith(virus==='covid'?'covid':virus)).forEach(r=>{ arr[seasonIdx(r.week)]=r.cases; });
+      const isCur=se===s; const sc=CFG.seasonColors[se]||fallback[gi++%fallback.length]; ds.push(lineDs(se,arr,sc,{borderWidth:isCur?(zoom?4:3.5):(zoom?2:1.5),pointRadius:isCur?(zoom?3:2.5):(zoom?1.5:0),order:isCur?0:1})); });
+    const lr=latestRow(s); const idx=lr?seasonIdx(lr.mmwr):null;
+    mk(id,{type:'line',data:{labels:SEASON_WEEKS,datasets:ds},options:{plugins:{hereLine:{index:idx,label:'Latest week'},legend:{display:!zoom}},scales:{x:{title:{display:true,text:'MMWR week'}},y:{beginAtZero:true,ticks:{precision:0},title:{display:true,text:'Cases'}}}}});
+  };
+  window.__seasonBuild=build; window.__seasonList=seasons;
+  build('flu',CFG.color.flu,'cSeasonFlu'); build('covid',CFG.color.covid,'cSeasonCovid'); build('rsv',CFG.color.rsv,'cSeasonRsv');
+  if(!document.getElementById('zoom').hidden) renderZoom();
+  const hist=[...T.covidHist,...T.weekly.filter(r=>r.covid!=null).map(r=>({week:r.week,cases:r.covid}))].sort((a,b)=>a.week-b.week);
+  mk('cCovidHist',{type:'line',data:{labels:hist.map(r=>fmtD(r.week)),datasets:[lineDs('Covid-19 cases',hist.map(r=>r.cases),CFG.color.covid,{pointRadius:0,borderWidth:1.5,fill:true,backgroundColor:'rgba(192,57,43,.12)'})]},options:{plugins:{legend:{display:false}},scales:{x:{ticks:{maxTicksLimit:24,maxRotation:0}},y:{beginAtZero:true,ticks:{precision:0}}}}});
+}
+
+function renderFlu(){
+  const s=currentSeason(); const rows=seasonRows(s).filter(r=>r.fluA!=null||r.fluB!=null||r.vaxY!=null); const lab=rows.map(r=>fmtD(r.week));
+  mk('cFluAB',{type:'bar',data:{labels:lab,datasets:[{label:'Flu A',data:rows.map(r=>r.fluA),backgroundColor:CFG.color.flu},{label:'Flu B',data:rows.map(r=>r.fluB),backgroundColor:CFG.color.fluB}]},options:{scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}}}});
+  mk('cFluVax',{type:'bar',data:{labels:lab,datasets:[{label:"Vaccinated",data:rows.map(r=>r.vaxY),backgroundColor:CFG.color.local},{label:"Not vaccinated / unknown",data:rows.map(r=>r.vaxN),backgroundColor:'#C9D3DB'}]},options:{scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}}}});
+  mk('cFluVaxRate',{type:'line',data:{labels:lab,datasets:[lineDs('% of flu cases vaccinated',rows.map(r=>{const t=(r.vaxY||0)+(r.vaxN||0); return t?(r.vaxY||0)/t:null;}),CFG.color.local)]},options:{plugins:{legend:{display:false}},scales:{y:Object.assign({},pctAxis,{max:1})}}});
+  const cur=T.fluAge.filter(r=>r.season===s&&(r.no+r.yes+r.unk)>0); const fa=cur.length?T.fluAge.filter(r=>r.season===s):T.fluAge.filter(r=>r.season===T.fluAge.map(x=>x.season).sort().pop());
+  if(document.getElementById('cFluAge')) mk('cFluAge',{type:'bar',data:{labels:fa.map(r=>r.age),datasets:[{label:'Vaccinated',data:fa.map(r=>r.yes),backgroundColor:CFG.color.local},{label:'Not vaccinated',data:fa.map(r=>r.no),backgroundColor:CFG.color.flu},{label:'Unknown',data:fa.map(r=>r.unk),backgroundColor:'#C9D3DB'}]},options:{indexAxis:'y',scales:{x:{stacked:true,beginAtZero:true,ticks:{precision:0}},y:{stacked:true}}}});
+  const fat=document.querySelector('#fluAgeTable tbody'); if(fat) fat.innerHTML=fa.map(r=>{const t=r.no+r.yes+r.unk; return `<tr><td>${r.age}</td><td class="num">${r.no}</td><td class="num">${r.yes}</td><td class="num">${r.unk}</td><td class="num">${t}</td><td class="num">${t?fmtP(r.yes/t):'—'}</td></tr>`;}).join('')+(fa.length?`<tr><th>Season ${fa[0].season}</th><th class="num">${fa.reduce((a,r)=>a+r.no,0)}</th><th class="num">${fa.reduce((a,r)=>a+r.yes,0)}</th><th class="num">${fa.reduce((a,r)=>a+r.unk,0)}</th><th class="num">${fa.reduce((a,r)=>a+r.no+r.yes+r.unk,0)}</th><th class="num">${fmtP(fa.reduce((a,r)=>a+r.yes,0)/Math.max(1,fa.reduce((a,r)=>a+r.no+r.yes+r.unk,0)))}</th></tr>`:'');
+}
+
+function renderMH(){
+  const s=currentSeason(); const rows=seasonRows(s).filter(r=>r.mhFluT!=null||r.mhCovT!=null||r.mhRsvT!=null); const lab=rows.map(r=>fmtD(r.week));
+  const g=(id,t,l,color)=>mk(id,{type:'bar',data:{labels:lab,datasets:[{label:'All patients',data:rows.map(r=>r[t]),backgroundColor:color+'66',borderColor:color,borderWidth:1},{label:'Mono residents',data:rows.map(r=>r[l]),backgroundColor:color}]},options:{scales:{y:{beginAtZero:true}}}});
+  g('cMhFlu','mhFluT','mhFluL',CFG.color.flu); g('cMhCovid','mhCovT','mhCovL',CFG.color.covid); g('cMhRsv','mhRsvT','mhRsvL',CFG.color.rsv);
+}
+
+function renderTesting(){
+  const eAll=T.elr; const lastW=eAll.length?eAll[eAll.length-1].week:null; const cutoff=lastW?addDays(lastW,-548):null; // 18 months by calendar
+  const e=cutoff?eAll.filter(r=>r.week>=cutoff):eAll; const lab=e.map(r=>fmtD(r.week));
+  document.getElementById('elrWindow').textContent= e.length?`Showing the last 18 months, ${fmtD(e[0].week)} through ${fmtD(lastW)}.`:'';
+  mk('cElrAll',{type:'line',data:{labels:lab,datasets:[lineDs('Covid-19',e.map(r=>r.covid),CFG.color.covid),lineDs('Influenza',e.map(r=>r.flu),CFG.color.flu),lineDs('RSV',e.map(r=>r.rsv),CFG.color.rsv)]},options:{scales:{y:pctAxis,x:{ticks:{maxTicksLimit:20,maxRotation:0}}}}});
+  mk('cElrVol',{type:'bar',data:{labels:lab,datasets:[{label:'Covid tests',data:e.map(r=>(r.covidP||0)+(r.covidN||0)),backgroundColor:CFG.color.covid},{label:'Flu tests',data:e.map(r=>(r.fluP||0)+(r.fluN||0)),backgroundColor:CFG.color.flu},{label:'RSV tests',data:e.map(r=>(r.rsvP||0)+(r.rsvN||0)),backgroundColor:CFG.color.rsv}]},options:{scales:{x:{stacked:false,ticks:{maxTicksLimit:20,maxRotation:0}},y:{beginAtZero:true,title:{display:true,text:'Tests reported'}}}}});
+  // align by week for comparisons: use the union of Mono weeks (Mon) and CDC week_end (Sat) mapped to Monday
+  const monOf=d=>addDays(d,-((d.getDay()+6)%7));
+  const cmp=(id,vMono,caKey,liveKey,color,noteId)=>{
+    const map=new Map(); const put=(d,k,v)=>{ const w=iso(monOf(d)); const o=map.get(w)||{}; o[k]=v; map.set(w,o); };
+    e.forEach(r=>put(r.week,'mono',r[vMono])); T.stateNat.forEach(r=>put(r.week,'ca',r[caKey]));
+    const minW=e.length?iso(monOf(e[0].week)):null; const weeks=[...map.keys()].filter(w=>!minW||w>=minW).sort(); const g=k=>weeks.map(w=>map.get(w)[k]??null);
+    const ds=[lineDs('Mono County ELRs',g('mono'),color,{spanGaps:false}),lineDs('California (CDPH)',g('ca'),CFG.color.state,{borderDash:[6,4]})];
+    mk(id,{type:'line',data:{labels:weeks.map(w=>fmtD(toDate(w))),datasets:ds},options:{scales:{y:pctAxis,x:{ticks:{maxTicksLimit:14,maxRotation:0}}}}});
+    if(noteId) document.getElementById(noteId).textContent='Mono ELRs and CDPH Respiratory Virus Report (Southern California region, entered in State_National). Gaps are weeks without ELRs.';
+  };
+  cmp('cPosCovid','covid','caCovid','covid',CFG.color.covid,'nPosCovid'); cmp('cPosRsv','rsv','caRsv','rsv',CFG.color.rsv,'nPosRsv'); cmp('cPosFlu','flu','caFlu',null,CFG.color.flu,null);
+}
+
+function renderWW(){
+  document.getElementById('wvalLegend').innerHTML='<span style="color:var(--muted);background:none;padding-left:0">CDC WVAL categories:</span>'+CFG.wvalLabels.map((l,i)=>`<span style="background:${CFG.wvalColors[i]}">${l}</span>`).join('');
+  const siteName=T.config['Wastewater site name']||'Mono County site';
+  const one=(id,key,color)=>{ const us=live.nwss.us[key]||[], ca=live.nwss.ca[key]||[], mo=live.nwss.mono[key]||[]; const weeks=[...new Set([...us,...ca,...mo].map(r=>iso(r.week)))].sort(); const g=a=>{const m=new Map(a.map(r=>[iso(r.week),r.v])); return weeks.map(w=>m.get(w)??null);};
+    const cuts=Object.values(CFG.wval).find(x=>x.key===key).cuts;
+    mk(id,{type:'line',data:{labels:weeks.map(w=>fmtD(toDate(w))),datasets:[lineDs('Mono County site',g(mo),color,{borderWidth:3}),lineDs('California median',g(ca),CFG.color.state,{borderDash:[6,4],pointRadius:0}),lineDs('US median',g(us),CFG.color.us,{pointRadius:0})]},options:{plugins:{bands:{cuts:(us.length||ca.length||mo.length)?cuts:null},emptyMsg:{text:'CDC NWSS data not loaded'}},scales:{y:{beginAtZero:true,title:{display:true,text:'Wastewater viral activity level'}},x:{ticks:{maxTicksLimit:10,maxRotation:0}}}}}); };
+  one('cWwCovid','covid',CFG.color.covid); one('cWwFlu','flu',CFG.color.flu); one('cWwRsv','rsv',CFG.color.rsv);
+  const st=live.status.nwss; document.getElementById('wwNote').textContent= st?.s==='ok'?`Source: CDC NWSS (data.cdc.gov, atcp-73re), site-level WVAL; state and national values are the median of reporting sites. ${st.msg}`:`CDC NWSS live pull unavailable: ${st?.msg||''} Use Refresh live data or check data.cdc.gov.`;
+  const vmap=new Map(); T.wwHist.forEach(r=>vmap.set(iso(r.week),r)); T.verily.forEach(r=>vmap.set(iso(r.week),Object.assign({},vmap.get(iso(r.week))||{},r)));
+  const vk=[...vmap.keys()].sort(); const vAll=[]; if(vk.length){ for(let d=toDate(vk[0]); iso(d)<=vk[vk.length-1]; d=addDays(d,7)) vAll.push(vmap.get(iso(d))||{week:d}); } const v=vAll.slice(-52); // continuous weekly axis so unsampled weeks show as breaks document.getElementById('verilyTitle').textContent=`Verily, ${siteName.replace(/\s*\(Verily\)/i,'')}, last 52 weeks`;
+  document.querySelector('#verilyTitle').parentElement.querySelector('.note').textContent=`${T.config['Wastewater note']?T.config['Wastewater note']+' ':''}Ratio of virus to PMMoV × 1,000,000; Wastewater_History plus weekly entries in Wastewater_Local. Breaks in a line are weeks without sampling.`;
+  mk('cVerily',{type:'line',options:{plugins:{emptyMsg:{text:'No Verily values entered in Wastewater_Local'}}},data:{labels:v.map(r=>fmtD(r.week)),datasets:[lineDs('SARS-CoV-2',v.map(r=>r.covid),CFG.color.covid),lineDs('Influenza A',v.map(r=>r.fluA),CFG.color.flu),lineDs('Influenza B',v.map(r=>r.fluB),CFG.color.fluB),lineDs('RSV',v.map(r=>r.rsv),CFG.color.rsv),lineDs('Influenza A (H5)',v.map(r=>r.h5),'#7B2D8E',{borderDash:[3,3]})].map(d=>Object.assign(d,{spanGaps:false}))},options:{scales:{y:{beginAtZero:true,title:{display:true,text:'Virus : PMMoV × 1M'}},x:{ticks:{maxTicksLimit:12,maxRotation:0}}}}});
+  mk('cVerilyOther',{type:'line',data:{labels:v.map(r=>fmtD(r.week)),datasets:[lineDs('Influenza A (H1)',v.map(r=>r.h1),'#1E7F3E'),lineDs('Influenza A (H3)',v.map(r=>r.h3),'#8DC26F'),lineDs('Measles',v.map(r=>r.measles),'#C0392B'),lineDs('Mpox clade I',v.map(r=>r.mpox1),'#7B2D8E'),lineDs('Mpox clade II',v.map(r=>r.mpox2),'#B58BC4')].map(d=>Object.assign(d,{spanGaps:false}))},options:{plugins:{emptyMsg:{text:'No other-target values'}},scales:{y:{beginAtZero:true,title:{display:true,text:'Virus : PMMoV × 1M'}},x:{ticks:{maxTicksLimit:12,maxRotation:0}}}}});
+  const lvlColor={low:'#8DC26F',medium:'#F2C14E',high:'#B03A2E'};
+  document.querySelector('#ucdTable tbody').innerHTML=T.ucd.length?T.ucd.map(r=>`<tr><td>${r.pathogen}</td><td>${r.trend??''}</td><td>${r.pc??''}</td><td>${r.level?`<span class="lvl-pill" style="background:${lvlColor[String(r.level).toLowerCase()]||'#7A8B96'}">${r.level}</span>`:''}</td></tr>`).join(''):'<tr><td colspan="4" style="color:var(--muted)">No UC Davis table entered.</td></tr>';
+  document.getElementById('ucdNote').innerHTML=`${T.ucd[0]?.asOf?`As of ${fmtD(T.ucd[0].asOf)}. `:''}Mann-Kendall trend test for consistently increasing or decreasing trends, with statistical significance. <a href="https://cricelio.shinyapps.io/Monodashboard/" target="_blank" rel="noopener">Source: UC Davis dashboard</a>`;
+}
+
+function renderCvW(){
+  const useLog=document.getElementById('cvwLog').checked, smooth=document.getElementById('cvwSmooth').checked;
+  const map=new Map(); const put=(d,k,v)=>{ if(v==null) return; const w=iso(d); const o=map.get(w)||{}; o[k]=v; map.set(w,o); };
+  T.casesHist.forEach(r=>{put(r.week,'cCovid',r.covid);put(r.week,'cFlu',r.flu);put(r.week,'cRsv',r.rsv);});
+  T.weekly.forEach(r=>{put(r.week,'cCovid',r.covid);put(r.week,'cFlu',r.flu);put(r.week,'cRsv',r.rsv);});
+  T.wwHist.forEach(r=>{put(r.week,'wCovid',r.covid);put(r.week,'wFlu',r.flu);put(r.week,'wRsv',r.rsv);});
+  T.verily.forEach(r=>{put(r.week,'wCovid',r.covid); const f=(r.fluA!=null||r.fluB!=null)?(r.fluA||0)+(r.fluB||0):null; put(r.week,'wFlu',f); put(r.week,'wRsv',r.rsv);});
+  const start=T.wwHist.length?iso(T.wwHist[0].week):(T.verily.length?iso(T.verily[0].week):null);
+  const weeks=[...map.keys()].filter(w=>!start||w>=start).sort(); const g=k=>weeks.map(w=>map.get(w)[k]??null);
+  const roll=a=>a.map((_,i)=>{const sl=a.slice(Math.max(0,i-1),i+2).filter(v=>v!=null); return sl.length?sl.reduce((x,y)=>x+y,0)/sl.length:null;});
+  const one=(id,ck,wk,color,wcolor)=>{ let ww=g(wk); if(smooth) ww=roll(ww); if(useLog) ww=ww.map(v=>v>0?v:null);
+    mk(id,{type:'bar',data:{labels:weeks.map(w=>fmtD(toDate(w))),datasets:[
+      {type:'bar',label:'Reported cases',data:g(ck),backgroundColor:color+'B3',yAxisID:'y',order:2},
+      {type:'line',label:`Wastewater${smooth?' (3-wk avg)':''}`,data:ww,borderColor:wcolor,backgroundColor:wcolor,borderWidth:2,pointRadius:2,tension:.2,spanGaps:false,yAxisID:'y2',order:1}]},
+      options:{scales:{x:{ticks:{maxTicksLimit:14,maxRotation:0}},y:{beginAtZero:true,position:'left',title:{display:true,text:'Cases / week'}},
+        y2:{type:useLog?'logarithmic':'linear',position:'right',beginAtZero:!useLog,grid:{drawOnChartArea:false},title:{display:true,text:'Virus : PMMoV × 1M'}}}}}); };
+  one('cCvwFlu','cFlu','wFlu',CFG.color.flu,'#4D7C3F'); one('cCvwCovid','cCovid','wCovid',CFG.color.covid,'#2F6690'); one('cCvwRsv','cRsv','wRsv',CFG.color.rsv,'#2F8F8A');
+  const lastW=[...weeks].reverse().find(w=>map.get(w).wCovid!=null||map.get(w).wFlu!=null||map.get(w).wRsv!=null);
+  document.getElementById('cvwNote').textContent=`${T.config['Wastewater note']?T.config['Wastewater note']+' ':''}${weeks.length} weeks shown; wastewater through week of ${lastW?fmtD(toDate(lastW)):'—'}. Cases: CalREDIE reports by report date, Mono County residents (Covid confirmed + probable; flu and RSV initial reports). Wastewater: Wastewater_History plus weekly Verily entries in Wastewater_Local.`;
+}
+
+function renderState(){
+  const tb=document.querySelector('#wvalTable tbody'); if(!tb) return; const names={flu:'Influenza A',covid:'SARS-CoV-2',rsv:'RSV'}; let wk=null;
+  tb.innerHTML=['flu','covid','rsv'].map(k=>{ const c=a=>{const x=(live.nwss[a][k]||[]).slice(-1)[0]; if(x&&(!wk||x.week>wk)) wk=x.week; return x?`${x.v.toFixed(1)} ${pill(wvalCat(k,x.v))}`:'—';}; return `<tr><td>${names[k]}</td><td>${c('mono')}</td><td>${c('ca')}</td><td>${c('us')}</td></tr>`; }).join('');
+  document.getElementById('wvalTableNote').textContent= wk?`CDC NWSS, week ending ${fmtD(wk)}. Values are WVALs; state and US are medians across reporting sites.`:'CDC NWSS live data not loaded.';
+  const e=T.elr[T.elr.length-1], sn=T.stateNat[T.stateNat.length-1];
+  const nr=(k)=>{const l=live.nrevss[k]; return l?{us:l.us.slice(-1)[0],r9:l.r9.slice(-1)[0]}:{}; };
+  const c=nr('covid'), r=nr('rsv');
+  document.querySelector('#posTable tbody').innerHTML=[
+    ['Influenza',e?fmtP(e.flu):'—',sn?fmtP(sn.caFlu):'—','—','—'],
+    ['Covid-19',e?fmtP(e.covid):'—',sn?fmtP(sn.caCovid):'—',c.r9?fmtP(c.r9.v):'—',c.us?fmtP(c.us.v):(sn?fmtP(sn.usCovid):'—')],
+    ['RSV',e?fmtP(e.rsv):'—',sn?fmtP(sn.caRsv):'—',r.r9?fmtP(r.r9.v):'—',r.us?fmtP(r.us.v):(sn?fmtP(sn.usRsv):'—')]
+  ].map(x=>`<tr>${x.map((y,i)=>`<td>${y}</td>`).join('')}</tr>`).join('');
+  document.getElementById('posTableNote').textContent=`Mono ELRs week of ${e?fmtD(e.week):'—'}; CDPH week of ${sn?fmtD(sn.week):'— (no State_National rows)'}; CDC NREVSS week ending ${c.us?fmtD(c.us.week):'—'}.`;
+  const s=T.stateNat; mk('cCdph',{type:'line',data:{labels:s.map(r=>fmtD(r.week)),datasets:[lineDs('CA Covid % pos',s.map(r=>r.caCovid),CFG.color.covid),lineDs('CA flu % pos',s.map(r=>r.caFlu),CFG.color.flu),lineDs('CA RSV % pos',s.map(r=>r.caRsv),CFG.color.rsv)]},options:{scales:{y:pctAxis}}});
+  document.getElementById('cdphBurden').textContent=sn?.burden||'—'; document.getElementById('cdphReff').textContent=sn?.reff!=null?sn.reff:'—';
+}
+
+function renderSources(){
+  const st=k=>{const x=live.status[k]; return x?`<span class="status ${x.s}"></span>${x.s==='ok'?'Loaded':'Failed'}<div class="note">${x.msg}</div>`:'<span class="status na"></span>Not loaded';};
+  const tr=`<span class="status ok"></span>From tracker`;
+  document.querySelector('#srcTable tbody').innerHTML=[
+    ['CalREDIE case counts (Mono residents)','Overview, Cases by season','Tracker: Weekly_Local',tr],
+    ['Mammoth Hospital weekly report','Flu detail, Mammoth Hospital','Tracker: Weekly_Local',tr],
+    ['CalREDIE electronic lab reports','Test positivity','Tracker: Weekly_ELR',tr],
+    ['<a href="https://www.cdc.gov/wastewater/respiratory-viruses/index.html" target="_blank" rel="noopener">CDC NWSS wastewater viral activity level</a>','Wastewater, Overview','Live: data.cdc.gov atcp-73re (Mono site, CA median, US median)',st('nwss')],
+    ['<a href="https://www.cdc.gov/nrevss/php/dashboard/index.html" target="_blank" rel="noopener">CDC NREVSS Covid-19 positivity</a>','Overview','Live: data.cdc.gov gvsb-yw6g (national, HHS Region 9)',st('nrevss_covid')],
+    ['<a href="https://www.cdc.gov/nrevss/php/dashboard/index.html" target="_blank" rel="noopener">CDC NREVSS RSV positivity</a>','Overview','Live: data.cdc.gov 3cxc-4k8q (national, HHS Region 9)',st('nrevss_rsv')],
+    ['<a href="https://publichealth.verily.com/plants/4b49eb68" target="_blank" rel="noopener">Verily wastewater, Mammoth plant</a>','Wastewater, Cases vs wastewater','Tracker: Wastewater_Local (no public API); history in Wastewater_History',tr],
+    ['<a href="https://cricelio.shinyapps.io/Monodashboard/" target="_blank" rel="noopener">UC Davis Mono wastewater dashboard</a>','Wastewater','Tracker: Wastewater_Local trend table',tr],
+    ['<a href="https://www.cdph.ca.gov/Programs/CID/DCDC/Pages/RespiratoryVirusReport.aspx" target="_blank" rel="noopener">CDPH Respiratory Virus Report</a>','Test positivity, Overview','Tracker: State_National (CDPH files are download-only)',tr],
+    ['<a href="https://skylab4.cdph.ca.gov/calcat/" target="_blank" rel="noopener">CalCAT</a>','Links','Tracker: State_National (R-eff); link for forecasts',tr],
+    ['<a href="https://skylab.cdph.ca.gov/calwws/" target="_blank" rel="noopener">CalSewers</a>','Links','Link only; CA medians shown from CDC NWSS instead','<span class="status na"></span>Link'],
+  ].map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('');
+}
+
+const zoomState={virus:null,on:new Set()};
+const VNAME={flu:'Influenza',covid:'Covid-19',rsv:'RSV'};
+function openZoom(virus){ zoomState.virus=virus; zoomState.on=new Set(window.__seasonList||[]); document.getElementById('zoom').hidden=false; renderZoom(); }
+function closeZoom(){ document.getElementById('zoom').hidden=true; if(charts.cZoom){charts.cZoom.destroy(); delete charts.cZoom;} }
+function renderZoom(){ const v=zoomState.virus; if(!v) return; const seasons=window.__seasonList||[]; const fallback=['#6C7A89','#A67C52','#4A8FB5','#B5654A'];
+  document.getElementById('zoomTitle').textContent=`${VNAME[v]} cases by MMWR week`; document.getElementById('zoomNote').textContent='Weekly reported cases among Mono County residents by MMWR week. Check or uncheck seasons to compare; the highlighted season is drawn thicker.';
+  document.getElementById('zoomSeasons').innerHTML=seasons.map((se,i)=>`<label><input type="checkbox" data-se="${se}" ${zoomState.on.has(se)?'checked':''}><span class="sw" style="background:${CFG.seasonColors[se]||fallback[i%4]}"></span>${se}</label>`).join('');
+  document.querySelectorAll('#zoomSeasons input').forEach(cb=>cb.addEventListener('change',e=>{ e.target.checked?zoomState.on.add(e.target.dataset.se):zoomState.on.delete(e.target.dataset.se); window.__seasonBuild(v,CFG.color[v],'cZoom',zoomState.on,true); }));
+  window.__seasonBuild(v,CFG.color[v],'cZoom',zoomState.on,true); }
+function openChartZoom(id,title){ const src=charts[id]; if(!src) return; zoomState.virus=null; document.getElementById('zoom').hidden=false;
+  document.getElementById('zoomTitle').textContent=title||''; document.getElementById('zoomSeasons').innerHTML=''; document.getElementById('zoomNote').textContent='Click a legend entry to hide or show a series.';
+  const data={labels:[...src.config.data.labels],datasets:src.config.data.datasets.map(d=>Object.assign({},d,{data:[...d.data]}))};
+  const o=JSON.parse(JSON.stringify(src.config.options||{})); o.plugins=o.plugins||{}; o.plugins.legend=Object.assign({},o.plugins.legend||{},{display:true});
+  mk('cZoom',{type:src.config.type,data,options:o}); }
+document.querySelectorAll('.zoomable').forEach(p=>p.addEventListener('click',()=>{ if(p.dataset.virus) openZoom(p.dataset.virus); else openChartZoom(p.dataset.chart,p.dataset.title); }));
+document.getElementById('zoomClose').addEventListener('click',closeZoom);
+document.getElementById('zoom').addEventListener('click',e=>{ if(e.target.id==='zoom') closeZoom(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeZoom(); });
+
+function renderAll(){ renderHeader(); renderOverview(); renderSeasons(); renderFlu(); renderMH(); renderTesting(); renderWW(); renderCvW(); renderSources(); }
+
+/* ============ load flow ============ */
+async function useTracker(buf){
+  T=parseTracker(buf); document.getElementById('drop').style.display='none'; document.getElementById('app').style.display='block';
+  renderAll(); await loadLive(); renderAll();
+}
+async function tryAutoLoad(){ try{ const r=await fetch(CFG.trackerFile,{cache:'no-store'}); if(!r.ok) throw 0; await useTracker(await r.arrayBuffer()); }catch(e){ /* show drop zone */ } }
+document.getElementById('fileIn').addEventListener('change',e=>{ const f=e.target.files[0]; if(!f) return; f.arrayBuffer().then(useTracker); });
+const dz=document.getElementById('drop'); ['dragover','dragenter'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault(); dz.style.borderColor='#1E6B85';})); dz.addEventListener('dragleave',()=>dz.style.borderColor=''); dz.addEventListener('drop',e=>{ e.preventDefault(); const f=e.dataTransfer.files[0]; if(f) f.arrayBuffer().then(useTracker); });
+document.getElementById('btnRefresh').addEventListener('click',async()=>{ if(!T) return; await loadLive(); renderAll(); });
+const syncSeason=v=>{ document.getElementById('seasonSel').value=v; document.querySelectorAll('.seasonMirror').forEach(m=>m.value=v); renderSeasons(); renderFlu(); renderMH(); };
+document.getElementById('seasonSel').addEventListener('change',e=>syncSeason(e.target.value));
+document.querySelectorAll('.seasonMirror').forEach(m=>m.addEventListener('change',e=>syncSeason(e.target.value)));
+['cvwLog','cvwSmooth'].forEach(id=>document.getElementById(id).addEventListener('change',renderCvW));
+document.getElementById('nav').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('active',x===b)); document.querySelectorAll('section.tab').forEach(s=>s.classList.toggle('active',s.id==='tab-'+b.dataset.tab)); Object.values(charts).forEach(c=>c.resize()); });
+document.getElementById('btnPrint').addEventListener('click',()=>{ window.print(); });
+window.addEventListener('beforeprint',()=>{ document.querySelectorAll('section.tab').forEach(s=>s.style.display='block'); Object.values(charts).forEach(c=>c.resize()); });
+window.addEventListener('afterprint',()=>{ document.querySelectorAll('section.tab').forEach(s=>s.style.display=''); Object.values(charts).forEach(c=>c.resize()); });
+tryAutoLoad();
+</script>
+</body>
+</html>
