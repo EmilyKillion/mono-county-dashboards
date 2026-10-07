@@ -61,7 +61,7 @@
   .kpi .delta.up{color:var(--bad)} .kpi .delta.down{color:var(--ok)}
   .khead{display:grid;grid-template-columns:150px repeat(4,1fr);gap:12px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 6px;padding:0 2px}
   .khead span:first-child{visibility:hidden}
-  @media (max-width:900px){.vrow,.khead{grid-template-columns:1fr 1fr}.khead{display:none}.vrow .vname{grid-column:1/-1}}
+  @media screen and (max-width:900px){.vrow,.khead{grid-template-columns:1fr 1fr}.khead{display:none}.vrow .vname{grid-column:1/-1}}
   table{border-collapse:collapse;width:100%;font-size:13.5px}
   th,td{border-bottom:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
   th{background:#EEF3F6;font-weight:600;color:var(--navy)}
@@ -95,26 +95,64 @@
   .zoom-chart{height:min(62vh,560px)}
   @media print{.zoom{display:none!important}}
   footer{padding:14px 32px;color:var(--muted);font-size:12.5px;border-top:1px solid var(--line)}
-  @media (max-width:700px){header,main{padding-left:16px;padding-right:16px}.g2{grid-template-columns:1fr}.hd-meta{text-align:left}}
+  @media screen and (max-width:700px){header,main{padding-left:16px;padding-right:16px}.g2{grid-template-columns:1fr}.hd-meta{text-align:left}}
+  /* ---------- print / PDF report layout ---------- */
+  .print-head{display:none}
+  body.printing header, body.printing nav, body.printing .hd-actions, body.printing .banner, body.printing .drop,
+  body.printing .toolbar, body.printing .zoomhint, body.printing .no-print, body.printing footer, body.printing .zoom{display:none!important}
+  body.printing{background:#fff}
+  body.printing main{width:10.1in;max-width:none;padding:0;margin:0}
+  body.printing h2, body.printing .lead, body.printing .khead{break-after:avoid;page-break-after:avoid}
+  body.printing .print-head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid var(--navy);padding:0 0 8px;margin:0 0 14px}
+  body.printing .print-head h1{margin:0;font-size:24px;color:var(--navy)} body.printing .print-head .ph-sub{font-size:12.5px;color:var(--muted);margin-top:2px}
+  body.printing .print-head .ph-meta{text-align:right;font-size:12.5px;line-height:1.5;color:var(--ink)}
+  body.printing section.tab{display:block!important;break-before:page;page-break-before:always}
+  body.printing #tab-overview, body.printing #tab-mh, body.printing #tab-sources{break-before:auto;page-break-before:auto}
+  body.printing #tab-mh, body.printing #tab-sources{margin-top:14px}
+  body.printing section.tab h2{font-size:17px;border-left:5px solid var(--navy);padding-left:8px;margin:0 0 4px}
+  body.printing .lead{font-size:11.5px;margin:0 0 10px;max-width:none}
+  body.printing .grid{gap:10px}
+  body.printing .panel{padding:10px 12px;break-inside:avoid;page-break-inside:avoid;box-shadow:none}
+  body.printing .panel h3{font-size:13px;margin-bottom:4px}
+  body.printing .panel .note{font-size:10.5px;margin-top:4px}
+  body.printing .g2{grid-template-columns:1fr 1fr} body.printing .g3{grid-template-columns:1fr 1fr 1fr}
+  body.printing .chart{height:165px} body.printing .chart.tall{height:190px} body.printing .chart.short{height:150px}
+  body.printing .kpis{margin-bottom:10px} body.printing .khead{margin-bottom:4px;font-size:10.5px}
+  body.printing .vrow{gap:8px;margin-bottom:8px;grid-template-columns:120px repeat(4,1fr)} body.printing .khead{grid-template-columns:120px repeat(4,1fr);gap:8px}
+  body.printing .kpi{padding:6px 9px} body.printing .kpi .val{font-size:20px} body.printing .kpi .val.sm{font-size:17px} body.printing .kpi .lab,body.printing .kpi .delta{font-size:10.5px}
+  body.printing .vrow .vname{font-size:14px;padding:8px 10px}
+  body.printing table{font-size:11.5px} body.printing th,body.printing td{padding:4px 7px}
+  body.printing #tab-sources > .panel:first-of-type, body.printing #tab-sources > .panel:last-of-type, body.printing #tab-sources > .lead{display:none}
+  body.printing #wwNote{display:none}
+  body.printing #tab-ww .grid.g2{grid-template-columns:1fr 1fr 1fr}
+  body.printing #tab-cvw .chart{height:130px}
+  body.printing #tab-cvw .note{display:none}
+  body.printing #tab-overview .grid.g2{grid-template-columns:1.15fr 1fr;align-items:start}
+  body.printing #tab-overview .grid.g2 > .panel{grid-column:auto!important}
+  body.printing #tab-overview .chart.tall{height:150px}
+  body.printing .vrow .kpi .delta{font-size:9.5px;line-height:1.25;margin-top:1px}
+  body.printing .vrow .kpi .lab{font-size:9.5px}
+  body.printing .vrow{margin-bottom:6px}
+  body.printing .print-head{margin-bottom:8px;padding-bottom:6px}
+  body.printing .print-head h1{font-size:21px}
+  body.printing .lvl-pill, body.printing .kpi .lvl{white-space:nowrap}
+  body.printing #standTable td, body.printing #standTable th{padding:3px 6px}
+  body.printing #tab-overview .panel .note{display:none}
+  body.printing #tab-seasons .grid.g3 .chart{height:235px}
+  body.printing #tab-seasons > .panel .chart{height:190px}
+  body.printing #tab-flu .grid.g2{grid-template-columns:1fr 1fr 1fr}
+  body.printing #tab-flu .chart, body.printing #tab-mh .chart{height:170px}
+  body.printing #tab-testing .chart{height:140px}
+  body.printing #tab-testing .grid.g3 .note{display:none}
+  body.printing #tab-ww .chart{height:150px}
+  body.printing #tab-ww .grid.g2 .note{font-size:10px}
+  body.printing #tab-cvw .grid{gap:8px}
+  body.printing img.chart-img{width:100%;height:100%;object-fit:contain;display:block}
+  body.printing canvas.has-img{display:none!important}
   @media print{
-    @page{size:letter landscape;margin:12mm}
-    body{background:#fff}
-    header{padding:14px 20px 0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    nav,.hd-actions,.drop,.toolbar,.no-print{display:none!important}
-    main{padding:12px 0;max-width:none}
-    section.tab{display:block!important;page-break-before:always;break-before:page}
-    section.tab:first-of-type{page-break-before:auto;break-before:auto}
-    .print-only{display:block}
-    .panel,.kpi{page-break-inside:avoid;break-inside:avoid;box-shadow:none}
-    .g2{grid-template-columns:1fr 1fr}
-    body{font-size:12.5px}
-    .chart{height:210px}
-    .chart.tall{height:250px}
-    .chart.short{height:180px}
-    .kpi .val{font-size:22px}
-    .banner{display:none!important}
-    footer{display:none}
-    canvas{max-width:100%}
+    @page{size:letter landscape;margin:0.4in}
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    body:not(.printing) nav, body:not(.printing) .hd-actions{display:none}
   }
 </style>
 </head>
@@ -159,6 +197,7 @@
 </div>
 
 <main>
+  <div class="print-head"><div><h1>Respiratory Virus Report</h1><div class="ph-sub" id="phSub">Mono County Health &amp; Human Services, Public Health Division</div></div><div class="ph-meta" id="phMeta"></div></div>
   <div class="banner" id="banner"></div>
   <div class="drop" id="drop">
     <h3>Load the weekly tracker to build the report</h3>
@@ -684,9 +723,19 @@ document.getElementById('seasonSel').addEventListener('change',e=>syncSeason(e.t
 document.querySelectorAll('.seasonMirror').forEach(m=>m.addEventListener('change',e=>syncSeason(e.target.value)));
 ['cvwLog','cvwSmooth'].forEach(id=>document.getElementById(id).addEventListener('change',renderCvW));
 document.getElementById('nav').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('active',x===b)); document.querySelectorAll('section.tab').forEach(s=>s.classList.toggle('active',s.id==='tab-'+b.dataset.tab)); Object.values(charts).forEach(c=>c.resize()); });
-document.getElementById('btnPrint').addEventListener('click',()=>{ window.print(); });
-window.addEventListener('beforeprint',()=>{ document.querySelectorAll('section.tab').forEach(s=>s.style.display='block'); Object.values(charts).forEach(c=>c.resize()); });
-window.addEventListener('afterprint',()=>{ document.querySelectorAll('section.tab').forEach(s=>s.style.display=''); Object.values(charts).forEach(c=>c.resize()); });
+function preparePrint(){ if(document.body.classList.contains('printing')||!T) return;
+  closeZoom(); document.body.classList.add('printing');
+  document.getElementById('phMeta').innerHTML=[document.getElementById('seasonLabel').textContent,document.getElementById('dataThrough').textContent,document.getElementById('reportDate').textContent].filter(Boolean).join('<br>');
+  const prevAnim=Chart.defaults.animation; Chart.defaults.animation=false; window.__prevAnim=prevAnim; window.__prevDpr=Chart.defaults.devicePixelRatio; Chart.defaults.devicePixelRatio=2;
+  renderAll();                                   // rebuild every chart at its print size (all tabs visible now)
+  Object.entries(charts).forEach(([id,c])=>{ if(id==='cZoom') return; c.resize(); c.update('none'); const cv=c.canvas; const img=document.createElement('img'); img.className='chart-img'; img.src=c.toBase64Image('image/png',1); cv.classList.add('has-img'); cv.after(img); });
+}
+function restoreAfterPrint(){ if(!document.body.classList.contains('printing')) return;
+  document.querySelectorAll('img.chart-img').forEach(i=>i.remove()); document.querySelectorAll('canvas.has-img').forEach(c=>c.classList.remove('has-img'));
+  document.body.classList.remove('printing'); Chart.defaults.animation=window.__prevAnim??Chart.defaults.animation; Chart.defaults.devicePixelRatio=window.__prevDpr; renderAll(); }
+document.getElementById('btnPrint').addEventListener('click',()=>{ preparePrint(); setTimeout(()=>window.print(),50); });
+window.addEventListener('beforeprint',preparePrint);
+window.addEventListener('afterprint',restoreAfterPrint);
 tryAutoLoad();
 </script>
 </body>
