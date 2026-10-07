@@ -373,6 +373,7 @@ const CFG = {
   wvalColors:['#2E8B57','#8DC26F','#F2C14E','#E8862B','#B03A2E'],
   color:{covid:'#C0392B',flu:'#1E7F3E',rsv:'#E8862B',fluB:'#F2B84B',state:'#7A8B96',us:'#2C3E50',local:'#1E6B85',region:'#9B59B6'},
   // One fixed color per season, used on every season-comparison chart. Add a line here when a new season starts.
+  fluMinSeason:'2024-25', // Flu detail tab shows this season onward (A/B and vaccination fields start here)
   seasonColors:{'2022-23':'#8E6CB5','2023-24':'#2A9D8F','2024-25':'#E9A03B','2025-26':'#3B6FD6','2026-27':'#C8102E','2027-28':'#1B7F5B','2028-29':'#D36AA5'}
 };
 const charts = {};
@@ -523,6 +524,7 @@ function renderHeader(){
   const sel=document.getElementById('seasonSel'); const seasons=[...new Set([...T.weekly.map(r=>r.season),...T.prior.map(r=>r.season)])].sort();
   sel.innerHTML=seasons.map(x=>`<option ${x===s?'selected':''}>${x}</option>`).join('');
   document.querySelectorAll('.seasonMirror').forEach(m=>{ m.innerHTML=sel.innerHTML; m.value=sel.value; });
+  const fsel=document.getElementById('seasonSelFlu'); if(fsel){ [...fsel.options].forEach(o=>{ if(o.value<CFG.fluMinSeason) o.remove(); }); fsel.value=fluSeason(); }
   const cur=String(T.config['Current season']||''); const b=document.getElementById('banner');
   if(cur && !T.weekly.some(r=>r.season===cur)){ b.textContent=`No weekly rows yet for season ${cur}. Charts show the most recent season with data (${s}). Add rows to Weekly_Local to start the new season.`; b.classList.add('show'); } else b.classList.remove('show');
 }
@@ -579,8 +581,9 @@ function renderSeasons(){
   mk('cCovidHist',{type:'line',data:{labels:hist.map(r=>fmtD(r.week)),datasets:[lineDs('Covid-19 cases',hist.map(r=>r.cases),CFG.color.covid,{pointRadius:0,borderWidth:1.5,fill:true,backgroundColor:'rgba(192,57,43,.12)'})]},options:{plugins:{legend:{display:false}},scales:{x:{ticks:{maxTicksLimit:24,maxRotation:0}},y:{beginAtZero:true,ticks:{precision:0}}}}});
 }
 
+function fluSeason(){ const s=currentSeason(); return s<CFG.fluMinSeason?CFG.fluMinSeason:s; }
 function renderFlu(){
-  const s=currentSeason(); const rows=seasonRows(s).filter(r=>r.fluA!=null||r.fluB!=null||r.vaxY!=null); const lab=rows.map(r=>fmtD(r.week));
+  const s=fluSeason(); const fsel=document.getElementById('seasonSelFlu'); if(fsel) fsel.value=s; const rows=seasonRows(s).filter(r=>r.fluA!=null||r.fluB!=null||r.vaxY!=null); const lab=rows.map(r=>fmtD(r.week));
   mk('cFluAB',{type:'bar',data:{labels:lab,datasets:[{label:'Flu A',data:rows.map(r=>r.fluA),backgroundColor:CFG.color.flu},{label:'Flu B',data:rows.map(r=>r.fluB),backgroundColor:CFG.color.fluB}]},options:{scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}}}});
   mk('cFluVax',{type:'bar',data:{labels:lab,datasets:[{label:"Vaccinated",data:rows.map(r=>r.vaxY),backgroundColor:CFG.color.local},{label:"Not vaccinated / unknown",data:rows.map(r=>r.vaxN),backgroundColor:'#C9D3DB'}]},options:{scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}}}});
   mk('cFluVaxRate',{type:'line',data:{labels:lab,datasets:[lineDs('% of flu cases vaccinated',rows.map(r=>{const t=(r.vaxY||0)+(r.vaxN||0); return t?(r.vaxY||0)/t:null;}),CFG.color.local)]},options:{plugins:{legend:{display:false}},scales:{y:Object.assign({},pctAxis,{max:1})}}});
@@ -593,6 +596,8 @@ function renderMH(){
   const s=currentSeason(); const rows=seasonRows(s).filter(r=>r.mhFluT!=null||r.mhCovT!=null||r.mhRsvT!=null); const lab=rows.map(r=>fmtD(r.week));
   const g=(id,t,l,color)=>mk(id,{type:'bar',data:{labels:lab,datasets:[{label:'All patients',data:rows.map(r=>r[t]),backgroundColor:color+'66',borderColor:color,borderWidth:1},{label:'Mono residents',data:rows.map(r=>r[l]),backgroundColor:color}]},options:{scales:{y:{beginAtZero:true}}}});
   g('cMhFlu','mhFluT','mhFluL',CFG.color.flu); g('cMhCovid','mhCovT','mhCovL',CFG.color.covid); g('cMhRsv','mhRsvT','mhRsvL',CFG.color.rsv);
+  [['cMhFlu','mhFluT','influenza'],['cMhCovid','mhCovT','Covid-19'],['cMhRsv','mhRsvT','RSV']].forEach(([id,k,name])=>{ const c=charts[id]; if(!c) return; const tot=rows.reduce((a,r)=>a+(r[k]||0),0);
+    c.options.plugins.emptyMsg={text:`No ${name} cases reported, ${s}`}; if(rows.length&&tot===0){ c.data.datasets.forEach(d=>d.data=d.data.map(()=>null)); } c.options.scales.y.ticks={precision:0}; c.update('none'); });
 }
 
 function renderTesting(){
