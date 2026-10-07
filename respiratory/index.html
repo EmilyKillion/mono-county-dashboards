@@ -477,7 +477,9 @@ function latestRow(s){ const r=seasonRows(s); return r[r.length-1]; }
 function renderHeader(){
   const s=defaultSeason(); document.getElementById('seasonLabel').textContent=`Season ${T.config['Current season']||s}`;
   const lr=T.weekly[T.weekly.length-1]; document.getElementById('dataThrough').textContent= lr?`Data through week of ${fmtD(lr.week)} (MMWR week ${lr.mmwr})`:'No weekly data yet';
-  const rd=toDate(T.config['Report date']); document.getElementById('reportDate').textContent= rd?`Report date ${rd.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}`:'';
+  // Report date = most recent week with entered data in Weekly_Local or Weekly_ELR (Config 'Report date' no longer used)
+  const lastDates=[T.weekly[T.weekly.length-1]?.week, T.elr[T.elr.length-1]?.week].filter(Boolean); const rd=lastDates.length?new Date(Math.max(...lastDates)):null;
+  document.getElementById('reportDate').textContent= rd?`Report date ${rd.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}`:'';
   if(T.config['Prepared by']) document.getElementById('subTitle').textContent=T.config['Prepared by'];
   const sel=document.getElementById('seasonSel'); const seasons=[...new Set([...T.weekly.map(r=>r.season),...T.prior.map(r=>r.season)])].sort();
   sel.innerHTML=seasons.map(x=>`<option ${x===s?'selected':''}>${x}</option>`).join('');
