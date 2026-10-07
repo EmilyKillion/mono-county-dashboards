@@ -29,10 +29,11 @@
   .btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);color:#fff;padding:7px 12px;border-radius:4px;font-size:13px;cursor:pointer}
   .btn:hover{background:rgba(255,255,255,.22)}
   .btn.primary{background:#fff;color:var(--navy);border-color:#fff;font-weight:600}
-  nav{display:flex;gap:2px;margin-top:44px;overflow-x:auto}
-  nav button{background:transparent;border:0;border-bottom:3px solid transparent;color:rgba(255,255,255,.8);padding:10px 14px;font-size:14px;cursor:pointer;white-space:nowrap}
-  nav button:hover{color:#fff}
-  nav button.active{color:#fff;border-bottom-color:#F2B84B;font-weight:600}
+  nav{display:flex;gap:4px;margin-top:44px;overflow-x:auto}
+  nav button{background:transparent;border:0;border-radius:8px 8px 0 0;color:rgba(255,255,255,.92);padding:14px 20px 13px;margin-top:6px;font-size:16px;font-weight:600;letter-spacing:.1px;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}
+  nav button:hover{color:#fff;background:rgba(255,255,255,.14)}
+  nav button.active{color:var(--navy);background:var(--bg);text-shadow:none;box-shadow:inset 0 3px 0 #F2B84B}
+  nav button:focus-visible{outline:2px solid #F2B84B;outline-offset:-2px}
   main{padding:22px 32px 48px;max-width:1440px;margin:0 auto}
   section.tab{display:none}
   section.tab.active{display:block}
@@ -186,10 +187,10 @@
   <nav id="nav">
     <button data-tab="overview" class="active">Overview</button>
     <button data-tab="seasons">Cases by season</button>
-    <button data-tab="flu">Flu detail</button>
-    <button data-tab="mh">Mammoth Hospital</button>
     <button data-tab="testing">Test positivity</button>
     <button data-tab="ww">Wastewater</button>
+    <button data-tab="flu">Flu detail</button>
+    <button data-tab="mh">Mammoth Hospital</button>
     <button data-tab="highlights">Highlights</button>
     <button data-tab="sources">Sources &amp; status</button>
   </nav>
@@ -245,30 +246,6 @@
     <div class="panel" style="margin-top:16px"><h3>Covid-19 epi curve [Nov 2022–current]</h3><div class="chart"><canvas id="cCovidHist"></canvas></div></div>
   </section>
 
-  <!-- FLU -->
-  <section class="tab" id="tab-flu">
-    <h2>Flu detail</h2>
-    <p class="lead">Influenza type and vaccination status among flu-positive patients reported by Mammoth Hospital, .</p>
-    <div class="toolbar"><label for="seasonSelFlu">Season</label><select id="seasonSelFlu" class="seasonMirror"></select></div>
-    <div class="grid g2">
-      <div class="panel zoomable" data-chart="cFluAB" data-title="Flu A / B distribution" title="Click to enlarge"><h3>Flu A / B distribution <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cFluAB"></canvas></div></div>
-      <div class="panel zoomable" data-chart="cFluVax" data-title="Flu vaccination status" title="Click to enlarge"><h3>Flu vaccination status <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cFluVax"></canvas></div></div>
-      <div class="panel zoomable" data-chart="cFluVaxRate" data-title="Weekly vaccination rate among flu cases" title="Click to enlarge"><h3>Weekly vaccination rate among flu cases <span class="zoomhint">⤢ enlarge</span></h3><div class="chart short"><canvas id="cFluVaxRate"></canvas></div></div>
-    </div>
-  </section>
-
-  <!-- MH -->
-  <section class="tab" id="tab-mh">
-    <h2>Mammoth Hospital</h2>
-    <p class="lead">Weekly counts reported by Mammoth Hospital: influenza and RSV cases, and Covid-19 admissions. “All patients” includes visitors; “Mono residents” are local.</p>
-    <div class="toolbar"><label for="seasonSelMh">Season</label><select id="seasonSelMh" class="seasonMirror"></select></div>
-    <div class="grid g3">
-      <div class="panel zoomable" data-chart="cMhFlu" data-title="Mammoth Hospital, influenza cases" title="Click to enlarge"><h3>Influenza <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cMhFlu"></canvas></div></div>
-      <div class="panel zoomable" data-chart="cMhCovid" data-title="Mammoth Hospital, Covid-19 admits" title="Click to enlarge"><h3>Covid-19 admits <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cMhCovid"></canvas></div></div>
-      <div class="panel zoomable" data-chart="cMhRsv" data-title="Mammoth Hospital, RSV cases" title="Click to enlarge"><h3>RSV <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cMhRsv"></canvas></div></div>
-    </div>
-  </section>
-
   <!-- TESTING -->
   <section class="tab" id="tab-testing">
     <h2>Test positivity</h2>
@@ -318,6 +295,31 @@
     <p class="note" id="cvwNote"></p>
     </div>
   </section>
+
+  <!-- FLU -->
+  <section class="tab" id="tab-flu">
+    <h2>Flu detail</h2>
+    <p class="lead">Influenza type and vaccination status among flu-positive patients reported by Mammoth Hospital, .</p>
+    <div class="toolbar"><label for="seasonSelFlu">Season</label><select id="seasonSelFlu" class="seasonMirror"></select></div>
+    <div class="grid g2">
+      <div class="panel zoomable" data-chart="cFluAB" data-title="Flu A / B distribution" title="Click to enlarge"><h3>Flu A / B distribution <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cFluAB"></canvas></div></div>
+      <div class="panel zoomable" data-chart="cFluVax" data-title="Flu vaccination status" title="Click to enlarge"><h3>Flu vaccination status <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cFluVax"></canvas></div></div>
+      <div class="panel zoomable" data-chart="cFluVaxRate" data-title="Weekly vaccination rate among flu cases" title="Click to enlarge"><h3>Weekly vaccination rate among flu cases <span class="zoomhint">⤢ enlarge</span></h3><div class="chart short"><canvas id="cFluVaxRate"></canvas></div></div>
+    </div>
+  </section>
+
+  <!-- MH -->
+  <section class="tab" id="tab-mh">
+    <h2>Mammoth Hospital</h2>
+    <p class="lead">Weekly counts reported by Mammoth Hospital: influenza and RSV cases, and Covid-19 admissions. “All patients” includes visitors; “Mono residents” are local.</p>
+    <div class="toolbar"><label for="seasonSelMh">Season</label><select id="seasonSelMh" class="seasonMirror"></select></div>
+    <div class="grid g3">
+      <div class="panel zoomable" data-chart="cMhFlu" data-title="Mammoth Hospital, influenza cases" title="Click to enlarge"><h3>Influenza <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cMhFlu"></canvas></div></div>
+      <div class="panel zoomable" data-chart="cMhCovid" data-title="Mammoth Hospital, Covid-19 admits" title="Click to enlarge"><h3>Covid-19 admits <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cMhCovid"></canvas></div></div>
+      <div class="panel zoomable" data-chart="cMhRsv" data-title="Mammoth Hospital, RSV cases" title="Click to enlarge"><h3>RSV <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cMhRsv"></canvas></div></div>
+    </div>
+  </section>
+
 
 
   <!-- HIGHLIGHTS -->
