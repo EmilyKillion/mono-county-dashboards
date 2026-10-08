@@ -24,6 +24,7 @@
   .hd-title h1{margin:0;font-size:42px;font-weight:700;letter-spacing:-.5px;line-height:1.1}
   .hd-title .sub{margin:8px 0 0;font-size:18px;opacity:.95}
   .hd-meta{text-align:right;font-size:15px;opacity:.95;line-height:1.6}
+  .hd-meta .hd-through{font-size:19px;font-weight:700;margin:2px 0}
   .hd-meta strong{font-weight:600}
   .hd-actions{display:flex;gap:8px;margin-top:6px;justify-content:flex-end;flex-wrap:wrap}
   .btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);color:#fff;padding:7px 12px;border-radius:4px;font-size:13px;cursor:pointer}
@@ -174,7 +175,8 @@
     </div>
     <div class="hd-meta">
       <div><strong id="seasonLabel">Season —</strong></div>
-      <div id="dataThrough">Data through —</div>
+      <div id="dataThrough" class="hd-through">Data through —</div>
+      <div id="latestWeek"></div>
       <div id="reportDate"></div>
       <div class="hd-actions">
         <label class="btn" for="fileIn">Load tracker (.xlsx)</label>
@@ -457,7 +459,8 @@ function parseTracker(buf){
     reff:num(r['CA Covid R-eff']), usCovid:num(r['US Covid % pos']), usRsv:num(r['US RSV % pos'])})).filter(r=>r.week && (r.burden||[r.caCovid,r.caFlu,r.caRsv,r.reff,r.usCovid,r.usRsv].some(x=>x!=null))).sort((a,b)=>a.week-b.week);
   const fluAge = sh('Flu_Age_Vax').filter(r=>r['Age group']).map(r=>({season:String(r.Season),age:r['Age group'],no:num(r['Vax No'])||0,yes:num(r['Vax Yes'])||0,unk:num(r['Vax Unknown'])||0}));
   const highlights = sh('Highlights').filter(r=>r.Highlight).map(r=>({date:toDate(r.Date),text:r.Highlight,link:r['Source link']})).sort((a,b)=>(b.date||0)-(a.date||0));
-  return {config,weekly,elr,prior,covidHist,casesHist,wwHist,verily,ucd,stateNat,fluAge,highlights};
+  const savedAt=wb.Props&&wb.Props.ModifiedDate?new Date(wb.Props.ModifiedDate):null;
+  return {config,weekly,elr,prior,covidHist,casesHist,wwHist,verily,ucd,stateNat,fluAge,highlights,savedAt};
 }
 
 /* ============ CDC live pulls ============ */
@@ -523,11 +526,14 @@ function seasonRows(s){ return T.weekly.filter(r=>r.season===s); }
 function latestRow(s){ const r=seasonRows(s); return r[r.length-1]; }
 
 function renderHeader(){
-  const s=defaultSeason(); document.getElementById('seasonLabel').textContent=`Season ${T.config['Current season']||s}`;
-  const lr=T.weekly[T.weekly.length-1]; document.getElementById('dataThrough').textContent= lr?`Data through week of ${fmtD(lr.week)} (MMWR week ${lr.mmwr})`:'No weekly data yet';
-  // Report date = most recent week with entered data in Weekly_Local or Weekly_ELR (Config 'Report date' no longer used)
-  const lastDates=[T.weekly[T.weekly.length-1]?.week, T.elr[T.elr.length-1]?.week].filter(Boolean); const rd=lastDates.length?new Date(Math.max(...lastDates)):null;
-  document.getElementById('reportDate').textContent= rd?`Report date ${rd.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}`:'';
+  const s=defaultSeason(); document.getElementById('seasonLabel').textContent=`${T.config['Current season']||s} season`;
+  // Weeks run Monday-Sunday: the latest week entered in the tracker ends on the Sunday 6 days after its Monday
+  const lastDates=[T.weekly[T.weekly.length-1]?.week, T.elr[T.elr.length-1]?.week].filter(Boolean);
+  const wk=lastDates.length?new Date(Math.max(...lastDates)):null, end=wk?addDays(wk,6):null;
+  const long=d=>d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}), short=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  document.getElementById('dataThrough').textContent= end?`Data through ${long(end)}`:'No weekly data yet';
+  document.getElementById('latestWeek').textContent= wk?`Most recent week: ${short(wk)} – ${short(end)}, ${end.getFullYear()} (MMWR week ${mmwr(wk).week})`:'';
+  const up=(T.savedAt&&!isNaN(T.savedAt))?T.savedAt:window.__trackerUpdated; document.getElementById('reportDate').textContent= up&&!isNaN(up)?`Last updated ${up.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}`:'';
   if(T.config['Prepared by']) document.getElementById('subTitle').textContent=T.config['Prepared by'];
   const sel=document.getElementById('seasonSel'); const seasons=[...new Set([...T.weekly.map(r=>r.season),...T.prior.map(r=>r.season)])].sort();
   sel.innerHTML=seasons.map(x=>`<option ${x===s?'selected':''}>${x}</option>`).join('');
@@ -727,9 +733,9 @@ async function useTracker(buf){
   T=parseTracker(buf); document.getElementById('drop').style.display='none'; document.getElementById('app').style.display='block';
   renderAll(); await loadLive(); renderAll();
 }
-async function tryAutoLoad(){ try{ const r=await fetch(CFG.trackerFile,{cache:'no-store'}); if(!r.ok) throw 0; await useTracker(await r.arrayBuffer()); }catch(e){ /* show drop zone */ } }
-document.getElementById('fileIn').addEventListener('change',e=>{ const f=e.target.files[0]; if(!f) return; f.arrayBuffer().then(useTracker); });
-const dz=document.getElementById('drop'); ['dragover','dragenter'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault(); dz.style.borderColor='#1E6B85';})); dz.addEventListener('dragleave',()=>dz.style.borderColor=''); dz.addEventListener('drop',e=>{ e.preventDefault(); const f=e.dataTransfer.files[0]; if(f) f.arrayBuffer().then(useTracker); });
+async function tryAutoLoad(){ try{ const r=await fetch(CFG.trackerFile,{cache:'no-store'}); if(!r.ok) throw 0; const lm=r.headers.get('last-modified'); window.__trackerUpdated=lm?new Date(lm):null; await useTracker(await r.arrayBuffer()); }catch(e){ /* show drop zone */ } }
+document.getElementById('fileIn').addEventListener('change',e=>{ const f=e.target.files[0]; if(!f) return; window.__trackerUpdated=new Date(f.lastModified); f.arrayBuffer().then(useTracker); });
+const dz=document.getElementById('drop'); ['dragover','dragenter'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault(); dz.style.borderColor='#1E6B85';})); dz.addEventListener('dragleave',()=>dz.style.borderColor=''); dz.addEventListener('drop',e=>{ e.preventDefault(); const f=e.dataTransfer.files[0]; if(f){ window.__trackerUpdated=new Date(f.lastModified); f.arrayBuffer().then(useTracker); } });
 document.getElementById('btnRefresh').addEventListener('click',async()=>{ if(!T) return; await loadLive(); renderAll(); });
 const syncSeason=v=>{ document.getElementById('seasonSel').value=v; document.querySelectorAll('.seasonMirror').forEach(m=>m.value=v); renderSeasons(); renderFlu(); renderMH(); };
 document.getElementById('seasonSel').addEventListener('change',e=>syncSeason(e.target.value));
@@ -738,7 +744,7 @@ document.querySelectorAll('.seasonMirror').forEach(m=>m.addEventListener('change
 document.getElementById('nav').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('active',x===b)); document.querySelectorAll('section.tab').forEach(s=>s.classList.toggle('active',s.id==='tab-'+b.dataset.tab)); Object.values(charts).forEach(c=>c.resize()); });
 function preparePrint(){ if(document.body.classList.contains('printing')||!T) return;
   closeZoom(); document.body.classList.add('printing');
-  document.getElementById('phMeta').innerHTML=[document.getElementById('seasonLabel').textContent,document.getElementById('dataThrough').textContent,document.getElementById('reportDate').textContent].filter(Boolean).join('<br>');
+  document.getElementById('phMeta').innerHTML=[document.getElementById('seasonLabel').textContent,'<strong>'+document.getElementById('dataThrough').textContent+'</strong>',document.getElementById('latestWeek').textContent,document.getElementById('reportDate').textContent].filter(Boolean).join('<br>');
   const prevAnim=Chart.defaults.animation; Chart.defaults.animation=false; window.__prevAnim=prevAnim; window.__prevDpr=Chart.defaults.devicePixelRatio; Chart.defaults.devicePixelRatio=2;
   renderAll();                                   // rebuild every chart at its print size (all tabs visible now)
   Object.entries(charts).forEach(([id,c])=>{ if(id==='cZoom') return; c.resize(); c.update('none'); const cv=c.canvas; const img=document.createElement('img'); img.className='chart-img'; img.src=c.toBase64Image('image/png',1); cv.classList.add('has-img'); cv.after(img); });
