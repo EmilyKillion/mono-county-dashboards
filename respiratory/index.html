@@ -86,6 +86,16 @@
   .banner{background:#FFF6DD;border:1px solid #F2D58A;border-radius:6px;padding:10px 14px;font-size:13.5px;margin-bottom:14px;display:none}
   .banner.show{display:block}
   .print-only{display:none}
+  .wval-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .info-btn{background:#fff;border:1px solid var(--teal);color:var(--teal);border-radius:999px;padding:5px 14px;font-size:13px;font-weight:600;cursor:pointer;margin-top:8px}
+  .info-btn:hover{background:var(--teal);color:#fff}
+  .info-dialog{border:0;border-radius:10px;padding:20px 24px;max-width:640px;width:calc(100% - 32px);box-shadow:0 12px 40px rgba(0,0,0,.3);color:var(--ink);font-size:14.5px;line-height:1.55}
+  .info-dialog::backdrop{background:rgba(15,42,60,.55)}
+  .info-dialog p{margin:0 0 12px} .info-dialog h4{margin:14px 0 6px;font-size:14px;color:var(--navy)}
+  .info-dialog table{margin-bottom:14px;font-size:13.5px} .info-dialog td,.info-dialog th{padding:5px 8px}
+  @media print{.info-dialog,.info-btn{display:none!important}}
+  body.printing .info-btn, body.printing .info-dialog{display:none!important}
+  body.printing .wval-row .legend-bands{margin-top:0}
   .subhead{font-size:17px;color:var(--navy);margin:26px 0 4px;padding-top:16px;border-top:1px solid var(--line)}
   .zoomable{cursor:zoom-in} .zoomable:hover{border-color:var(--teal)}
   .zoomhint{font-size:11.5px;font-weight:500;color:var(--muted);margin-left:6px}
@@ -114,7 +124,7 @@
   body.printing h2, body.printing .lead, body.printing .khead{break-after:avoid;page-break-after:avoid}
   body.printing .print-head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid var(--navy);padding:0 0 8px;margin:0 0 14px}
   body.printing .print-head h1{margin:0;font-size:24px;color:var(--navy)} body.printing .print-head .ph-sub{font-size:12.5px;color:var(--muted);margin-top:2px}
-  body.printing .print-head .ph-meta{text-align:right;font-size:12.5px;line-height:1.5;color:var(--ink)}
+  body.printing .print-head .ph-meta{text-align:right;font-size:11px;line-height:1.3;color:var(--ink)}
   body.printing section.tab{display:block!important;break-before:page;page-break-before:always}
   body.printing #tab-overview, body.printing #tab-mh, body.printing #tab-sources{break-before:auto;page-break-before:auto}
   body.printing #tab-mh, body.printing #tab-sources{margin-top:14px}
@@ -267,7 +277,17 @@
   <section class="tab" id="tab-ww">
     <h2>Wastewater</h2>
     <p class="lead">CDC wastewater viral activity level (WVAL) for the Mono County sampling site compared with the California and national medians, plus local Verily concentrations and the UC Davis trend table.</p>
-    <div class="legend-bands" id="wvalLegend"></div>
+    <div class="wval-row"><div class="legend-bands" id="wvalLegend"></div><button type="button" class="info-btn no-print" id="wvalInfoBtn" aria-haspopup="dialog">ⓘ What is WVAL?</button></div>
+    <dialog id="wvalDialog" class="info-dialog" aria-labelledby="wvalDlgTitle">
+      <div class="zoom-head"><h3 id="wvalDlgTitle">What is the wastewater viral activity level (WVAL)?</h3><button type="button" class="btn-close" id="wvalClose" aria-label="Close">✕</button></div>
+      <p><strong>It is an index, not an amount.</strong> CDC compares each sampling site's virus level this week with that same site's low (baseline) levels over the previous 24 months. The WVAL says how far above its own baseline the site is, so it has no units. A Mono value of 5.3 for SARS-CoV-2 means "well above Mono's usual low level," not 5.3 copies of virus.</p>
+      <p><strong>Why use it?</strong> Raw concentrations can't be compared across places with different sewer systems, flows, and populations. Because every site is measured against its own baseline, the Mono, California, and US values can be shown side by side. The California and US values are the medians of all reporting sites.</p>
+      <p><strong>Where the Mono value comes from.</strong> The Mammoth Lakes plant is sampled under CDC's national wastewater testing contract. CDC calculates the site's WVAL each week and publishes it; this dashboard retrieves it when the page loads. Values appear only for weeks with samples.</p>
+      <h4>Activity level cutoffs (CDC)</h4>
+      <table id="wvalCutTable"></table>
+      <p><strong>Looking for the actual amount?</strong> The Verily charts below show measured concentrations: gene copies of the virus per liter divided by copies of PMMoV (a plant virus present in all human waste, used to adjust for dilution and population), × 1,000,000.</p>
+      <p class="note">Source: <a href="https://www.cdc.gov/wastewater/about/wval.html" target="_blank" rel="noopener">CDC, Using the Wastewater Viral Activity Level</a>. CDC updates thresholds and methods periodically.</p>
+    </dialog>
     <div class="grid g3" style="margin-top:12px">
       <div class="panel zoomable" data-chart="cWwCovid" data-title="SARS-CoV-2 wastewater, Mono vs California vs US" title="Click to enlarge"><h3>SARS-CoV-2 <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cWwCovid"></canvas></div></div>
       <div class="panel zoomable" data-chart="cWwFlu" data-title="Influenza A wastewater, Mono vs California vs US" title="Click to enlarge"><h3>Influenza A <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cWwFlu"></canvas></div></div>
@@ -725,6 +745,14 @@ document.querySelectorAll('.zoomable').forEach(p=>p.addEventListener('click',()=
 document.getElementById('zoomClose').addEventListener('click',closeZoom);
 document.getElementById('zoom').addEventListener('click',e=>{ if(e.target.id==='zoom') closeZoom(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeZoom(); });
+(function(){ const dlg=document.getElementById('wvalDialog'); if(!dlg) return;
+  const fmt=n=>String(n); const rows=Object.entries(CFG.wval).map(([name,o])=>{ const c=o.cuts; const label={'SARS-CoV-2':'SARS-CoV-2','Influenza A virus':'Influenza A','RSV':'RSV'}[name]||name;
+    return [label,`up to ${fmt(c[0])}`,`${c[0]}–${c[1]}`,`${c[1]}–${c[2]}`,`${c[2]}–${c[3]}`,`over ${c[3]}`]; });
+  document.getElementById('wvalCutTable').innerHTML='<thead><tr><th>Virus</th>'+CFG.wvalLabels.map((l,i)=>`<th><span class="lvl-pill" style="background:${CFG.wvalColors[i]}">${l}</span></th>`).join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+r.map((c,i)=>i?`<td>${c}</td>`:`<th>${c}</th>`).join('')+'</tr>').join('')+'</tbody>';
+  document.getElementById('wvalInfoBtn').addEventListener('click',()=>dlg.showModal());
+  document.getElementById('wvalClose').addEventListener('click',()=>dlg.close());
+  dlg.addEventListener('click',e=>{ if(e.target===dlg) dlg.close(); });
+})();
 
 function renderAll(){ renderHeader(); renderOverview(); renderSeasons(); renderFlu(); renderMH(); renderTesting(); renderWW(); renderCvW(); renderSources(); }
 
