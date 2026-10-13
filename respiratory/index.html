@@ -535,9 +535,11 @@ const hereLine={ id:'hereLine', afterDatasetsDraw(c,args,o){ if(o.index==null) r
 const bandPlugin={ id:'bands', beforeDatasetsDraw(c,args,o){ if(!o.cuts) return; const y=c.scales.y; const {left,right}=c.chartArea; const ctx=c.ctx; const edges=[y.min,...o.cuts,Math.max(y.max,o.cuts[3]*1.05)]; ctx.save(); for(let i=0;i<5;i++){ const y0=y.getPixelForValue(Math.min(edges[i+1],y.max)), y1=y.getPixelForValue(Math.max(edges[i],y.min)); if(y1<=y0) continue; ctx.fillStyle=CFG.wvalColors[i]+'22'; ctx.fillRect(left,y0,right-left,y1-y0);} ctx.restore(); } };
 const emptyMsg={ id:'emptyMsg', afterDraw(c,args,o){ const has=c.data.datasets.some(d=>d.data.some(v=>v!=null)); if(has) return; const {left,right,top,bottom}=c.chartArea; const ctx=c.ctx; ctx.save(); ctx.fillStyle='#7A8B96'; ctx.font='13px "Segoe UI",Arial'; ctx.textAlign='center'; ctx.fillText(o.text||'No data loaded',(left+right)/2,(top+bottom)/2); ctx.restore(); } };
 Chart.register(hereLine,bandPlugin,emptyMsg);
-function mk(id,cfg){ if(charts[id]) charts[id].destroy(); const el=document.getElementById(id); if(!el) return; const base={responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom',labels:{boxWidth:9,boxHeight:9,usePointStyle:true,pointStyle:'circle'}},hereLine:{},bands:{},emptyMsg:{}}}; const o=cfg.options||{}; const op=o.plugins||{}; const legend=Object.assign({},base.plugins.legend,op.legend||{},{labels:Object.assign({},base.plugins.legend.labels,(op.legend||{}).labels||{})}); cfg.options=Object.assign(base,o,{plugins:Object.assign(base.plugins,op,{legend})}); charts[id]=new Chart(el,cfg); }
+function mk(id,cfg){ if(charts[id]) charts[id].destroy(); const el=document.getElementById(id); if(!el) return; const base={responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom',labels:{boxWidth:9,boxHeight:9,usePointStyle:true,pointStyle:'circle'}},hereLine:{},bands:{},emptyMsg:{}}}; const o=cfg.options||{}; const op=o.plugins||{}; const legend=Object.assign({},base.plugins.legend,op.legend||{},{labels:Object.assign({},base.plugins.legend.labels,(op.legend||{}).labels||{})}); cfg.options=Object.assign(base,o,{plugins:Object.assign(base.plugins,op,{legend})}); if(cfg.options.scales&&cfg.options.scales.y&&cfg.options.scales.y.__pct){ cfg.options.scales.y.ticks=Object.assign({},cfg.options.scales.y.ticks,{callback:pctTick}); cfg.options.plugins.tooltip=Object.assign({},cfg.options.plugins.tooltip||{},{callbacks:{label:pctLabel}}); } charts[id]=new Chart(el,cfg); }
 const lineDs=(label,data,color,extra={})=>Object.assign({label,data,borderColor:color,backgroundColor:color,borderWidth:2,pointRadius:2,pointHoverRadius:4,tension:.2,spanGaps:true},extra);
-const pctAxis={ticks:{callback:v=>Math.round(v*100)+'%'},beginAtZero:true};
+const pctTick=v=>Math.round(v*100)+'%';
+const pctAxis={ticks:{callback:pctTick},beginAtZero:true,__pct:true};
+const pctLabel=c=>`${c.dataset.label}: ${c.parsed.y==null?'—':(c.parsed.y*100).toFixed(1)+'%'}`;
 
 /* ============ rendering ============ */
 function currentSeason(){ const sel=document.getElementById('seasonSel'); return sel.value || defaultSeason(); }
@@ -635,9 +637,9 @@ function renderMH(){
 }
 
 function renderTesting(){
-  const eAll=T.elr; const lastW=eAll.length?eAll[eAll.length-1].week:null; const cutoff=lastW?addDays(lastW,-548):null; // 18 months by calendar
+  const eAll=T.elr; const lastW=eAll.length?eAll[eAll.length-1].week:null; const cutoff=lastW?addDays(lastW,-364):null; // 12 months by calendar
   const e=cutoff?eAll.filter(r=>r.week>=cutoff):eAll; const lab=e.map(r=>fmtD(r.week));
-  document.getElementById('elrWindow').textContent= e.length?`Showing the last 18 months, ${fmtD(e[0].week)} through ${fmtD(lastW)}.`:'';
+  document.getElementById('elrWindow').textContent= e.length?`Showing the last 12 months, ${fmtD(e[0].week)} through ${fmtD(addDays(lastW,6))}.`:'';
   mk('cElrAll',{type:'line',data:{labels:lab,datasets:[lineDs('Covid-19',e.map(r=>r.covid),CFG.color.covid),lineDs('Influenza',e.map(r=>r.flu),CFG.color.flu),lineDs('RSV',e.map(r=>r.rsv),CFG.color.rsv)]},options:{scales:{y:pctAxis,x:{ticks:{maxTicksLimit:20,maxRotation:0}}}}});
   mk('cElrVol',{type:'bar',data:{labels:lab,datasets:[{label:'Covid tests',data:e.map(r=>(r.covidP||0)+(r.covidN||0)),backgroundColor:CFG.color.covid},{label:'Flu tests',data:e.map(r=>(r.fluP||0)+(r.fluN||0)),backgroundColor:CFG.color.flu},{label:'RSV tests',data:e.map(r=>(r.rsvP||0)+(r.rsvN||0)),backgroundColor:CFG.color.rsv}]},options:{scales:{x:{stacked:false,ticks:{maxTicksLimit:20,maxRotation:0}},y:{beginAtZero:true,title:{display:true,text:'Tests reported'}}}}});
   // align by week for comparisons: use the union of Mono weeks (Mon) and CDC week_end (Sat) mapped to Monday
