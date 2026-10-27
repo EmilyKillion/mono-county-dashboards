@@ -321,7 +321,7 @@
   <!-- FLU -->
   <section class="tab" id="tab-flu">
     <h2>Flu detail</h2>
-    <p class="lead">Influenza type and vaccination status among flu-positive patients reported by Mammoth Hospital, .</p>
+    <p class="lead">Influenza type and vaccination status among flu-positive patients reported by Mammoth Hospital.</p>
     <div class="toolbar"><label for="seasonSelFlu">Season</label><select id="seasonSelFlu" class="seasonMirror"></select></div>
     <div class="grid g2">
       <div class="panel zoomable" data-chart="cFluAB" data-title="Flu A / B distribution" title="Click to enlarge"><h3>Flu A / B distribution <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cFluAB"></canvas></div></div>
@@ -375,7 +375,7 @@
       </div>    <div class="panel" style="margin-top:16px">
       <h3>Weekly update</h3>
       <ol style="margin:0;padding-left:20px;font-size:14px">
-        <li>Fill the yellow cells in <code>RV_Tracker.xlsx</code> (Weekly_Local, Weekly_ELR, Wastewater_Local, State_National, Flu_Age_Vax, Highlights, Config). Wastewater_History is read-only history.</li>
+        <li>Fill the yellow cells in <code>RV_Tracker.xlsx</code> (Weekly_Local, Weekly_ELR, Wastewater_Local, State_National, Highlights, Config). Wastewater_History is read-only history.</li>
         <li>Commit the tracker to the GitHub repository next to <code>index.html</code>. The page loads it automatically; CDC data refresh on every page load.</li>
         <li>Use “Print / save PDF” for the leadership copy. All tabs print in order, one section per page.</li>
       </ol>
@@ -572,7 +572,7 @@ function renderOverview(){
   const tot=v=>rows.reduce((a,r)=>a+(r[v]||0),0);
   const delta=(a,b)=>{ if(a==null||b==null) return '<div class="delta">—</div>'; const d=a-b; if(d===0) return '<div class="delta">no change from prior week</div>'; return `<div class="delta ${d>0?'up':'down'}">${d>0?'▲ +':'▼ '}${d} vs prior week</div>`; };
   const box=(lab,val,sub)=>`<div class="kpi"><div class="lab">${lab}</div><div class="val">${val}</div>${sub||''}</div>`;
-  const paused=T.config['Wastewater note']?`<div class="delta up">Local wastewater sampling temporarily paused</div>`:'';
+  const paused=/paus/i.test(String(T.config['Wastewater note']||''))?`<div class="delta up">Local wastewater sampling temporarily paused</div>`:'';
   const wwBox=v=>{ const a=live.nwss.mono[v]; if(a&&a.length){ const x=a[a.length-1]; const c=wvalCat(v,x.v); return `<div class="kpi"><div class="lab">Mono wastewater level</div><div class="val sm">${x.v.toFixed(1)} <span class="lvl" style="background:${CFG.wvalColors[c]}">${CFG.wvalLabels[c]}</span></div><div class="delta">CDC NWSS Mono site, week ending ${fmtD(x.week)}</div>${paused}</div>`; }
     const vk=v==='flu'?'flu':v; const loc=[...T.wwHist.map(r=>({week:r.week,v:r[vk]})),...T.verily.map(r=>({week:r.week,v:v==='flu'?((r.fluA!=null||r.fluB!=null)?(r.fluA||0)+(r.fluB||0):null):r[v]}))].filter(r=>r.v!=null).sort((a,b)=>a.week-b.week); const x=loc[loc.length-1];
     return `<div class="kpi"><div class="lab">Mono wastewater (Verily)</div><div class="val sm">${x?x.v.toFixed(1):'—'}</div><div class="delta">${x?`virus : PMMoV × 1M, week of ${fmtD(x.week)}`:'no local value'}</div>${paused}</div>`; };
