@@ -78,6 +78,7 @@
   .hlitem{display:grid;grid-template-columns:150px 1fr;gap:14px;align-items:start;padding:10px 12px;border-left:4px solid var(--hlc,#7A8B96);background:var(--bg);border-radius:4px;margin:0 0 8px;font-size:14.5px;line-height:1.5}
   .hlitem .topic{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--hlc,#7A8B96);padding-top:2px}
   .hlitem b{color:var(--ink);font-weight:700} .hlitem a{font-size:12.5px;margin-left:4px}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden} .seg button{border:0;background:var(--panel);color:var(--muted);font-size:12.5px;padding:5px 10px;cursor:pointer} .seg button.on{background:var(--ink);color:#fff}
   .hl-up{color:#C0392B;font-weight:700} .hl-down{color:#2E7D4F;font-weight:700}
   .hlkey{font-size:12.5px;color:var(--muted);margin:0 0 14px} .hlkey .hl-up,.hlkey .hl-down{font-weight:700}
   details.hlold{margin-top:6px} details.hlold summary{cursor:pointer;color:var(--muted);font-size:13.5px;margin:0 0 10px}
@@ -305,7 +306,8 @@
     <p class="note" id="wwNote" style="margin:8px 0 16px"></p>
     <div class="grid g2">
       <div class="panel zoomable" data-chart="cVerily" data-title="Verily wastewater, Mammoth Lakes plant" title="Click to enlarge"><h3 id="verilyTitle">Verily, Mammoth Lakes plant <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cVerily"></canvas></div><p class="note">Ratio of virus to PMMoV × 1,000,000, entered weekly in the tracker from the Verily dashboard.</p></div>
-      <div class="panel zoomable" data-chart="cVerilyOther" data-title="Verily, other targets" title="Click to enlarge"><h3>Verily, other targets (H1/H3 subtypes, measles, mpox) <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cVerilyOther"></canvas></div><p class="note">From Wastewater_History; these targets are not entered weekly in Wastewater_Local.</p></div>
+      <div class="panel zoomable" data-chart="cVerilyMeasles" data-title="Verily, measles" title="Click to enlarge"><h3>Verily, measles <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cVerilyMeasles"></canvas></div><p class="note" id="measlesNote">Measles (wild type) in wastewater, ratio to PMMoV × 1,000,000. 0 = not detected; breaks are weeks without sampling.</p></div>
+      <div class="panel zoomable" data-chart="cFluSubtype" data-title="Influenza A subtypes in wastewater (H1, H3, H5)" title="Click to enlarge"><h3>Influenza A subtypes: H1 vs H3 vs H5 <span class="zoomhint">⤢ enlarge</span></h3><div class="seg no-print" id="subtypeMode" style="margin:0 0 8px"><button data-m="share" class="on">Share of subtype signal</button><button data-m="conc">Concentration</button></div><div class="chart"><canvas id="cFluSubtype"></canvas></div><p class="note" id="subtypeNote"></p></div>
       <div class="panel"><h3>UC Davis Mono wastewater dashboard</h3>
         <table id="ucdTable"><thead><tr><th>Pathogen</th><th>Trend</th><th>Percent change</th><th>Level</th></tr></thead><tbody></tbody></table>
         <p class="note" id="ucdNote">Mann-Kendall trend test for consistently increasing or decreasing trends, with statistical significance. <a href="https://cricelio.shinyapps.io/Monodashboard/" target="_blank" rel="noopener">Source: UC Davis dashboard</a></p>
@@ -475,14 +477,16 @@ function parseTracker(buf){
   // Wastewater_Local: rows with a date are weekly values; the UC Davis table is read by scanning for 'Pathogen' header
   const wwSheet = wb.Sheets['Wastewater_Local'];
   const wwRows = wwSheet ? XLSX.utils.sheet_to_json(wwSheet,{header:1,defval:null,raw:true}) : [];
-  const verily=[]; const ucd=[]; let ucdMode=false;
+  const verily=[]; const ucd=[]; let ucdMode=false; const wh=(wwRows[0]||[]).map(x=>String(x||'').trim());
+  const wcol=n=>wh.indexOf(n); const wv=(row,n)=>{const i=wcol(n); return i<0?null:num(row[i]);};
   wwRows.forEach((row,i)=>{ if(i===0) return;
     if(row[0]==='Pathogen'){ucdMode=true; return;}
     if(ucdMode){ if(row[0]&&typeof row[0]==='string'&&(row[1]!=null||row[3]!=null)) ucd.push({pathogen:row[0],trend:row[1],pc:row[2],level:row[3],asOf:toDate(row[4])}); return; }
     const d=toDate(row[0]); if(!d) return;
-    const note=String(row[6]||'').toLowerCase(); if(note.startsWith('example')) return;
-    const vals=[1,2,3,4,5].map(i=>num(row[i])); if(vals.every(x=>x==null)) return;
-    verily.push({week:d,covid:vals[0],fluA:vals[1],fluB:vals[2],rsv:vals[3],h5:vals[4]});
+    const note=String(row[wcol('Notes')]||'').toLowerCase(); if(note.startsWith('example')) return;
+    const r={week:d,covid:wv(row,'SARS-CoV-2'),fluA:wv(row,'Influenza A'),fluB:wv(row,'Influenza B'),rsv:wv(row,'RSV'),h5:wv(row,'Influenza A (H5)'),h1:wv(row,'Influenza A (H1)'),h3:wv(row,'Influenza A (H3)'),measles:wv(row,'Measles')};
+    if(['covid','fluA','fluB','rsv','h5','h1','h3','measles'].every(k=>r[k]==null)) return;
+    Object.keys(r).forEach(k=>{ if(r[k]==null) delete r[k]; }); verily.push(r);
   });
   const stateNat = sh('State_National').filter(r=>r['Week (Mon)']&&!String(r.Notes||'').toLowerCase().startsWith('example')).map(r=>({
     week:toDate(r['Week (Mon)']), caCovid:num(r['CA Covid % pos']), caFlu:num(r['CA Flu % pos']), caRsv:num(r['CA RSV % pos']), burden:r['CA combined burden'],
@@ -577,6 +581,21 @@ function renderHeader(){
 
 const HL_TOPIC_COLORS={'mono county cases':'#1E6B85','test positivity':'#6C5B9E','mammoth hospital':'#B5654A','wastewater':'#3C8D93','california':'#2C3E50','prevention':'#4A7C3A'};
 function hlFormat(t){ return String(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/↑/g,'<span class="hl-up">↑</span>').replace(/↓/g,'<span class="hl-down">↓</span>'); }
+let subtypeMode='share'; const LOWSIG=10;
+function renderSubtypes(vAll){
+  vAll=vAll||window.__vAll||[]; window.__vAll=vAll;
+  const first=vAll.findIndex(r=>r.h1!=null||r.h3!=null||r.h5!=null); const rows=first<0?[]:vAll.slice(first);
+  const tot=r=>(r.h1||0)+(r.h3||0)+(r.h5||0); const share=subtypeMode==='share';
+  const val=(r,k)=>{ if(r[k]==null) return null; if(!share) return r[k]; const t=tot(r); return t>0?r[k]/t:null; };
+  const S=[['h1','H1','#153B66'],['h3','H3','#8FB8E6'],['h5','H5 (avian)','#C0392B']];
+  mk('cFluSubtype',{type:'bar',data:{labels:rows.map(r=>fmtD(r.week)),datasets:S.map(([k,l,c])=>({label:l,data:rows.map(r=>val(r,k)),backgroundColor:share?rows.map(r=>tot(r)<LOWSIG?c+'59':c):c,borderWidth:0,barPercentage:1,categoryPercentage:.9,_raw:rows.map(r=>r[k])}))},
+    options:{plugins:{emptyMsg:{text:'No subtype values'},legend:{labels:{generateLabels:ch=>ch.data.datasets.map((d,i)=>({text:d.label,fillStyle:S[i][2],strokeStyle:S[i][2],lineWidth:0,pointStyle:'circle',hidden:!ch.isDatasetVisible(i),datasetIndex:i}))}},tooltip:{callbacks:{label:c=>{const raw=c.dataset._raw[c.dataIndex]; if(raw==null) return `${c.dataset.label}: not tested`; const t=tot(rows[c.dataIndex]); return `${c.dataset.label}: ${raw.toFixed(1)}${t>0?` (${Math.round(raw/t*100)}%)`:''}`;}}}},
+      scales:{x:{stacked:true,ticks:{maxTicksLimit:12,maxRotation:0}},y:Object.assign({stacked:true,beginAtZero:true,title:{display:true,text:share?'Share of H1 + H3 + H5 signal':'Virus : PMMoV × 1M'}},share?{max:1,ticks:{callback:x=>Math.round(x*100)+'%'}}:{})}}});
+  const det=rows.filter(r=>tot(r)>0), last=det[det.length-1];
+  const lastTxt=last?` Most recent subtype detection: week of ${fmtD(last.week)} (${S.filter(([k])=>last[k]>0).map(([k,l])=>`${l} ${Math.round(last[k]/tot(last)*100)}%`).join(', ')}).`:'';
+  document.getElementById('subtypeNote').textContent=(share?`Each bar shows how the week\'s combined H1, H3 and H5 wastewater signal splits by subtype; weeks with no subtype detected are blank. Faded bars are weeks with a low combined signal (under ${LOWSIG}), where the split rests on a small amount of virus.`:'Stacked weekly concentrations of each influenza A subtype.')+lastTxt+' Hover for values. Wastewater_History plus Wastewater_Local.';
+}
+document.addEventListener('click',e=>{ const b=e.target.closest('#subtypeMode button'); if(!b) return; e.stopPropagation(); subtypeMode=b.dataset.m; document.querySelectorAll('#subtypeMode button').forEach(x=>x.classList.toggle('on',x===b)); renderSubtypes(); },true);
 function renderHighlights(s){
   const el=document.getElementById('highlights'); const hls=T.highlights.filter(h=>!h.date||seasonOf(h.date)===s);
   if(!hls.length){ el.innerHTML='<p style="color:var(--muted);margin:0">No highlights for this season yet. Add rows to the Highlights sheet.</p>'; return; }
@@ -688,7 +707,9 @@ function renderWW(){
   const vk=[...vmap.keys()].sort(); const vAll=[]; if(vk.length){ for(let d=toDate(vk[0]); iso(d)<=vk[vk.length-1]; d=addDays(d,7)) vAll.push(vmap.get(iso(d))||{week:d}); } const v=vAll.slice(-52); // continuous weekly axis so unsampled weeks show as breaks document.getElementById('verilyTitle').textContent=`Verily, ${siteName.replace(/\s*\(Verily\)/i,'')}, last 52 weeks`;
   document.querySelector('#verilyTitle').parentElement.querySelector('.note').textContent=`${T.config['Wastewater note']?T.config['Wastewater note']+' ':''}Ratio of virus to PMMoV × 1,000,000; Wastewater_History plus weekly entries in Wastewater_Local. Breaks in a line are weeks without sampling.`;
   mk('cVerily',{type:'line',options:{plugins:{emptyMsg:{text:'No Verily values entered in Wastewater_Local'}}},data:{labels:v.map(r=>fmtD(r.week)),datasets:[lineDs('SARS-CoV-2',v.map(r=>r.covid),CFG.color.covid),lineDs('Influenza A',v.map(r=>r.fluA),CFG.color.flu),lineDs('Influenza B',v.map(r=>r.fluB),CFG.color.fluB),lineDs('RSV',v.map(r=>r.rsv),CFG.color.rsv),lineDs('Influenza A (H5)',v.map(r=>r.h5),'#5E6E78',{borderDash:[3,3]})].map(d=>Object.assign(d,{spanGaps:false}))},options:{scales:{y:{beginAtZero:true,title:{display:true,text:'Virus : PMMoV × 1M'}},x:{ticks:{maxTicksLimit:12,maxRotation:0}}}}});
-  mk('cVerilyOther',{type:'line',data:{labels:v.map(r=>fmtD(r.week)),datasets:[lineDs('Influenza A (H1)',v.map(r=>r.h1),'#153B66'),lineDs('Influenza A (H3)',v.map(r=>r.h3),'#8FB8E6'),lineDs('Measles',v.map(r=>r.measles),'#C0392B'),lineDs('Mpox clade I',v.map(r=>r.mpox1),'#7B2D8E'),lineDs('Mpox clade II',v.map(r=>r.mpox2),'#B58BC4')].map(d=>Object.assign(d,{spanGaps:false}))},options:{plugins:{emptyMsg:{text:'No other-target values'}},scales:{y:{beginAtZero:true,title:{display:true,text:'Virus : PMMoV × 1M'}},x:{ticks:{maxTicksLimit:12,maxRotation:0}}}}});
+  mk('cVerilyMeasles',{type:'line',data:{labels:v.map(r=>fmtD(r.week)),datasets:[lineDs('Measles',v.map(r=>r.measles),'#C0392B',{spanGaps:false})]},options:{plugins:{legend:{display:false},emptyMsg:{text:'No measles values'}},scales:{y:{beginAtZero:true,suggestedMax:10,title:{display:true,text:'Virus : PMMoV × 1M'}},x:{ticks:{maxTicksLimit:12,maxRotation:0}}}}});
+  { const det=v.filter(r=>r.measles>0); document.getElementById('measlesNote').textContent=`Measles (wild type) in wastewater, ratio to PMMoV × 1,000,000. ${det.length?`Detected in ${det.length} of the last 52 weeks (most recent: week of ${fmtD(det[det.length-1].week)}).`:'Not detected in any sample in the last 52 weeks.'} Breaks are weeks without sampling.`; }
+  renderSubtypes(vAll);
   const lvlColor={low:'#8DC26F',medium:'#F2C14E',high:'#B03A2E'};
   document.querySelector('#ucdTable tbody').innerHTML=T.ucd.length?T.ucd.map(r=>`<tr><td>${r.pathogen}</td><td>${r.trend??''}</td><td>${r.pc??''}</td><td>${r.level?`<span class="lvl-pill" style="background:${lvlColor[String(r.level).toLowerCase()]||'#7A8B96'}">${r.level}</span>`:''}</td></tr>`).join(''):'<tr><td colspan="4" style="color:var(--muted)">No UC Davis table entered.</td></tr>';
   document.getElementById('ucdNote').innerHTML=`${T.ucd[0]?.asOf?`As of ${fmtD(T.ucd[0].asOf)}. `:''}Mann-Kendall trend test for consistently increasing or decreasing trends, with statistical significance. <a href="https://cricelio.shinyapps.io/Monodashboard/" target="_blank" rel="noopener">Source: UC Davis dashboard</a>`;
