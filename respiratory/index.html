@@ -74,6 +74,14 @@
   .status{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
   .status.ok{background:var(--ok)} .status.warn{background:var(--warn)} .status.bad{background:var(--bad)} .status.na{background:#B8C2C9}
   ul.hl{margin:0;padding-left:18px} ul.hl li{margin:0 0 8px}
+  .hlweek{margin:0 0 18px} .hlweek h3{font-size:15px;margin:0 0 10px;color:var(--ink)}
+  .hlitem{display:grid;grid-template-columns:150px 1fr;gap:14px;align-items:start;padding:10px 12px;border-left:4px solid var(--hlc,#7A8B96);background:var(--bg);border-radius:4px;margin:0 0 8px;font-size:14.5px;line-height:1.5}
+  .hlitem .topic{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--hlc,#7A8B96);padding-top:2px}
+  .hlitem b{color:var(--ink);font-weight:700} .hlitem a{font-size:12.5px;margin-left:4px}
+  .hl-up{color:#C0392B;font-weight:700} .hl-down{color:#2E7D4F;font-weight:700}
+  .hlkey{font-size:12.5px;color:var(--muted);margin:0 0 14px} .hlkey .hl-up,.hlkey .hl-down{font-weight:700}
+  details.hlold{margin-top:6px} details.hlold summary{cursor:pointer;color:var(--muted);font-size:13.5px;margin:0 0 10px}
+  @media (max-width:640px){.hlitem{grid-template-columns:1fr;gap:4px}}
   ul.hl .d{color:var(--muted);font-size:12.5px;margin-left:6px}
   .drop{border:2px dashed #9FB3C0;border-radius:8px;padding:38px;text-align:center;background:#fff;margin:24px auto;max-width:720px}
   .drop p{margin:6px 0;color:var(--muted)}
@@ -120,6 +128,7 @@
   body.printing .toolbar, body.printing .zoomhint, body.printing .no-print, body.printing .zoom{display:none!important}
   body.printing footer{padding:10px 0 0;margin-top:12px;font-size:10.5px;break-inside:avoid}
   body.printing{background:#fff}
+  body.printing .hlitem{break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   body.printing main{width:10.1in;max-width:none;padding:0;margin:0}
   body.printing h2, body.printing .lead, body.printing .khead{break-after:avoid;page-break-after:avoid}
   body.printing .print-head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid var(--navy);padding:0 0 8px;margin:0 0 14px}
@@ -347,8 +356,9 @@
   <!-- HIGHLIGHTS -->
   <section class="tab" id="tab-highlights">
     <h2>Highlights</h2>
-    <p class="lead" id="hlLead">Key messages for the week, with source links. Entered in the Highlights sheet of the tracker.</p>
-    <div class="panel"><ul class="hl" id="highlights"></ul></div>
+    <p class="lead" id="hlLead">Key messages for the most recent week, with source links. Earlier weeks are collapsed below. Entered in the Highlights sheet of the tracker.</p>
+    <p class="hlkey"><b>Bold</b> = key takeaway · <span class="hl-up">↑</span> increasing · <span class="hl-down">↓</span> decreasing</p>
+    <div class="panel" id="highlights"></div>
   </section>
 
   <!-- SOURCES -->
@@ -478,7 +488,7 @@ function parseTracker(buf){
     week:toDate(r['Week (Mon)']), caCovid:num(r['CA Covid % pos']), caFlu:num(r['CA Flu % pos']), caRsv:num(r['CA RSV % pos']), burden:r['CA combined burden'],
     reff:num(r['CA Covid R-eff']), usCovid:num(r['US Covid % pos']), usRsv:num(r['US RSV % pos'])})).filter(r=>r.week && (r.burden||[r.caCovid,r.caFlu,r.caRsv,r.reff,r.usCovid,r.usRsv].some(x=>x!=null))).sort((a,b)=>a.week-b.week);
   const fluAge = sh('Flu_Age_Vax').filter(r=>r['Age group']).map(r=>({season:String(r.Season),age:r['Age group'],no:num(r['Vax No'])||0,yes:num(r['Vax Yes'])||0,unk:num(r['Vax Unknown'])||0}));
-  const highlights = sh('Highlights').filter(r=>r.Highlight).map(r=>({date:toDate(r.Date),text:r.Highlight,link:r['Source link']})).sort((a,b)=>(b.date||0)-(a.date||0));
+  const highlights = sh('Highlights').filter(r=>r.Highlight).map(r=>({date:toDate(r.Date),text:r.Highlight,link:r['Source link'],topic:r.Topic||''})).sort((a,b)=>(b.date||0)-(a.date||0));
   const savedAt=wb.Props&&wb.Props.ModifiedDate?new Date(wb.Props.ModifiedDate):null;
   return {config,weekly,elr,prior,covidHist,casesHist,wwHist,verily,ucd,stateNat,fluAge,highlights,savedAt};
 }
@@ -565,6 +575,17 @@ function renderHeader(){
   if(cur && !T.weekly.some(r=>r.season===cur)){ b.textContent=`No weekly rows yet for season ${cur}. Charts show the most recent season with data (${s}). Add rows to Weekly_Local to start the new season.`; b.classList.add('show'); } else b.classList.remove('show');
 }
 
+const HL_TOPIC_COLORS={'mono county cases':'#1E6B85','test positivity':'#6C5B9E','mammoth hospital':'#B5654A','wastewater':'#3C8D93','california':'#2C3E50','prevention':'#4A7C3A'};
+function hlFormat(t){ return String(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/↑/g,'<span class="hl-up">↑</span>').replace(/↓/g,'<span class="hl-down">↓</span>'); }
+function renderHighlights(s){
+  const el=document.getElementById('highlights'); const hls=T.highlights.filter(h=>!h.date||seasonOf(h.date)===s);
+  if(!hls.length){ el.innerHTML='<p style="color:var(--muted);margin:0">No highlights for this season yet. Add rows to the Highlights sheet.</p>'; return; }
+  const groups=new Map(); hls.forEach(h=>{ const k=h.date?iso(h.date):''; if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(h); });
+  const item=h=>{ const c=HL_TOPIC_COLORS[String(h.topic).trim().toLowerCase()]||'#7A8B96'; return `<div class="hlitem" style="--hlc:${c}"><div class="topic">${h.topic||''}</div><div>${hlFormat(h.text)}${h.link?`<a href="${h.link}" target="_blank" rel="noopener">source</a>`:''}</div></div>`; };
+  const week=([k,arr],i)=>`<div class="hlweek"><h3>${i===0?'This week':'Week'} · ${k?fmtD(toDate(k)):'Undated'}</h3>${arr.map(item).join('')}</div>`;
+  const g=[...groups.entries()];
+  el.innerHTML=week(g[0],0)+(g.length>1?`<details class="hlold"><summary>Earlier highlights (${g.length-1} ${g.length===2?'week':'weeks'})</summary>${g.slice(1).map((x,i)=>week(x,i+1)).join('')}</details>`:'');
+}
 function renderOverview(){
   const s=defaultSeason(); const rows=seasonRows(s).filter(r=>r.flu!=null||r.covid!=null||r.rsv!=null); const n=rows.length; const last=rows[n-1], prev=rows[n-2];
   const k=document.getElementById('kpis');
@@ -586,7 +607,7 @@ function renderOverview(){
   document.getElementById('ovLead').textContent=`Weekly summary of respiratory virus activity in Mono County for the ${s} season, with state and national comparisons.`;
   // previous season plus current season on one time axis; dashed line marks the current season's first week
   mk('cCombined',{type:'line',data:{labels:rows.map(r=>fmtD(r.week)),datasets:[lineDs('Influenza',rows.map(r=>r.flu),CFG.color.flu),lineDs('Covid-19',rows.map(r=>r.covid),CFG.color.covid),lineDs('RSV',rows.map(r=>r.rsv),CFG.color.rsv)]},options:{scales:{y:{beginAtZero:true,ticks:{precision:0},title:{display:true,text:'Reported cases'}}}}});
-  const hls=T.highlights.filter(h=>!h.date||seasonOf(h.date)===s); document.getElementById('highlights').innerHTML=hls.length?hls.map(h=>`<li>${h.text}${h.link?` <a href="${h.link}" target="_blank" rel="noopener">source</a>`:''}<span class="d">${h.date?fmtD(h.date):''}</span></li>`).join(''):'<li style="color:var(--muted)">No highlights for this season yet. Add rows to the Highlights sheet.</li>';
+  renderHighlights(s);
   // stand table
   const sn=T.stateNat[T.stateNat.length-1]; const tb=document.querySelector('#standTable tbody'); const rowsHtml=[];
   const wvRow=(v,label)=>{ const mo=live.nwss.mono[v]?.slice(-1)[0], ca=live.nwss.ca[v]?.slice(-1)[0], us=live.nwss.us[v]?.slice(-1)[0]; rowsHtml.push(`<tr><td>Wastewater level, ${label}</td><td>${pill(mo?wvalCat(v,mo.v):null)}</td><td>${pill(ca?wvalCat(v,ca.v):null)}</td><td>${pill(us?wvalCat(v,us.v):null)}</td></tr>`); };
