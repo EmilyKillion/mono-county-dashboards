@@ -810,7 +810,7 @@ async function useTracker(buf){
   T=parseTracker(buf); document.getElementById('drop').style.display='none'; document.getElementById('app').style.display='block';
   renderAll(); await loadLive(); renderAll();
 }
-async function tryAutoLoad(){ try{ const r=await fetch(CFG.trackerFile,{cache:'no-store'}); if(!r.ok) throw 0; const lm=r.headers.get('last-modified'); window.__trackerUpdated=lm?new Date(lm):null; await useTracker(await r.arrayBuffer()); }catch(e){ /* show drop zone */ } }
+async function tryAutoLoad(){ try{ const r=await fetch(CFG.trackerFile+'?t='+Date.now(),{cache:'no-store'}); if(!r.ok) throw 0; const lm=r.headers.get('last-modified'); window.__trackerUpdated=lm?new Date(lm):null; await useTracker(await r.arrayBuffer()); }catch(e){ /* show drop zone */ } }
 document.getElementById('fileIn').addEventListener('change',e=>{ const f=e.target.files[0]; if(!f) return; window.__trackerUpdated=new Date(f.lastModified); f.arrayBuffer().then(useTracker); });
 const dz=document.getElementById('drop'); ['dragover','dragenter'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault(); dz.style.borderColor='#1E6B85';})); dz.addEventListener('dragleave',()=>dz.style.borderColor=''); dz.addEventListener('drop',e=>{ e.preventDefault(); const f=e.dataTransfer.files[0]; if(f){ window.__trackerUpdated=new Date(f.lastModified); f.arrayBuffer().then(useTracker); } });
 document.getElementById('btnRefresh').addEventListener('click',async()=>{ if(!T) return; await loadLive(); renderAll(); });
