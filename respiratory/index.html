@@ -625,7 +625,12 @@ function renderHighlights(s){
 function renderOverview(){
   const s=defaultSeason(); const rows=seasonRows(s).filter(r=>r.flu!=null||r.covid!=null||r.rsv!=null); const n=rows.length; const last=rows[n-1], prev=rows[n-2];
   const k=document.getElementById('kpis');
-  const e=T.elr[T.elr.length-1];
+  const e=T.elr[T.elr.length-1], ep=T.elr[T.elr.length-2];
+  const posDelta=ek=>{ // percentage-point change vs the immediately preceding week
+    if(!e||!ep||+addDays(ep.week,7)!==+e.week||e[ek]==null||ep[ek]==null) return '';
+    const d=Math.round((e[ek]-ep[ek])*1000)/10;
+    if(Math.abs(d)<0.5) return `<div class="delta">no change from prior week (${fmtP(ep[ek])})</div>`;
+    return `<div class="delta ${d>0?'up':'down'}">${d>0?'▲ up':'▼ down'} from ${fmtP(ep[ek])} prior week</div>`; };
   const tot=v=>rows.reduce((a,r)=>a+(r[v]||0),0);
   const delta=(a,b)=>{ if(a==null||b==null) return '<div class="delta">—</div>'; const d=a-b; if(d===0) return '<div class="delta">no change from prior week</div>'; return `<div class="delta ${d>0?'up':'down'}">${d>0?'▲ +':'▼ '}${d} vs prior week</div>`; };
   const box=(lab,val,sub)=>`<div class="kpi"><div class="lab">${lab}</div><div class="val">${val}</div>${sub||''}</div>`;
@@ -658,7 +663,7 @@ function renderOverview(){
   const virusRow=(cls,name,vk,ek,wk)=>`<div class="vrow ${cls}"><div class="vname">${name}<small>Mono County</small></div>
     ${box('Cases this week',last?(last[vk]??'—'):'—',last?delta(last[vk],prev?.[vk]):'')}
     ${box('Season to date',tot(vk),`<div class="delta">${n} week${n===1?'':'s'} reported</div>`)}
-    ${box('Mono ELR positivity',e?fmtP(e[ek]):'—',e?`<div class="delta">${(e[ek+'P']||0)} of ${(e[ek+'P']||0)+(e[ek+'N']||0)} tests, week of ${fmtD(e.week)}</div>`:'')}
+    ${box('Mono ELR positivity',e?fmtP(e[ek]):'—',e?`${posDelta(ek)}<div class="delta">${(e[ek+'P']||0)} of ${(e[ek+'P']||0)+(e[ek+'N']||0)} tests, week of ${fmtD(e.week)}</div>`:'')}
     ${wwBox(wk)}</div>`;
   k.innerHTML=`<div class="khead"><span>Virus</span><span>This week</span><span>Season to date</span><span>Local test positivity</span><span>Local wastewater</span></div>`
     +virusRow('flu','Influenza','flu','flu','flu')+virusRow('covid','Covid-19','covid','covid','covid')+virusRow('rsv','RSV','rsv','rsv','rsv');
