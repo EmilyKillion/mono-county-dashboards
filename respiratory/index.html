@@ -63,6 +63,10 @@
   .vrow .kpi{border-left-width:1px}
   .kpi .val.sm{font-size:22px}
   .kpi .delta.up{color:var(--bad)} .kpi .delta.down{color:var(--ok)}
+  .kpi.wwk{border-left:5px solid var(--lv);background:color-mix(in srgb,var(--lv) 9%,#fff)}
+  .kpi.wwk .wwlvl{display:inline-block;background:var(--lv);color:#fff;padding:3px 12px;border-radius:4px;font-size:18px}
+  .kpi .delta .up{color:var(--bad)} .kpi .delta .down{color:var(--ok)}
+  body.printing .kpi.wwk .wwlvl{font-size:13px;padding:1px 7px}
   .khead{display:grid;grid-template-columns:150px repeat(4,1fr);gap:12px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 6px;padding:0 2px}
   .khead span:first-child{visibility:hidden}
   @media screen and (max-width:900px){.vrow,.khead{grid-template-columns:1fr 1fr}.khead{display:none}.vrow .vname{grid-column:1/-1}}
@@ -614,12 +618,26 @@ function renderOverview(){
   const box=(lab,val,sub)=>`<div class="kpi"><div class="lab">${lab}</div><div class="val">${val}</div>${sub||''}</div>`;
   const paused=/paus/i.test(String(T.config['Wastewater note']||''))?`<div class="delta up">Local wastewater sampling temporarily paused</div>`:'';
   const wwBox=v=>{
-    const vk=v==='flu'?'flu':v; const loc=[...T.wwHist.map(r=>({week:r.week,v:r[vk]})),...T.verily.map(r=>({week:r.week,v:v==='flu'?((r.fluA!=null||r.fluB!=null)?(r.fluA||0)+(r.fluB||0):null):r[v]}))].filter(r=>r.v!=null).sort((a,b)=>a.week-b.week); const x=loc[loc.length-1];
+    // Overview tile: color-coded level (CDC WVAL when CDC has Mono data, else UC Davis level), plus UC Davis trend and the direction of recent Verily samples. No raw concentrations.
+    const loc=[...T.wwHist.map(r=>({week:r.week,v:r[v]})),...T.verily.map(r=>({week:r.week,v:v==='flu'?((r.fluA!=null||r.fluB!=null)?(r.fluA||0)+(r.fluB||0):null):r[v]}))].filter(r=>r.v!=null).sort((a,b)=>a.week-b.week);
+    const x=loc[loc.length-1], px=loc[loc.length-2];
     const a=live.nwss.mono[v]; const n=a&&a.length?a[a.length-1]:null;
-    const pillFor=y=>{const c=wvalCat(v,y.v); return `<span class="lvl" style="background:${CFG.wvalColors[c]}">${CFG.wvalLabels[c]}</span>`;};
-    if(n&&(!x||addDays(x.week,5)<=n.week)) return `<div class="kpi"><div class="lab">Mono wastewater level</div><div class="val sm">${n.v.toFixed(1)} ${pillFor(n)}</div><div class="delta">CDC NWSS Mono site, week ending ${fmtD(n.week)}</div>${paused}</div>`;
-    const val=x?(x.v>0?x.v.toFixed(1):'Not detected'):'—';
-    return `<div class="kpi"><div class="lab">Mono wastewater (Verily)</div><div class="val sm">${val}</div><div class="delta">${x?`${x.v>0?'virus : PMMoV × 1M, ':''}sample week of ${fmtD(x.week)}`:'no local value'}</div>${n?`<div class="delta">Last CDC level: ${n.v.toFixed(1)} ${CFG.wvalLabels[wvalCat(v,n.v)]} (week ending ${fmtD(n.week)}); CDC has not posted newer Mono data</div>`:''}${paused}</div>`; };
+    const ucdName={flu:'Influenza A',covid:'SARS-CoV-2',rsv:'RSV'}[v];
+    const u=T.ucd.find(r=>String(r.pathogen).trim().toLowerCase()===ucdName.toLowerCase());
+    const ucdCol={low:'#8DC26F',medium:'#F2C14E',high:'#B03A2E'};
+    let label, color, src;
+    if(n){ const c=wvalCat(v,n.v); label=CFG.wvalLabels[c]; color=CFG.wvalColors[c]; src=`CDC level, week ending ${fmtD(n.week)}`; }
+    else if(u&&u.level){ label=u.level; color=ucdCol[String(u.level).toLowerCase()]||'#7A8B96'; src=`UC Davis level${u.asOf?`, ${fmtD(u.asOf)}`:''}`; }
+    else { label='Not available'; color='#7A8B96'; src='No level reported'; }
+    const lines=[];
+    if(n&&u&&u.level){ const t=String(u.trend||'').trim(); const tw=/^nd$/i.test(String(u.pc||''))?'not detected':/^no trend$/i.test(t)?'no clear trend':t.toLowerCase(); lines.push(`UC Davis: ${u.level}${tw?`, ${tw}`:''}${u.asOf?` (${fmtD(u.asOf)})`:''}`); }
+    else if(u&&u.trend){ const t=String(u.trend).trim(); lines.push(`Trend: ${/^no trend$/i.test(t)?'no clear trend':t.toLowerCase()}`); }
+    if(x){ let dir;
+      if(!(x.v>0)) dir='<span>not detected</span>';
+      else if(!px||!(px.v>0)) dir='<span class="up">▲ newly detected</span>';
+      else { const r=x.v/px.v; dir=r>=1.25?'<span class="up">▲ rising</span>':r<=0.8?'<span class="down">▼ falling</span>':'<span>steady</span>'; }
+      lines.push(`Local samples: ${dir} (week of ${fmtD(x.week)})`); }
+    return `<div class="kpi wwk" style="--lv:${color}"><div class="lab">Wastewater level</div><div class="val sm"><span class="wwlvl">${label}</span></div><div class="delta">${src}</div>${lines.map(l=>`<div class="delta">${l}</div>`).join('')}${paused}</div>`; };
   const virusRow=(cls,name,vk,ek,wk)=>`<div class="vrow ${cls}"><div class="vname">${name}<small>Mono County</small></div>
     ${box('Cases this week',last?(last[vk]??'—'):'—',last?delta(last[vk],prev?.[vk]):'')}
     ${box('Season to date',tot(vk),`<div class="delta">${n} week${n===1?'':'s'} reported</div>`)}
