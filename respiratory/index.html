@@ -63,11 +63,9 @@
   .vrow .kpi{border-left-width:1px}
   .kpi .val.sm{font-size:22px}
   .kpi .delta.up{color:var(--bad)} .kpi .delta.down{color:var(--ok)}
-  .cmp{display:inline-block;padding:2px 8px;border-radius:4px;font-weight:600}
-  .cmp small{font-weight:500;font-size:11.5px;margin-left:4px}
+  .cmp{display:inline-block;margin-left:10px;padding:1px 8px;border-radius:10px;font-size:12px;font-weight:600;vertical-align:1px}
   .cmp.hi{background:#F6DEDB;color:#8E2A20} .cmp.lo{background:#DCEFE2;color:#1E6B3E} .cmp.sim{background:#ECEFF1;color:#3D4A54}
-  .cmpn{font-size:11.5px;color:var(--muted);margin-top:2px}
-  body.printing .cmp{padding:0 5px} body.printing .cmp small,body.printing .cmpn{font-size:9px}
+  body.printing .cmp{padding:0 5px;font-size:9px;margin-left:5px}
   .kpi.wwk{border-left:5px solid var(--lv);background:color-mix(in srgb,var(--lv) 9%,#fff)}
   .kpi.wwk .wwlvl{display:inline-block;background:var(--lv);color:var(--lvt,#fff);padding:3px 12px;border-radius:4px;font-size:18px}
   .kpi .delta .up{color:var(--bad)} .kpi .delta .down{color:var(--ok)}
@@ -259,7 +257,7 @@
       <div class="panel" style="grid-column:1/-1">
         <h3>Where Mono stands this week</h3>
         <table id="standTable"><thead><tr><th>Indicator</th><th>Mono</th><th>California</th><th>United States</th></tr></thead><tbody></tbody></table>
-        <p class="note">Wastewater viral activity level (WVAL) from CDC NWSS; positivity from Mono ELRs, CDPH (tracker), and CDC NREVSS. Mono positivity is shaded red when higher than California, green when lower, and gray when similar (within 3 percentage points or 20%); Mono is based on a small number of tests each week. Blank cells: not available for this week.</p>
+        <p class="note">Wastewater viral activity level (WVAL) from CDC NWSS; positivity from Mono ELRs, CDPH (tracker), and CDC NREVSS. The tag next to Mono positivity compares it with California: higher (red), lower (green), or similar (gray; within 3 percentage points or 20%). Mono is based on a small number of tests each week. Blank cells: not available for this week.</p>
       </div>
     </div>
   </section>
@@ -673,8 +671,8 @@ function renderOverview(){
   // Mono positivity cell shaded by comparison with California: higher (red), lower (green), similar (gray; within 3 points or 20%)
   const vsCA=(m,ca,ek)=>{ if(m==null) return '—'; if(ca==null) return fmtP(m);
     const d=(m-ca)*100, sim=Math.abs(d)<3||(ca>0&&m/ca>=0.8&&m/ca<=1.25); const cls=sim?'sim':d>0?'hi':'lo';
-    const lab=sim?'similar to CA':d>0?'▲ above CA':'▼ below CA'; const n=(e[ek+'P']||0)+(e[ek+'N']||0);
-    return `<span class="cmp ${cls}">${fmtP(m)} <small>${lab}</small></span><div class="cmpn">${e[ek+'P']||0} of ${n} tests</div>`; };
+    const lab=sim?'Similar to CA':d>0?'Higher than CA':'Lower than CA';
+    return `${fmtP(m)}<span class="cmp ${cls}">${lab}</span>`; };
   rowsHtml.push(`<tr><td>Test positivity, flu</td><td>${e?vsCA(e.flu,sn?.caFlu,'flu'):'—'}</td><td>${sn?fmtP(sn.caFlu):'—'}</td><td>—</td></tr>`);
   const usC=live.nrevss.covid?.us.slice(-1)[0], usR=live.nrevss.rsv?.us.slice(-1)[0];
   rowsHtml.push(`<tr><td>Test positivity, Covid-19</td><td>${e?vsCA(e.covid,sn?.caCovid,'covid'):'—'}</td><td>${sn?fmtP(sn.caCovid):'—'}</td><td>${usC?fmtP(usC.v):(sn&&sn.usCovid!=null?fmtP(sn.usCovid):'—')}</td></tr>`);
