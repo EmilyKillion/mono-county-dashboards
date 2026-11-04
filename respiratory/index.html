@@ -636,24 +636,18 @@ function renderOverview(){
   const box=(lab,val,sub)=>`<div class="kpi"><div class="lab">${lab}</div><div class="val">${val}</div>${sub||''}</div>`;
   const paused=/paus/i.test(String(T.config['Wastewater note']||''))?`<div class="delta up">Local wastewater sampling temporarily paused</div>`:'';
   const wwBox=v=>{
-    // Overview tile: color-coded level (CDC WVAL when CDC has Mono data, else UC Davis level), plus UC Davis trend and the direction of recent Verily samples. No raw concentrations.
+    // Overview tile: color-coded level (estimated from local Verily samples when newer than CDC, else CDC WVAL) and the direction of recent samples. No raw concentrations.
     const loc=[...T.wwHist.map(r=>({week:r.week,v:r[v]})),...T.verily.map(r=>({week:r.week,v:v==='flu'?((r.fluA!=null||r.fluB!=null)?(r.fluA||0)+(r.fluB||0):null):r[v]}))].filter(r=>r.v!=null).sort((a,b)=>a.week-b.week);
     const x=loc[loc.length-1], px=loc[loc.length-2];
     const a=live.nwss.mono[v]; const n=a&&a.length?a[a.length-1]:null;
-    const ucdName={flu:'Influenza A',covid:'SARS-CoV-2',rsv:'RSV'}[v];
-    const u=T.ucd.find(r=>String(r.pathogen).trim().toLowerCase()===ucdName.toLowerCase());
-    const ucdCol={low:'#8DC26F',medium:'#F2C14E',high:'#B03A2E'};
     let label, color, src, cdcLine='';
     const localNewer = x && (!n || addDays(x.week,5) > n.week);
     const ev = localNewer ? estWval(loc,x.week) : null;
     if(ev!=null){ const c=wvalCat(v,ev); label=CFG.wvalLabels[c]; color=CFG.wvalColors[c]; src=`Estimated from local samples, week of ${fmtD(x.week)}`;
       if(n) cdcLine=`CDC official: ${CFG.wvalLabels[wvalCat(v,n.v)]} (week ending ${fmtD(n.week)})`; }
     else if(n){ const c=wvalCat(v,n.v); label=CFG.wvalLabels[c]; color=CFG.wvalColors[c]; src=`CDC level, week ending ${fmtD(n.week)}`; }
-    else if(u&&u.level){ label=u.level; color=ucdCol[String(u.level).toLowerCase()]||'#7A8B96'; src=`UC Davis level${u.asOf?`, ${fmtD(u.asOf)}`:''}`; }
     else { label='Not available'; color='#7A8B96'; src='No level reported'; }
     const lines=cdcLine?[cdcLine]:[];
-    if((n||ev!=null)&&u&&u.level){ const t=String(u.trend||'').trim(); const tw=/^nd$/i.test(String(u.pc||''))?'not detected':/^no trend$/i.test(t)?'no clear trend':t.toLowerCase(); lines.push(`UC Davis: ${u.level}${tw?`, ${tw}`:''}${u.asOf?` (${fmtD(u.asOf)})`:''}`); }
-    else if(u&&u.trend){ const t=String(u.trend).trim(); lines.push(`Trend: ${/^no trend$/i.test(t)?'no clear trend':t.toLowerCase()}`); }
     if(x){ let dir;
       if(!(x.v>0)) dir='<span>not detected</span>';
       else if(!px||!(px.v>0)) dir='<span class="up">▲ newly detected</span>';
