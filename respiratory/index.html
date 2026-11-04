@@ -64,7 +64,7 @@
   .kpi .val.sm{font-size:22px}
   .kpi .delta.up{color:var(--bad)} .kpi .delta.down{color:var(--ok)}
   .kpi.wwk{border-left:5px solid var(--lv);background:color-mix(in srgb,var(--lv) 9%,#fff)}
-  .kpi.wwk .wwlvl{display:inline-block;background:var(--lv);color:#fff;padding:3px 12px;border-radius:4px;font-size:18px}
+  .kpi.wwk .wwlvl{display:inline-block;background:var(--lv);color:var(--lvt,#fff);padding:3px 12px;border-radius:4px;font-size:18px}
   .kpi .delta .up{color:var(--bad)} .kpi .delta .down{color:var(--ok)}
   body.printing .kpi.wwk .wwlvl{font-size:13px;padding:1px 7px}
   .khead{display:grid;grid-template-columns:150px repeat(4,1fr);gap:12px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 6px;padding:0 2px}
@@ -295,6 +295,7 @@
     <dialog id="wvalDialog" class="info-dialog" aria-labelledby="wvalDlgTitle">
       <div class="zoom-head"><h3 id="wvalDlgTitle">What is the wastewater viral activity level (WVAL)?</h3><button type="button" class="btn-close" id="wvalClose" aria-label="Close">✕</button></div>
       <p><strong>It is an index, not an amount.</strong> CDC compares each sampling site's virus level this week with that same site's low (baseline) levels over the previous 24 months. The WVAL says how far above its own baseline the site is, so it has no units. A Mono value of 5.3 for SARS-CoV-2 means "well above Mono's usual low level," not 5.3 copies of virus.</p>
+      <p><strong>Estimated Mono levels.</strong> CDC posts Mono's WVAL with a delay of a week or more. When newer Verily samples are in the tracker, the Overview tiles show an estimated level calculated the same way (24-month baseline at the 10th percentile, CDC's August 2026 category thresholds) and label it as estimated. Checked against CDC's published Mono values for Sept 2025–Oct 2026, the estimate fell in the same category in about 70% of weeks for SARS-CoV-2 and 85–90% for influenza A and RSV, and within one category nearly always.</p>
       <p><strong>Why use it?</strong> Raw concentrations can't be compared across places with different sewer systems, flows, and populations. Because every site is measured against its own baseline, the Mono, California, and US values can be shown side by side. The California and US values are the medians of all reporting sites.</p>
       <p><strong>Where the Mono value comes from.</strong> The Mammoth Lakes plant is sampled under CDC's national wastewater testing contract. CDC calculates the site's WVAL each week and publishes it; this dashboard retrieves it when the page loads. Values appear only for weeks with samples.</p>
       <h4>Activity level cutoffs (CDC)</h4>
@@ -409,11 +410,11 @@ const CFG = {
   nwss: 'https://data.cdc.gov/resource/atcp-73re.json',
   nrevssCovid: 'https://data.cdc.gov/resource/gvsb-yw6g.json',
   nrevssRsv: 'https://data.cdc.gov/resource/3cxc-4k8q.json',
-  // CDC WVAL category thresholds (cdc.gov/wastewater, 2025-26). Update if CDC revises.
+  // CDC WVAL category thresholds (cdc.gov/wastewater/about/wval.html, August 2026 update). CDC recalibrates each summer; update here when it does.
   wval: {
-    'SARS-CoV-2':       {key:'covid', cuts:[2,3.4,5.3,7.8]},
-    'Influenza A virus':{key:'flu',   cuts:[2.7,6.2,11.2,17.6]},
-    'RSV':              {key:'rsv',   cuts:[2.5,5.2,8,11]}
+    'SARS-CoV-2':       {key:'covid', cuts:[2.6,4.9,7.9,11.6]},
+    'Influenza A virus':{key:'flu',   cuts:[2.4,5.5,10.2,15.6]},
+    'RSV':              {key:'rsv',   cuts:[1.7,3.4,5.4,8.1]}
   },
   wvalLabels:['Very Low','Low','Moderate','High','Very High'],
   wvalColors:['#2E8B57','#8DC26F','#F2C14E','#E8862B','#B03A2E'],
@@ -447,6 +448,18 @@ function seasonIdx(week){ return week>=36 ? week-36 : week+18; }
 const SEASON_WEEKS = [...Array(18)].map((_,i)=>36+i).concat([...Array(35)].map((_,i)=>i+1)); // 36..53, 1..35; week 53 exists only in some years
 function median(a){ const s=a.filter(x=>x!=null&&!isNaN(x)).sort((x,y)=>x-y); if(!s.length) return null; const m=s.length>>1; return s.length%2?s[m]:(s[m-1]+s[m])/2; }
 function wvalCat(pathogenKey, v){ if(v==null) return null; const cuts=Object.values(CFG.wval).find(x=>x.key===pathogenKey).cuts; let i=0; while(i<cuts.length && v>cuts[i]) i++; return i; }
+// Estimated WVAL from local Verily weekly values, following CDC's method: log concentrations over the prior 24 months, capped at the 99th percentile;
+// baseline = 10th percentile, WVAL = exp((log value - baseline) / SD). Non-detects are set to half the lowest positive value, so a non-detect week is 1.0.
+function estWval(series, at){
+  const win=series.filter(r=>r.v!=null && r.week<=at && r.week>=addDays(at,-730)); const pos=win.filter(r=>r.v>0).map(r=>r.v);
+  if(win.length<8||!pos.length) return null; const floor=Math.min(...pos)/2;
+  let L=win.map(r=>Math.log(Math.max(r.v,floor))).sort((a,b)=>a-b);
+  const q=p=>{ const i=(L.length-1)*p, lo=Math.floor(i), hi=Math.ceil(i); return L[lo]+(L[hi]-L[lo])*(i-lo); };
+  const cap=q(0.99); L=L.map(x=>Math.min(x,cap)).sort((a,b)=>a-b);
+  const base=q(0.10), mean=L.reduce((a,b)=>a+b,0)/L.length, sd=Math.sqrt(L.reduce((a,b)=>a+(b-mean)**2,0)/(L.length-1));
+  const cur=series.find(r=>+r.week===+at); if(!cur||!sd) return null;
+  return cur.v>0 ? Math.exp((Math.min(Math.log(Math.max(cur.v,floor)),cap)-base)/sd) : 1;
+}
 function pill(i){ return i==null?'—':`<span class="lvl-pill" style="background:${CFG.wvalColors[i]}">${CFG.wvalLabels[i]}</span>`; }
 function setStatus(k, s, msg){ live.status[k]={s,msg}; }
 
@@ -625,19 +638,23 @@ function renderOverview(){
     const ucdName={flu:'Influenza A',covid:'SARS-CoV-2',rsv:'RSV'}[v];
     const u=T.ucd.find(r=>String(r.pathogen).trim().toLowerCase()===ucdName.toLowerCase());
     const ucdCol={low:'#8DC26F',medium:'#F2C14E',high:'#B03A2E'};
-    let label, color, src;
-    if(n){ const c=wvalCat(v,n.v); label=CFG.wvalLabels[c]; color=CFG.wvalColors[c]; src=`CDC level, week ending ${fmtD(n.week)}`; }
+    let label, color, src, cdcLine='';
+    const localNewer = x && (!n || addDays(x.week,5) > n.week);
+    const ev = localNewer ? estWval(loc,x.week) : null;
+    if(ev!=null){ const c=wvalCat(v,ev); label=CFG.wvalLabels[c]; color=CFG.wvalColors[c]; src=`Estimated from local samples, week of ${fmtD(x.week)}`;
+      if(n) cdcLine=`CDC official: ${CFG.wvalLabels[wvalCat(v,n.v)]} (week ending ${fmtD(n.week)})`; }
+    else if(n){ const c=wvalCat(v,n.v); label=CFG.wvalLabels[c]; color=CFG.wvalColors[c]; src=`CDC level, week ending ${fmtD(n.week)}`; }
     else if(u&&u.level){ label=u.level; color=ucdCol[String(u.level).toLowerCase()]||'#7A8B96'; src=`UC Davis level${u.asOf?`, ${fmtD(u.asOf)}`:''}`; }
     else { label='Not available'; color='#7A8B96'; src='No level reported'; }
-    const lines=[];
-    if(n&&u&&u.level){ const t=String(u.trend||'').trim(); const tw=/^nd$/i.test(String(u.pc||''))?'not detected':/^no trend$/i.test(t)?'no clear trend':t.toLowerCase(); lines.push(`UC Davis: ${u.level}${tw?`, ${tw}`:''}${u.asOf?` (${fmtD(u.asOf)})`:''}`); }
+    const lines=cdcLine?[cdcLine]:[];
+    if((n||ev!=null)&&u&&u.level){ const t=String(u.trend||'').trim(); const tw=/^nd$/i.test(String(u.pc||''))?'not detected':/^no trend$/i.test(t)?'no clear trend':t.toLowerCase(); lines.push(`UC Davis: ${u.level}${tw?`, ${tw}`:''}${u.asOf?` (${fmtD(u.asOf)})`:''}`); }
     else if(u&&u.trend){ const t=String(u.trend).trim(); lines.push(`Trend: ${/^no trend$/i.test(t)?'no clear trend':t.toLowerCase()}`); }
     if(x){ let dir;
       if(!(x.v>0)) dir='<span>not detected</span>';
       else if(!px||!(px.v>0)) dir='<span class="up">▲ newly detected</span>';
       else { const r=x.v/px.v; dir=r>=1.25?'<span class="up">▲ rising</span>':r<=0.8?'<span class="down">▼ falling</span>':'<span>steady</span>'; }
-      lines.push(`Local samples: ${dir} (week of ${fmtD(x.week)})`); }
-    return `<div class="kpi wwk" style="--lv:${color}"><div class="lab">Wastewater level</div><div class="val sm"><span class="wwlvl">${label}</span></div><div class="delta">${src}</div>${lines.map(l=>`<div class="delta">${l}</div>`).join('')}${paused}</div>`; };
+      lines.push(`Local samples: ${dir}${ev!=null?(x.v>0?' vs prior week':''):` (week of ${fmtD(x.week)})`}`); }
+    return `<div class="kpi wwk" style="--lv:${color};--lvt:${['#F2C14E','#8DC26F'].includes(color)?'#1F2A33':'#fff'}" title="Estimated levels use CDC's WVAL method and category thresholds applied to Mono's Verily samples; CDC's official level posts with a delay."><div class="lab">Wastewater level</div><div class="val sm"><span class="wwlvl">${label}</span></div><div class="delta">${src}</div>${lines.map(l=>`<div class="delta">${l}</div>`).join('')}${paused}</div>`; };
   const virusRow=(cls,name,vk,ek,wk)=>`<div class="vrow ${cls}"><div class="vname">${name}<small>Mono County</small></div>
     ${box('Cases this week',last?(last[vk]??'—'):'—',last?delta(last[vk],prev?.[vk]):'')}
     ${box('Season to date',tot(vk),`<div class="delta">${n} week${n===1?'':'s'} reported</div>`)}
