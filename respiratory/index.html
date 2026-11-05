@@ -179,6 +179,7 @@
   body.printing #tab-seasons > .panel .chart{height:190px}
   body.printing #tab-flu .grid.g2{grid-template-columns:1fr 1fr 1fr}
   body.printing #tab-flu .chart, body.printing #tab-mh .chart{height:170px}
+  body.printing #tab-fluvax .chart{height:190px} body.printing #tab-fluvax .kpi .val{font-size:20px}
   body.printing #tab-testing .chart{height:140px}
   body.printing #tab-testing .grid.g3 .note{display:none}
   body.printing #tab-ww .chart{height:150px}
@@ -219,6 +220,7 @@
     <button data-tab="testing">Test positivity</button>
     <button data-tab="ww">Wastewater</button>
     <button data-tab="flu">Flu detail</button>
+    <button data-tab="fluvax">Flu vaccination</button>
     <button data-tab="mh">Mammoth Hospital</button>
     <button data-tab="highlights">Highlights</button>
     <button data-tab="sources">Sources &amp; status</button>
@@ -347,6 +349,27 @@
       <div class="panel zoomable" data-chart="cFluVax" data-title="Flu vaccination status" title="Click to enlarge"><h3>Flu vaccination status <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cFluVax"></canvas></div></div>
       <div class="panel zoomable" data-chart="cFluVaxRate" data-title="Weekly vaccination rate among flu cases" title="Click to enlarge"><h3>Weekly vaccination rate among flu cases <span class="zoomhint">⤢ enlarge</span></h3><div class="chart short"><canvas id="cFluVaxRate"></canvas></div></div>
     </div>
+  </section>
+
+
+  <!-- FLU VACCINATION (CAIR snapshot) -->
+  <section class="tab" id="tab-fluvax">
+    <h2>Flu vaccination, 2026&ndash;27 season</h2>
+    <p class="lead">Flu vaccine doses given to Mono County residents and reported to the California Immunization Registry (CAIR2), August 1 through November 4, 2026. This tab is a one-time snapshot taken November 5, 2026 and is not updated with the weekly tracker.</p>
+    <div class="grid g3" style="margin-bottom:16px">
+      <div class="kpi flu"><div class="lab">Residents vaccinated</div><div class="val" id="fvPeople"></div><div class="delta" id="fvPeopleD"></div></div>
+      <div class="kpi flu"><div class="lab">Doses given</div><div class="val" id="fvDoses"></div><div class="delta" id="fvDosesD"></div></div>
+      <div class="kpi flu"><div class="lab">Peak week</div><div class="val" id="fvPeak"></div><div class="delta" id="fvPeakD"></div></div>
+    </div>
+    <div class="grid g2">
+      <div class="panel zoomable" data-chart="cFvWeekly" data-title="Flu vaccine doses by MMWR week, Mono County residents" title="Click to enlarge"><h3>Doses by MMWR week <span class="zoomhint">&#10548; enlarge</span></h3><div class="chart"><canvas id="cFvWeekly"></canvas></div><p class="note">Weeks start Sunday. Weeks before Aug 23 are combined (small counts). *The week of Nov 1 is partial (through Nov 4).</p></div>
+      <div class="panel zoomable" data-chart="cFvAge" data-title="Residents vaccinated by age group" title="Click to enlarge"><h3>Residents vaccinated by age group <span class="zoomhint">&#10548; enlarge</span></h3><div class="chart"><canvas id="cFvAge"></canvas></div><p class="note">Age at first dose this season. Counts, not coverage rates.</p></div>
+    </div>
+    <div class="grid g2" style="margin-top:16px">
+      <div class="panel"><h3>Residents vaccinated by race/ethnicity</h3><table id="fvRaceTable"><thead><tr><th>Race/ethnicity</th><th class="num">People</th><th class="num">% of total</th></tr></thead><tbody></tbody></table><p class="note" id="fvSexNote"></p></div>
+      <div class="panel"><h3>Where residents were vaccinated</h3><table id="fvCountyTable"><thead><tr><th>County of administration</th><th class="num">People</th><th class="num">% of total</th></tr></thead><tbody></tbody></table><p class="note">One administering county per person, as stored in CAIR.</p></div>
+    </div>
+    <p class="note" style="color:var(--muted);font-size:12.5px;margin-top:12px">Source: CAIR2 via CDPH Snowflake, CA_VACCINE.PUBLIC.VW_INFLUENZA_RECIPIENT, residents with county = Mono, queried November 5, 2026. Counts reflect doses reported to CAIR and may undercount doses given. Groups with fewer than 11 people are combined to protect privacy.</p>
   </section>
 
   <!-- MH -->
@@ -829,6 +852,36 @@ function openChartZoom(id,title){ const src=charts[id]; if(!src) return; zoomSta
   const o=JSON.parse(JSON.stringify(src.config.options||{})); o.plugins=o.plugins||{}; o.plugins.legend=Object.assign({},o.plugins.legend||{},{display:true});
   mk('cZoom',{type:src.config.type,data,options:o}); }
 document.querySelectorAll('.zoomable').forEach(p=>p.addEventListener('click',()=>{ if(p.dataset.virus) openZoom(p.dataset.virus); else openChartZoom(p.dataset.chart,p.dataset.title); }));
+/* ============ flu vaccination: one-time CAIR snapshot (Nov 5, 2026) ============ */
+const FLUVAX = {
+  people:2253, doses:2258, prevPeople:2226, prevDoses:2229,
+  weekly:[['Before Aug 23',18],['Aug 23',17],['Aug 30',61],['Sep 6',60],['Sep 13',104],['Sep 20',126],['Sep 27',384],['Oct 4',519],['Oct 11',352],['Oct 18',266],['Oct 25',254],['Nov 1*',97]],
+  age:[['0–4',133],['5–17',387],['18–49',673],['50–64',401],['65+',659]],
+  race:[['White',1312],['Latino',727],['Unknown',71],['Multiracial',69],['American Indian or Alaska Native',30],['Asian',30],['Black or African American, or other race',14]],
+  sex:{female:1264, male:988},
+  county:[['Mono',1829],['Inyo',267],['Los Angeles',36],['San Diego',16],['Orange',12],['Ventura',12],['El Dorado',11],['20 other counties (each fewer than 11)',70]]
+};
+function renderFluVax(){
+  const F=FLUVAX, n=v=>v.toLocaleString('en-US'), pc=(v,t)=>(v/t*100).toFixed(1)+'%';
+  const set=(id,t)=>{const e=document.getElementById(id); if(e) e.textContent=t;};
+  const dP=F.people-F.prevPeople, dD=F.doses-F.prevDoses, sg=v=>v>=0?'+':'';
+  set('fvPeople',n(F.people)); set('fvPeopleD',`${sg(dP)}${n(dP)} (${sg(dP)}${(dP/F.prevPeople*100).toFixed(1)}%) vs ${n(F.prevPeople)} by the same date last season`);
+  set('fvDoses',n(F.doses)); set('fvDosesD',`${sg(dD)}${n(dD)} vs ${n(F.prevDoses)} by the same date last season`);
+  const pk=F.weekly.reduce((a,r)=>r[1]>a[1]?r:a); set('fvPeak',n(pk[1])); set('fvPeakD',`doses, week of ${pk[0]}`);
+  let run=0; const cum=F.weekly.map(r=>run+=r[1]);
+  mk('cFvWeekly',{type:'bar',data:{labels:F.weekly.map(r=>r[0]),datasets:[
+    {type:'line',label:'Cumulative doses',data:cum,borderColor:CFG.color.us,backgroundColor:CFG.color.us,borderWidth:2,pointRadius:2,tension:.2,yAxisID:'y1'},
+    {label:'Doses that week',data:F.weekly.map(r=>r[1]),backgroundColor:F.weekly.map(r=>r[0].endsWith('*')?CFG.color.flu+'66':CFG.color.flu),yAxisID:'y'}]},
+    options:{scales:{y:{beginAtZero:true,title:{display:true,text:'Doses per week'},ticks:{precision:0}},y1:{beginAtZero:true,position:'right',grid:{drawOnChartArea:false},title:{display:true,text:'Cumulative doses'}}}}});
+  const tot=F.age.reduce((a,r)=>a+r[1],0);
+  mk('cFvAge',{type:'bar',data:{labels:F.age.map(r=>r[0]),datasets:[{label:'People vaccinated',data:F.age.map(r=>r[1]),backgroundColor:CFG.color.flu}]},
+    options:{indexAxis:'y',interaction:{mode:'nearest',intersect:true},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${n(c.raw)} people (${pc(c.raw,tot)})`}}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}});
+  const fill=(sel,rows)=>{const tb=document.querySelector(sel+' tbody'); if(!tb) return; const t=rows.reduce((a,r)=>a+r[1],0);
+    tb.innerHTML=rows.map(r=>`<tr><td>${r[0]}</td><td class="num">${n(r[1])}</td><td class="num">${pc(r[1],t)}</td></tr>`).join('')+`<tr><th>Total</th><th class="num">${n(t)}</th><th class="num">100%</th></tr>`;};
+  fill('#fvRaceTable',F.race); fill('#fvCountyTable',F.county);
+  const sx=F.sex.female+F.sex.male; set('fvSexNote',`By sex: ${Math.round(F.sex.female/sx*100)}% female, ${Math.round(F.sex.male/sx*100)}% male. Black or African American and Other race are combined because of small counts.`);
+}
+
 document.getElementById('zoomClose').addEventListener('click',closeZoom);
 document.getElementById('zoom').addEventListener('click',e=>{ if(e.target.id==='zoom') closeZoom(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeZoom(); });
@@ -841,7 +894,7 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeZoom(); });
   dlg.addEventListener('click',e=>{ if(e.target===dlg) dlg.close(); });
 })();
 
-function renderAll(){ renderHeader(); renderOverview(); renderSeasons(); renderFlu(); renderMH(); renderTesting(); renderWW(); renderCvW(); renderSources(); }
+function renderAll(){ renderHeader(); renderOverview(); renderSeasons(); renderFlu(); renderFluVax(); renderMH(); renderTesting(); renderWW(); renderCvW(); renderSources(); }
 
 /* ============ load flow ============ */
 async function useTracker(buf){
