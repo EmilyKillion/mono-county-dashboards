@@ -355,24 +355,23 @@
   <!-- FLU VACCINATION (CAIR snapshot) -->
   <section class="tab" id="tab-fluvax">
     <h2>Flu vaccination, 2026&ndash;27 season</h2>
-    <p class="lead">Flu vaccine doses given to Mono County residents and reported to the California Immunization Registry (CAIR2), August 1 through November 4, 2026. This tab is a one-time snapshot taken November 5, 2026 and is not updated with the weekly tracker.</p>
+    <p class="lead">Mono County residents who received a flu vaccine reported to the California Immunization Registry (CAIR2), August 1 through November 4, 2026. Each resident is counted once. This tab is a one-time snapshot taken November 5, 2026 and is not updated with the weekly tracker.</p>
     <div class="panel" style="border-left:5px solid var(--warn);background:color-mix(in srgb,var(--warn) 7%,#fff);margin:0 0 16px;font-size:14px">
-      <strong>These counts may not capture every flu vaccine given.</strong> CAIR includes only doses that providers report to the registry. Doses given by providers that do not report to CAIR (for example, some federal or tribal facilities), doses given out of state, and doses entered late may be missing. Records with an incomplete or out-of-date address may also be assigned to the wrong county. Recent weeks are the most likely to rise as late reports arrive. Treat these numbers as a minimum, not a full count of residents vaccinated.
+      <strong>These counts may not capture every resident vaccinated.</strong> CAIR includes only vaccinations that providers report to the registry. Vaccinations given by providers that do not report to CAIR (for example, some federal or tribal facilities), vaccinations given out of state, and vaccinations entered late may be missing. Records with an incomplete or out-of-date address may also be assigned to the wrong county. Recent weeks are the most likely to rise as late reports arrive. Treat these numbers as a minimum, not a full count of residents vaccinated.
     </div>
-    <div class="grid g3" style="margin-bottom:16px">
+    <div class="grid g2" style="margin-bottom:16px">
       <div class="kpi flu"><div class="lab">Residents vaccinated</div><div class="val" id="fvPeople"></div><div class="delta" id="fvPeopleD"></div></div>
-      <div class="kpi flu"><div class="lab">Doses given</div><div class="val" id="fvDoses"></div><div class="delta" id="fvDosesD"></div></div>
       <div class="kpi flu"><div class="lab">Peak week</div><div class="val" id="fvPeak"></div><div class="delta" id="fvPeakD"></div></div>
     </div>
     <div class="grid g2">
-      <div class="panel zoomable" data-chart="cFvWeekly" data-title="Flu vaccine doses by MMWR week, Mono County residents" title="Click to enlarge"><h3>Doses by MMWR week <span class="zoomhint">&#10548; enlarge</span></h3><div class="chart"><canvas id="cFvWeekly"></canvas></div><p class="note">Weeks start Sunday. Weeks before Aug 23 are combined (small counts). *The week of Nov 1 is partial (through Nov 4).</p></div>
+      <div class="panel zoomable" data-chart="cFvWeekly" data-title="Residents newly vaccinated by MMWR week" title="Click to enlarge"><h3>Residents newly vaccinated by MMWR week <span class="zoomhint">&#10548; enlarge</span></h3><div class="chart"><canvas id="cFvWeekly"></canvas></div><p class="note">Each resident counted in the week of their first flu vaccine this season. Weeks start Sunday. Weeks before Aug 23 are combined (small counts). *The week of Nov 1 is partial (through Nov 4).</p></div>
       <div class="panel zoomable" data-chart="cFvAge" data-title="Residents vaccinated by age group" title="Click to enlarge"><h3>Residents vaccinated by age group <span class="zoomhint">&#10548; enlarge</span></h3><div class="chart"><canvas id="cFvAge"></canvas></div><p class="note">Age at first dose this season. Counts, not coverage rates.</p></div>
     </div>
     <div class="grid g2" style="margin-top:16px">
       <div class="panel"><h3>Residents vaccinated by race/ethnicity</h3><table id="fvRaceTable"><thead><tr><th>Race/ethnicity</th><th class="num">People</th><th class="num">% of total</th></tr></thead><tbody></tbody></table><p class="note" id="fvSexNote"></p></div>
       <div class="panel"><h3>Where residents were vaccinated</h3><table id="fvCountyTable"><thead><tr><th>County of administration</th><th class="num">People</th><th class="num">% of total</th></tr></thead><tbody></tbody></table><p class="note">One administering county per person, as stored in CAIR.</p></div>
     </div>
-    <p class="note" style="color:var(--muted);font-size:12.5px;margin-top:12px">Source: CAIR2 via CDPH Snowflake, CA_VACCINE.PUBLIC.VW_INFLUENZA_RECIPIENT, residents with county = Mono, queried November 5, 2026. Counts reflect doses reported to CAIR and may undercount doses given. Groups with fewer than 11 people are combined to protect privacy.</p>
+    <p class="note" style="color:var(--muted);font-size:12.5px;margin-top:12px">Source: CAIR2 via CDPH Snowflake, CA_VACCINE.PUBLIC.VW_INFLUENZA_RECIPIENT, residents with county = Mono, queried November 5, 2026. Counts include only vaccinations reported to CAIR (see note above). Groups with fewer than 11 people are combined to protect privacy.</p>
   </section>
 
   <!-- MH -->
@@ -857,8 +856,8 @@ function openChartZoom(id,title){ const src=charts[id]; if(!src) return; zoomSta
 document.querySelectorAll('.zoomable').forEach(p=>p.addEventListener('click',()=>{ if(p.dataset.virus) openZoom(p.dataset.virus); else openChartZoom(p.dataset.chart,p.dataset.title); }));
 /* ============ flu vaccination: one-time CAIR snapshot (Nov 5, 2026) ============ */
 const FLUVAX = {
-  people:2253, doses:2258, prevPeople:2226, prevDoses:2229,
-  weekly:[['Before Aug 23',18],['Aug 23',17],['Aug 30',61],['Sep 6',60],['Sep 13',104],['Sep 20',126],['Sep 27',384],['Oct 4',519],['Oct 11',352],['Oct 18',266],['Oct 25',254],['Nov 1*',97]],
+  people:2253, prevPeople:2226,
+  weekly:[['Before Aug 23',18],['Aug 23',17],['Aug 30',61],['Sep 6',60],['Sep 13',104],['Sep 20',126],['Sep 27',382],['Oct 4',519],['Oct 11',351],['Oct 18',266],['Oct 25',252],['Nov 1*',97]],  // residents by week of first dose this season
   age:[['0–4',133],['5–17',387],['18–49',673],['50–64',401],['65+',659]],
   race:[['White',1312],['Latino',727],['Unknown',71],['Multiracial',69],['American Indian or Alaska Native',30],['Asian',30],['Black or African American, or other race',14]],
   sex:{female:1264, male:988},
@@ -867,15 +866,14 @@ const FLUVAX = {
 function renderFluVax(){
   const F=FLUVAX, n=v=>v.toLocaleString('en-US'), pc=(v,t)=>(v/t*100).toFixed(1)+'%';
   const set=(id,t)=>{const e=document.getElementById(id); if(e) e.textContent=t;};
-  const dP=F.people-F.prevPeople, dD=F.doses-F.prevDoses, sg=v=>v>=0?'+':'';
+  const dP=F.people-F.prevPeople, sg=v=>v>=0?'+':'';
   set('fvPeople',n(F.people)); set('fvPeopleD',`${sg(dP)}${n(dP)} (${sg(dP)}${(dP/F.prevPeople*100).toFixed(1)}%) vs ${n(F.prevPeople)} by the same date last season`);
-  set('fvDoses',n(F.doses)); set('fvDosesD',`${sg(dD)}${n(dD)} vs ${n(F.prevDoses)} by the same date last season`);
-  const pk=F.weekly.reduce((a,r)=>r[1]>a[1]?r:a); set('fvPeak',n(pk[1])); set('fvPeakD',`doses, week of ${pk[0]}`);
+  const pk=F.weekly.reduce((a,r)=>r[1]>a[1]?r:a); set('fvPeak',n(pk[1])); set('fvPeakD',`residents newly vaccinated, week of ${pk[0]}`);
   let run=0; const cum=F.weekly.map(r=>run+=r[1]);
   mk('cFvWeekly',{type:'bar',data:{labels:F.weekly.map(r=>r[0]),datasets:[
-    {type:'line',label:'Cumulative doses',data:cum,borderColor:CFG.color.us,backgroundColor:CFG.color.us,borderWidth:2,pointRadius:2,tension:.2,yAxisID:'y1'},
-    {label:'Doses that week',data:F.weekly.map(r=>r[1]),backgroundColor:F.weekly.map(r=>r[0].endsWith('*')?CFG.color.flu+'66':CFG.color.flu),yAxisID:'y'}]},
-    options:{scales:{y:{beginAtZero:true,title:{display:true,text:'Doses per week'},ticks:{precision:0}},y1:{beginAtZero:true,position:'right',grid:{drawOnChartArea:false},title:{display:true,text:'Cumulative doses'}}}}});
+    {type:'line',label:'Cumulative residents vaccinated',data:cum,borderColor:CFG.color.us,backgroundColor:CFG.color.us,borderWidth:2,pointRadius:2,tension:.2,yAxisID:'y1'},
+    {label:'Newly vaccinated that week',data:F.weekly.map(r=>r[1]),backgroundColor:F.weekly.map(r=>r[0].endsWith('*')?CFG.color.flu+'66':CFG.color.flu),yAxisID:'y'}]},
+    options:{scales:{y:{beginAtZero:true,title:{display:true,text:'Residents per week'},ticks:{precision:0}},y1:{beginAtZero:true,position:'right',grid:{drawOnChartArea:false},title:{display:true,text:'Cumulative residents'}}}}});
   const tot=F.age.reduce((a,r)=>a+r[1],0);
   mk('cFvAge',{type:'bar',data:{labels:F.age.map(r=>r[0]),datasets:[{label:'People vaccinated',data:F.age.map(r=>r[1]),backgroundColor:CFG.color.flu}]},
     options:{indexAxis:'y',interaction:{mode:'nearest',intersect:true},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${n(c.raw)} people (${pc(c.raw,tot)})`}}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}});
