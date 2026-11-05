@@ -130,6 +130,8 @@
   footer .photo-credit{flex-basis:100%;font-size:11px} footer .photo-credit a{color:var(--muted)}
   body.printing footer .photo-credit{display:none}
   @media screen and (max-width:700px){header,main{padding-left:16px;padding-right:16px}.g2{grid-template-columns:1fr}.hd-meta{text-align:left}}
+  /* Flu vaccination tab hidden pending data validation (Nov 2026). Delete this line to show it again. */
+  nav button[data-tab="fluvax"], #tab-fluvax{display:none!important}
   /* ---------- print / PDF report layout ---------- */
   .print-head{display:none}
   body.printing header, body.printing nav, body.printing .hd-actions, body.printing .banner, body.printing .drop,
