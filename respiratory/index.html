@@ -368,7 +368,7 @@
       <div class="panel zoomable" data-chart="cFvAge" data-title="Residents vaccinated by age group" title="Click to enlarge"><h3>Residents vaccinated by age group <span class="zoomhint">&#10548; enlarge</span></h3><div class="chart"><canvas id="cFvAge"></canvas></div><p class="note">Age at first dose this season. Counts, not coverage rates.</p></div>
     </div>
     <div class="grid g2" style="margin-top:16px">
-      <div class="panel"><h3>Residents vaccinated by race/ethnicity</h3><table id="fvRaceTable"><thead><tr><th>Race/ethnicity</th><th class="num">People</th><th class="num">% of total</th></tr></thead><tbody></tbody></table><p class="note" id="fvSexNote"></p></div>
+      <div class="panel"><h3>Mono County residents vaccinated by race/ethnicity, compared with county population</h3><table id="fvRaceTable"><thead><tr><th>Race/ethnicity</th><th class="num">Mono residents vaccinated</th><th class="num">% of vaccinated residents</th><th class="num">% of Mono population</th></tr></thead><tbody></tbody></table><p class="note" id="fvSexNote"></p><p class="note">Population: U.S. Census Bureau, American Community Survey 2020–2024 5-year estimates, table B03002 (total 13,148). All groups other than Latino are non-Latino. Census American Indian or Alaska Native includes Native Hawaiian or Pacific Islander. The vaccinated percentages include residents with unknown race/ethnicity, which has no Census equivalent.</p></div>
       <div class="panel"><h3>Where Mono County residents got vaccinated</h3><table id="fvCountyTable"><thead><tr><th>County where vaccine was given</th><th class="num">Mono residents</th><th class="num">% of Mono residents</th></tr></thead><tbody></tbody></table><p class="note">Includes only Mono County residents. Each resident is counted once, under the county where CAIR records their vaccine as given.</p></div>
     </div>
     <p class="note" style="color:var(--muted);font-size:12.5px;margin-top:12px">Source: CAIR2 via CDPH Snowflake, CA_VACCINE.PUBLIC.VW_INFLUENZA_RECIPIENT, residents with county = Mono, queried November 5, 2026. Counts include only vaccinations reported to CAIR (see note above). Groups with fewer than 11 people are combined to protect privacy.</p>
@@ -859,6 +859,7 @@ const FLUVAX = {
   people:2253, prevPeople:2226,
   weekly:[['Before Aug 23',18],['Aug 23',17],['Aug 30',61],['Sep 6',60],['Sep 13',104],['Sep 20',126],['Sep 27',382],['Oct 4',519],['Oct 11',351],['Oct 18',266],['Oct 25',252],['Nov 1*',97]],  // residents by week of first dose this season
   age:[['0–4',133],['5–17',387],['18–49',673],['50–64',401],['65+',659]],
+  racePop:{'White':8538,'Latino':3568,'Multiracial':516,'American Indian or Alaska Native':162,'Asian':243,'Black or African American, or other race':121},
   race:[['White',1312],['Latino',727],['Unknown',71],['Multiracial',69],['American Indian or Alaska Native',30],['Asian',30],['Black or African American, or other race',14]],
   sex:{female:1264, male:988},
   county:[['Mono',1829],['Inyo',267],['Los Angeles',36],['San Diego',16],['Orange',12],['Ventura',12],['El Dorado',11],['20 other counties (each fewer than 11)',70]]
@@ -879,7 +880,8 @@ function renderFluVax(){
     options:{indexAxis:'y',interaction:{mode:'nearest',intersect:true},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${n(c.raw)} people (${pc(c.raw,tot)})`}}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}});
   const fill=(sel,rows,totLabel='Total')=>{const tb=document.querySelector(sel+' tbody'); if(!tb) return; const t=rows.reduce((a,r)=>a+r[1],0);
     tb.innerHTML=rows.map(r=>`<tr><td>${r[0]}</td><td class="num">${n(r[1])}</td><td class="num">${pc(r[1],t)}</td></tr>`).join('')+`<tr><th>${totLabel}</th><th class="num">${n(t)}</th><th class="num">100%</th></tr>`;};
-  fill('#fvRaceTable',F.race); fill('#fvCountyTable',F.county.map(r=>[r[0]==='Mono'?'Mono (in county)':r[0].replace('(each fewer than 11)','(fewer than 11 residents each)'),r[1]]),'Total Mono residents vaccinated');
+  {const tb=document.querySelector('#fvRaceTable tbody'); if(tb){const t=F.race.reduce((a,r)=>a+r[1],0), pt=Object.values(F.racePop).reduce((a,v)=>a+v,0);
+    tb.innerHTML=F.race.map(r=>{const p=F.racePop[r[0]]; return `<tr><td>${r[0]}</td><td class="num">${n(r[1])}</td><td class="num">${pc(r[1],t)}</td><td class="num">${p==null?'—':pc(p,pt)}</td></tr>`;}).join('')+`<tr><th>Total Mono residents vaccinated</th><th class="num">${n(t)}</th><th class="num">100%</th><th class="num">100%</th></tr>`;}} fill('#fvCountyTable',F.county.map(r=>[r[0]==='Mono'?'Mono (in county)':r[0].replace('(each fewer than 11)','(fewer than 11 residents each)'),r[1]]),'Total Mono residents vaccinated');
   const sx=F.sex.female+F.sex.male; set('fvSexNote',`By sex: ${Math.round(F.sex.female/sx*100)}% female, ${Math.round(F.sex.male/sx*100)}% male. Black or African American and Other race are combined because of small counts.`);
 }
 
