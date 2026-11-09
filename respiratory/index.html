@@ -369,7 +369,7 @@
     </div>
     <div class="grid g2" style="margin-top:16px">
       <div class="panel"><h3>Residents vaccinated by race/ethnicity</h3><table id="fvRaceTable"><thead><tr><th>Race/ethnicity</th><th class="num">People</th><th class="num">% of total</th></tr></thead><tbody></tbody></table><p class="note" id="fvSexNote"></p></div>
-      <div class="panel"><h3>Where residents were vaccinated</h3><table id="fvCountyTable"><thead><tr><th>County of administration</th><th class="num">People</th><th class="num">% of total</th></tr></thead><tbody></tbody></table><p class="note">One administering county per person, as stored in CAIR.</p></div>
+      <div class="panel"><h3>Where Mono County residents got vaccinated</h3><table id="fvCountyTable"><thead><tr><th>County where vaccine was given</th><th class="num">Mono residents</th><th class="num">% of Mono residents</th></tr></thead><tbody></tbody></table><p class="note">Includes only Mono County residents. Each resident is counted once, under the county where CAIR records their vaccine as given.</p></div>
     </div>
     <p class="note" style="color:var(--muted);font-size:12.5px;margin-top:12px">Source: CAIR2 via CDPH Snowflake, CA_VACCINE.PUBLIC.VW_INFLUENZA_RECIPIENT, residents with county = Mono, queried November 5, 2026. Counts include only vaccinations reported to CAIR (see note above). Groups with fewer than 11 people are combined to protect privacy.</p>
   </section>
@@ -877,9 +877,9 @@ function renderFluVax(){
   const tot=F.age.reduce((a,r)=>a+r[1],0);
   mk('cFvAge',{type:'bar',data:{labels:F.age.map(r=>r[0]),datasets:[{label:'People vaccinated',data:F.age.map(r=>r[1]),backgroundColor:CFG.color.flu}]},
     options:{indexAxis:'y',interaction:{mode:'nearest',intersect:true},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${n(c.raw)} people (${pc(c.raw,tot)})`}}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}});
-  const fill=(sel,rows)=>{const tb=document.querySelector(sel+' tbody'); if(!tb) return; const t=rows.reduce((a,r)=>a+r[1],0);
-    tb.innerHTML=rows.map(r=>`<tr><td>${r[0]}</td><td class="num">${n(r[1])}</td><td class="num">${pc(r[1],t)}</td></tr>`).join('')+`<tr><th>Total</th><th class="num">${n(t)}</th><th class="num">100%</th></tr>`;};
-  fill('#fvRaceTable',F.race); fill('#fvCountyTable',F.county);
+  const fill=(sel,rows,totLabel='Total')=>{const tb=document.querySelector(sel+' tbody'); if(!tb) return; const t=rows.reduce((a,r)=>a+r[1],0);
+    tb.innerHTML=rows.map(r=>`<tr><td>${r[0]}</td><td class="num">${n(r[1])}</td><td class="num">${pc(r[1],t)}</td></tr>`).join('')+`<tr><th>${totLabel}</th><th class="num">${n(t)}</th><th class="num">100%</th></tr>`;};
+  fill('#fvRaceTable',F.race); fill('#fvCountyTable',F.county.map(r=>[r[0]==='Mono'?'Mono (in county)':r[0].replace('(each fewer than 11)','(fewer than 11 residents each)'),r[1]]),'Total Mono residents vaccinated');
   const sx=F.sex.female+F.sex.male; set('fvSexNote',`By sex: ${Math.round(F.sex.female/sx*100)}% female, ${Math.round(F.sex.male/sx*100)}% male. Black or African American and Other race are combined because of small counts.`);
 }
 
