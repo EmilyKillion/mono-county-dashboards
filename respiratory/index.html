@@ -355,23 +355,23 @@
   <!-- FLU VACCINATION (CAIR snapshot) -->
   <section class="tab" id="tab-fluvax">
     <h2>Flu vaccination, 2026&ndash;27 season</h2>
-    <p class="lead">Mono County residents who received a flu vaccine reported to the California Immunization Registry (CAIR2), August 1 through November 4, 2026. Each resident is counted once. This tab is a one-time snapshot taken November 5, 2026 and is not updated with the weekly tracker.</p>
+    <p class="lead">Mono County residents who received a flu vaccine reported to the California Immunization Registry (CAIR2), August 1 through November 8, 2026. Each resident is counted once. This tab is a snapshot of CAIR data pulled November 9, 2026 (CAIR last refreshed November 8) and is not updated with the weekly tracker.</p>
     <div class="panel" style="border-left:5px solid var(--warn);background:color-mix(in srgb,var(--warn) 7%,#fff);margin:0 0 16px;font-size:14px">
-      <strong>These counts may not capture every resident vaccinated.</strong> CAIR includes only vaccinations that providers report to the registry. Vaccinations given by providers that do not report to CAIR (for example, some federal or tribal facilities), vaccinations given out of state, and vaccinations entered late may be missing. Records with an incomplete or out-of-date address may also be assigned to the wrong county. Recent weeks are the most likely to rise as late reports arrive. Treat these numbers as a minimum, not a full count of residents vaccinated.
+      <strong>These counts may not capture every resident vaccinated.</strong> CAIR includes only vaccinations that providers report to the registry. Vaccinations given by providers that do not report to CAIR, vaccinations given out of state, and vaccinations entered late may be missing. Records with an incomplete or out-of-date address may also be assigned to the wrong county. Recent weeks are the most likely to rise as late reports arrive. Treat these numbers as a minimum, not a full count of residents vaccinated.
     </div>
     <div class="grid g2" style="margin-bottom:16px">
       <div class="kpi flu"><div class="lab">Residents vaccinated</div><div class="val" id="fvPeople"></div><div class="delta" id="fvPeopleD"></div></div>
       <div class="kpi flu"><div class="lab">Peak week</div><div class="val" id="fvPeak"></div><div class="delta" id="fvPeakD"></div></div>
     </div>
     <div class="grid g2">
-      <div class="panel zoomable" data-chart="cFvWeekly" data-title="Residents newly vaccinated by MMWR week" title="Click to enlarge"><h3>Residents newly vaccinated by MMWR week <span class="zoomhint">&#10548; enlarge</span></h3><div class="chart"><canvas id="cFvWeekly"></canvas></div><p class="note">Each resident counted in the week of their first flu vaccine this season. Weeks start Sunday. Weeks before Aug 23 are combined (small counts). *The week of Nov 1 is partial (through Nov 4).</p></div>
+      <div class="panel zoomable" data-chart="cFvWeekly" data-title="Residents newly vaccinated by MMWR week" title="Click to enlarge"><h3>Residents newly vaccinated by MMWR week <span class="zoomhint">&#10548; enlarge</span></h3><div class="chart"><canvas id="cFvWeekly"></canvas></div><p class="note">Each resident counted in the week of their first flu vaccine this season. Weeks start Sunday. Weeks before Aug 23 are combined (small counts). Residents first vaccinated on Nov 8 (the first day of the next week) are included in the total but not charted.</p></div>
       <div class="panel zoomable" data-chart="cFvAge" data-title="Residents vaccinated by age group" title="Click to enlarge"><h3>Residents vaccinated by age group <span class="zoomhint">&#10548; enlarge</span></h3><div class="chart"><canvas id="cFvAge"></canvas></div><p class="note">Age at first dose this season. Counts, not coverage rates.</p></div>
     </div>
     <div class="grid g2" style="margin-top:16px">
       <div class="panel zoomable" data-chart="cFvRace" data-title="Vaccinated residents vs. Mono population, by race/ethnicity" title="Click to enlarge"><h3>Who got vaccinated vs. who lives in Mono County <span class="zoomhint">&#10548; enlarge</span></h3><p class="note" style="margin-top:0">Share of each group among vaccinated residents, next to its share of the county population. A blue bar longer than the gray bar means that group makes up more of the vaccinated than of the county.</p><div class="chart"><canvas id="cFvRace"></canvas></div><table id="fvRaceTable" style="margin-top:12px"><thead><tr><th>Race/ethnicity</th><th class="num">Vaccinated</th><th class="num">Share of vaccinated</th><th class="num">Share of population</th><th class="num">Difference</th></tr></thead><tbody></tbody></table><p class="note" id="fvSexNote"></p><p class="note">Shares leave out residents with unknown race/ethnicity, so both columns add to 100%. Population: U.S. Census Bureau, American Community Survey 2020&ndash;2024 5-year estimates, table B03002 (13,148 residents). All groups except Latino are non-Latino. The Census American Indian or Alaska Native figure includes Native Hawaiian or Pacific Islander.</p></div>
-      <div class="panel"><h3>Where Mono County residents got vaccinated</h3><table id="fvCountyTable"><thead><tr><th>County where vaccine was given</th><th class="num">Mono residents</th><th class="num">% of Mono residents</th></tr></thead><tbody></tbody></table><p class="note">Includes only Mono County residents. Each resident is counted once, under the county where CAIR records their vaccine as given.</p></div>
+      <div class="panel zoomable" data-chart="cFvProv" data-title="Where Mono County residents got vaccinated, by type of provider" title="Click to enlarge"><h3>Where Mono County residents got vaccinated <span class="zoomhint">&#10548; enlarge</span></h3><div class="chart"><canvas id="cFvProv"></canvas></div><table id="fvProvTable" style="margin-top:12px"><thead><tr><th>Provider</th><th class="num">Mono residents</th><th class="num">% of Mono residents</th></tr></thead><tbody></tbody></table><p class="note">Includes only Mono County residents. Each resident is counted once, under the provider CAIR records for their flu vaccine this season. Local pharmacies include Mammoth Hospital Pharmacy. Providers with fewer than 11 residents are combined.</p></div>
     </div>
-    <p class="note" style="color:var(--muted);font-size:12.5px;margin-top:12px">Source: CAIR2 via CDPH Snowflake, CA_VACCINE.PUBLIC.VW_INFLUENZA_RECIPIENT, residents with county = Mono, queried November 5, 2026. Counts include only vaccinations reported to CAIR (see note above). Groups with fewer than 11 people are combined to protect privacy.</p>
+    <p class="note" style="color:var(--muted);font-size:12.5px;margin-top:12px">Source: California Immunization Registry (CAIR2), California Department of Public Health; accessed through CDPH&rsquo;s Snowflake data-sharing platform for local health jurisdictions, November 9, 2026. Residents with county of residence = Mono. Counts include only vaccinations reported to CAIR (see note above). Groups with fewer than 11 people are combined to protect privacy.</p>
   </section>
 
   <!-- MH -->
@@ -854,15 +854,20 @@ function openChartZoom(id,title){ const src=charts[id]; if(!src) return; zoomSta
   const o=JSON.parse(JSON.stringify(src.config.options||{})); o.plugins=o.plugins||{}; o.plugins.legend=Object.assign({},o.plugins.legend||{},{display:true});
   mk('cZoom',{type:src.config.type,data,options:o}); }
 document.querySelectorAll('.zoomable').forEach(p=>p.addEventListener('click',()=>{ if(p.dataset.virus) openZoom(p.dataset.virus); else openChartZoom(p.dataset.chart,p.dataset.title); }));
-/* ============ flu vaccination: one-time CAIR snapshot (Nov 5, 2026) ============ */
+/* ============ flu vaccination: CAIR snapshot (pulled Nov 9, 2026; doses Aug 1 - Nov 8) ============ */
 const FLUVAX = {
-  people:2253, prevPeople:2226,
-  weekly:[['Before Aug 23',18],['Aug 23',17],['Aug 30',61],['Sep 6',60],['Sep 13',104],['Sep 20',126],['Sep 27',382],['Oct 4',519],['Oct 11',351],['Oct 18',266],['Oct 25',252],['Nov 1*',97]],  // residents by week of first dose this season
-  age:[['0–4',133],['5–17',387],['18–49',673],['50–64',401],['65+',659]],
+  people:2385, prevPeople:2289,
+  weekly:[['Before Aug 23',18],['Aug 23',17],['Aug 30',61],['Sep 6',60],['Sep 13',104],['Sep 20',127],['Sep 27',382],['Oct 4',520],['Oct 11',351],['Oct 18',266],['Oct 25',252],['Nov 1',223]],  // +4 first vaccinated Nov 8, in total only  // residents by week of first dose this season
+  age:[['0–4',139],['5–17',401],['18–49',715],['50–64',427],['65+',703]],
   racePop:{'White':8538,'Latino':3568,'Multiracial':516,'American Indian or Alaska Native':162,'Asian':243,'Black or African American, or other race':121},
-  race:[['White',1312],['Latino',727],['Unknown',71],['Multiracial',69],['American Indian or Alaska Native',30],['Asian',30],['Black or African American, or other race',14]],
-  sex:{female:1264, male:988},
-  county:[['Mono',1829],['Inyo',267],['Los Angeles',36],['San Diego',16],['Orange',12],['Ventura',12],['El Dorado',11],['20 other counties (each fewer than 11)',70]]
+  race:[['White',1392],['Latino',763],['Unknown',73],['Multiracial',76],['American Indian or Alaska Native',30],['Asian',33],['Black or African American, or other race',18]],
+  sex:{female:1338, male:1046},
+  provGroups:[['Local pharmacies',1013],['Mono County Public Health',731],['Mammoth Hospital clinics',357],['Inyo County clinics and hospitals',121],['Outside Mono and Inyo counties',163]],
+  providers:[
+    ['In Mono County',[['Mono County Public Health',731],['Vons Pharmacy, Mammoth Lakes',601],['Mammoth Hospital Pharmacy',254],['Mammoth Hospital Pediatric Clinic',205],['Mammoth Hospital Employee Health',152]]],
+    ['In Inyo County',[['Vons Pharmacy, Bishop',103],['Dwayne\u2019s Friendly Pharmacy, Bishop',55],['Toiyabe Indian Health Project, Bishop',54],['Northern Inyo Hospital (hospital, rural health clinic, employee health) and 3 other Inyo providers',51],['Northern Inyo Associates Pediatrics',16]]],
+    ['Elsewhere in California',[['121 providers in 25 other counties, mostly pharmacies',163]]]
+  ]
 };
 function renderFluVax(){
   const F=FLUVAX, n=v=>v.toLocaleString('en-US'), pc=(v,t)=>(v/t*100).toFixed(1)+'%';
@@ -894,7 +899,13 @@ function renderFluVax(){
       tb.innerHTML=known.map((r,k)=>`<tr><td>${r[0]}</td><td class="num">${n(r[1])}</td><td class="num">${(vs[k]*100).toFixed(1)}%</td><td class="num">${(ps[k]*100).toFixed(1)}%</td><td class="num">${diff(vs[k],ps[k])}</td></tr>`).join('')
         +unk.map(r=>`<tr style="color:var(--muted)"><td>${r[0]}</td><td class="num">${n(r[1])}</td><td class="num" colspan="3" style="text-align:right">not included in shares</td></tr>`).join('')
         +`<tr><th>Total vaccinated</th><th class="num">${n(t+unk.reduce((a,r)=>a+r[1],0))}</th><th class="num">100%</th><th class="num">100%</th><th></th></tr>`;}}
-  fill('#fvCountyTable',F.county.map(r=>[r[0]==='Mono'?'Mono (in county)':r[0].replace('(each fewer than 11)','(fewer than 11 residents each)'),r[1]]),'Total Mono residents vaccinated');
+  {const gt=F.provGroups.reduce((a,r)=>a+r[1],0);
+    mk('cFvProv',{type:'bar',data:{labels:F.provGroups.map(r=>r[0]),datasets:[{label:'Mono residents',data:F.provGroups.map(r=>r[1]),backgroundColor:CFG.color.flu}]},
+      options:{indexAxis:'y',interaction:{mode:'nearest',intersect:true},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${n(c.raw)} residents (${pc(c.raw,gt)})`}}},scales:{x:{beginAtZero:true,ticks:{precision:0}},y:{grid:{display:false}}}}});
+    const tb=document.querySelector('#fvProvTable tbody'); if(tb){
+      tb.innerHTML=F.providers.map(([g,rows])=>{const st=rows.reduce((a,r)=>a+r[1],0);
+        return `<tr><th>${g}</th><th class="num">${n(st)}</th><th class="num">${pc(st,F.people)}</th></tr>`+rows.map(r=>`<tr><td style="padding-left:18px">${r[0]}</td><td class="num">${n(r[1])}</td><td class="num">${pc(r[1],F.people)}</td></tr>`).join('');}).join('')
+        +`<tr><th>Total Mono residents vaccinated</th><th class="num">${n(F.people)}</th><th class="num">100%</th></tr>`;}}
   const sx=F.sex.female+F.sex.male; set('fvSexNote',`By sex: ${Math.round(F.sex.female/sx*100)}% female, ${Math.round(F.sex.male/sx*100)}% male. Black or African American and Other race are combined because of small counts.`);
 }
 
