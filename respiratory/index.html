@@ -192,8 +192,12 @@
     *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
     body:not(.printing) nav, body:not(.printing) .hd-actions{display:none}
   }
+  /* staff-only controls: shown when the address ends in ?edit */
+  .editonly{display:none !important}
+  html.edit .editonly{display:revert !important}
 </style>
 </head>
+<script>if(/[?&]edit\b/.test(location.search))document.documentElement.classList.add("edit")</script>
 <body>
 <header>
   <div class="hd-top">
@@ -207,7 +211,7 @@
       <div id="latestWeek"></div>
       <div id="reportDate"></div>
       <div class="hd-actions">
-        <label class="btn" for="fileIn">Load tracker (.xlsx)</label>
+        <label class="btn editonly" for="fileIn">Load tracker (.xlsx)</label>
         <input id="fileIn" type="file" accept=".xlsx" style="display:none">
         <button class="btn" id="btnRefresh" title="Re-pull CDC live data">Refresh live data</button>
         <button class="btn primary" id="btnPrint">Print / save PDF</button>
@@ -259,7 +263,7 @@
       <div class="panel" style="grid-column:1/-1">
         <h3>Where Mono stands this week</h3>
         <table id="standTable"><thead><tr><th>Indicator</th><th>Mono</th><th>California</th><th>United States</th></tr></thead><tbody></tbody></table>
-        <p class="note">Wastewater viral activity level (WVAL) from CDC NWSS; positivity from Mono ELRs, CDPH (tracker), and CDC NREVSS. The tag next to Mono positivity compares it with California: higher (red), lower (green), or similar (gray; within 3 percentage points or 20%). Mono is based on a small number of tests each week. Blank cells: not available for this week.</p>
+        <p class="note">Wastewater viral activity level (WVAL) from CDC NWSS; positivity from Mono ELRs, CDPH, and CDC NREVSS. The tag next to Mono positivity compares it with California: higher (red), lower (green), or similar (gray; within 3 percentage points or 20%). Mono is based on a small number of tests each week. Blank cells: not available for this week.</p>
       </div>
     </div>
   </section>
@@ -280,7 +284,7 @@
   <!-- TESTING -->
   <section class="tab" id="tab-testing">
     <h2>Test positivity</h2>
-    <p class="lead">Percent of tests positive: Mono County electronic lab reports (ELRs) compared with California (CDPH Respiratory Virus Report, entered in the tracker). National comparisons are on the Overview tab. <span id="elrWindow"></span></p>
+    <p class="lead">Percent of tests positive: Mono County electronic lab reports (ELRs) compared with California (CDPH Respiratory Virus Report). National comparisons are on the Overview tab. <span id="elrWindow"></span></p>
     <div class="grid g2">
       <div class="panel" style="grid-column:1/-1"><h3>Mono County ELR positivity, all viruses</h3><div class="chart"><canvas id="cElrAll"></canvas></div></div>
       <div class="grid g3" style="grid-column:1/-1">
@@ -300,7 +304,7 @@
     <dialog id="wvalDialog" class="info-dialog" aria-labelledby="wvalDlgTitle">
       <div class="zoom-head"><h3 id="wvalDlgTitle">What is the wastewater viral activity level (WVAL)?</h3><button type="button" class="btn-close" id="wvalClose" aria-label="Close">✕</button></div>
       <p><strong>It is an index, not an amount.</strong> CDC compares each sampling site's virus level this week with that same site's low (baseline) levels over the previous 24 months. The WVAL says how far above its own baseline the site is, so it has no units. A Mono value of 5.3 for SARS-CoV-2 means "well above Mono's usual low level," not 5.3 copies of virus.</p>
-      <p><strong>Estimated Mono levels.</strong> CDC posts Mono's WVAL with a delay of a week or more, so the Overview tiles show a level estimated from the latest Verily samples in the tracker, calculated the same way (24-month baseline at the 10th percentile, CDC's August 2026 category thresholds). Checked against CDC's published Mono values for Sept 2025–Oct 2026, the estimate fell in the same category in about 70% of weeks for SARS-CoV-2 and 85–90% for influenza A and RSV, and within one category nearly always.</p>
+      <p><strong>Estimated Mono levels.</strong> CDC posts Mono's WVAL with a delay of a week or more, so the Overview tiles show a level estimated from the latest Verily samples, calculated the same way (24-month baseline at the 10th percentile, CDC's August 2026 category thresholds). Checked against CDC's published Mono values for Sept 2025–Oct 2026, the estimate fell in the same category in about 70% of weeks for SARS-CoV-2 and 85–90% for influenza A and RSV, and within one category nearly always.</p>
       <p><strong>Why use it?</strong> Raw concentrations can't be compared across places with different sewer systems, flows, and populations. Because every site is measured against its own baseline, the Mono, California, and US values can be shown side by side. The California and US values are the medians of all reporting sites.</p>
       <p><strong>Where the Mono value comes from.</strong> The Mammoth Lakes plant is sampled under CDC's national wastewater testing contract. CDC calculates the site's WVAL each week and publishes it; this dashboard retrieves it when the page loads. Values appear only for weeks with samples.</p>
       <h4>Activity level cutoffs (CDC)</h4>
@@ -355,7 +359,7 @@
   <!-- FLU VACCINATION (CAIR snapshot) -->
   <section class="tab" id="tab-fluvax">
     <h2>Flu vaccination, 2026&ndash;27 season</h2>
-    <p class="lead">Mono County residents who received a flu vaccine reported to the California Immunization Registry (CAIR2), August 1 through November 8, 2026. Each resident is counted once. This tab is a snapshot of CAIR data pulled November 9, 2026 (CAIR last refreshed November 8) and is not updated with the weekly tracker.</p>
+    <p class="lead">Mono County residents who received a flu vaccine reported to the California Immunization Registry (CAIR2), August 1 through November 8, 2026. Each resident is counted once. Data as of November 8, 2026; this tab is updated less often than the rest of the report.</p>
     <div class="panel" style="border-left:5px solid var(--warn);background:color-mix(in srgb,var(--warn) 7%,#fff);margin:0 0 16px;font-size:14px">
       <strong>These counts may not capture every resident vaccinated.</strong> CAIR includes only vaccinations that providers report to the registry. Vaccinations given by providers that do not report to CAIR, vaccinations given out of state, and vaccinations entered late may be missing. Records with an incomplete or out-of-date address may also be assigned to the wrong county. Recent weeks are the most likely to rise as late reports arrive. Treat these numbers as a minimum, not a full count of residents vaccinated.
     </div>
@@ -364,14 +368,14 @@
       <div class="kpi flu"><div class="lab">Peak week</div><div class="val" id="fvPeak"></div><div class="delta" id="fvPeakD"></div></div>
     </div>
     <div class="grid g2">
-      <div class="panel zoomable" data-chart="cFvWeekly" data-title="Residents newly vaccinated by MMWR week" title="Click to enlarge"><h3>Residents newly vaccinated by MMWR week <span class="zoomhint">&#10548; enlarge</span></h3><div class="chart"><canvas id="cFvWeekly"></canvas></div><p class="note">Each resident counted in the week of their first flu vaccine this season. Weeks start Sunday. Weeks before Aug 23 are combined (small counts). Residents first vaccinated on Nov 8 (the first day of the next week) are included in the total but not charted.</p></div>
+      <div class="panel zoomable" data-chart="cFvWeekly" data-title="Residents newly vaccinated by MMWR week" title="Click to enlarge"><h3>Residents newly vaccinated by MMWR week <span class="zoomhint">&#10548; enlarge</span></h3><div class="chart"><canvas id="cFvWeekly"></canvas></div><p class="note">Each resident counted in the week of their first flu vaccine this season. Weeks start Sunday. Weeks before Aug 23 are combined (small counts). Residents first vaccinated on Nov 8 are counted in the week of Nov 1.</p></div>
       <div class="panel zoomable" data-chart="cFvAge" data-title="Residents vaccinated by age group" title="Click to enlarge"><h3>Residents vaccinated by age group <span class="zoomhint">&#10548; enlarge</span></h3><div class="chart"><canvas id="cFvAge"></canvas></div><p class="note">Age at first dose this season. Counts, not coverage rates.</p></div>
     </div>
     <div class="grid g2" style="margin-top:16px">
       <div class="panel zoomable" data-chart="cFvRace" data-title="Vaccinated residents vs. Mono population, by race/ethnicity" title="Click to enlarge"><h3>Who got vaccinated vs. who lives in Mono County <span class="zoomhint">&#10548; enlarge</span></h3><p class="note" style="margin-top:0">Share of each group among vaccinated residents, next to its share of the county population. A blue bar longer than the gray bar means that group makes up more of the vaccinated than of the county.</p><div class="chart"><canvas id="cFvRace"></canvas></div><table id="fvRaceTable" style="margin-top:12px"><thead><tr><th>Race/ethnicity</th><th class="num">Vaccinated</th><th class="num">Share of vaccinated</th><th class="num">Share of population</th><th class="num">Difference</th></tr></thead><tbody></tbody></table><p class="note" id="fvSexNote"></p><p class="note">Shares leave out residents with unknown race/ethnicity, so both columns add to 100%. Population: U.S. Census Bureau, American Community Survey 2020&ndash;2024 5-year estimates, table B03002 (13,148 residents). All groups except Latino are non-Latino. The Census American Indian or Alaska Native figure includes Native Hawaiian or Pacific Islander.</p></div>
       <div class="panel zoomable" data-chart="cFvProv" data-title="Where Mono County residents got vaccinated, by type of provider" title="Click to enlarge"><h3>Where Mono County residents got vaccinated <span class="zoomhint">&#10548; enlarge</span></h3><div class="chart"><canvas id="cFvProv"></canvas></div><table id="fvProvTable" style="margin-top:12px"><thead><tr><th>Provider</th><th class="num">Mono residents</th><th class="num">% of Mono residents</th></tr></thead><tbody></tbody></table><p class="note">Includes only Mono County residents. Each resident is counted once, under the provider CAIR records for their flu vaccine this season. Mammoth Hospital includes its pharmacy, pediatric clinic and employee health sites. Inyo County providers include pharmacies, clinics and hospitals in Bishop. Providers with fewer than 11 residents are combined.</p></div>
     </div>
-    <p class="note" style="color:var(--muted);font-size:12.5px;margin-top:12px">Source: California Immunization Registry (CAIR2), California Department of Public Health; accessed through CDPH&rsquo;s Snowflake data-sharing platform for local health jurisdictions, November 9, 2026. Residents with county of residence = Mono. Counts include only vaccinations reported to CAIR (see note above). Groups with fewer than 11 people are combined to protect privacy.</p>
+    <p class="note" style="color:var(--muted);font-size:12.5px;margin-top:12px">Source: California Immunization Registry (CAIR2), California Department of Public Health, data as of November 8, 2026. Residents with county of residence = Mono. Counts include only vaccinations reported to CAIR (see note above). Groups with fewer than 11 people are combined to protect privacy.</p>
   </section>
 
   <!-- MH -->
@@ -391,7 +395,7 @@
   <!-- HIGHLIGHTS -->
   <section class="tab" id="tab-highlights">
     <h2>Highlights</h2>
-    <p class="lead" id="hlLead">Key messages for the most recent week, with source links. Earlier weeks are collapsed below. Entered in the Highlights sheet of the tracker.</p>
+    <p class="lead" id="hlLead">Key messages for the most recent week, with source links. Earlier weeks are collapsed below.</p>
     <p class="hlkey"><b>Bold</b> = key takeaway · <span class="hl-up">↑</span> increasing · <span class="hl-down">↓</span> decreasing</p>
     <div class="panel" id="highlights"></div>
   </section>
@@ -399,9 +403,9 @@
   <!-- SOURCES -->
   <section class="tab" id="tab-sources">
     <h2>Sources &amp; state/national dashboards</h2>
-    <p class="lead">Where each panel gets its data and whether the live pulls succeeded on this load.</p>
+    <p class="lead">Where each panel gets its data.</p>
     <div class="panel">
-      <table id="srcTable"><thead><tr><th>Source</th><th>Feeds</th><th>How it loads</th><th>Status</th></tr></thead><tbody></tbody></table>
+      <table id="srcTable"><thead><tr><th>Source</th><th>Feeds</th><th>How it is updated</th><th>Status</th></tr></thead><tbody></tbody></table>
     </div>
 
     <div class="panel" style="margin-top:16px">
@@ -417,7 +421,7 @@
             <tr><td><a href="https://www.cdc.gov/respiratory-viruses/data/activity-levels.html" target="_blank" rel="noopener">CDC respiratory activity levels</a></td><td>Acute respiratory illness levels by state</td></tr>
           </tbody>
         </table>
-      </div>    <div class="panel" style="margin-top:16px">
+      </div>    <div class="panel editonly" style="margin-top:16px">
       <h3>Weekly update</h3>
       <ol style="margin:0;padding-left:20px;font-size:14px">
         <li>Fill the yellow cells in <code>RV_Tracker.xlsx</code> (Weekly_Local, Weekly_ELR, Wastewater_Local, State_National, Highlights, Config). Wastewater_History is read-only history.</li>
@@ -638,7 +642,7 @@ function renderSubtypes(vAll){
       scales:{x:{stacked:true,ticks:{maxTicksLimit:12,maxRotation:0}},y:Object.assign({stacked:true,beginAtZero:true,title:{display:true,text:share?'Share of H1 + H3 + H5 signal':'Virus : PMMoV × 1M'}},share?{max:1,ticks:{callback:x=>Math.round(x*100)+'%'}}:{})}}});
   const det=rows.filter(r=>tot(r)>0), last=det[det.length-1];
   const lastTxt=last?` Most recent subtype detection: week of ${fmtD(last.week)} (${S.filter(([k])=>last[k]>0).map(([k,l])=>`${l} ${Math.round(last[k]/tot(last)*100)}%`).join(', ')}).`:'';
-  document.getElementById('subtypeNote').textContent=(share?`Each bar shows how the week\'s combined H1, H3 and H5 wastewater signal splits by subtype; weeks with no subtype detected are blank. Faded bars are weeks with a low combined signal (under ${LOWSIG}), where the split rests on a small amount of virus.`:'Stacked weekly concentrations of each influenza A subtype.')+lastTxt+' Hover for values. Wastewater_History plus Wastewater_Local.';
+  document.getElementById('subtypeNote').textContent=(share?`Each bar shows how the week\'s combined H1, H3 and H5 wastewater signal splits by subtype; weeks with no subtype detected are blank. Faded bars are weeks with a low combined signal (under ${LOWSIG}), where the split rests on a small amount of virus.`:'Stacked weekly concentrations of each influenza A subtype.')+lastTxt+' Hover for values.';
 }
 document.addEventListener('click',e=>{ const b=e.target.closest('#subtypeMode button'); if(!b) return; e.stopPropagation(); subtypeMode=b.dataset.m; document.querySelectorAll('#subtypeMode button').forEach(x=>x.classList.toggle('on',x===b)); renderSubtypes(); },true);
 function renderHighlights(s){
@@ -772,8 +776,8 @@ function renderWW(){
   const st=live.status.nwss; document.getElementById('wwNote').textContent= st?.s==='ok'?`Source: CDC NWSS (data.cdc.gov, atcp-73re), site-level WVAL; state and national values are the median of reporting sites. ${st.msg}${monoLagNote()?' '+monoLagNote():''}`:`CDC NWSS live pull unavailable: ${st?.msg||''} Use Refresh live data or check data.cdc.gov.`;
   const vmap=new Map(); T.wwHist.forEach(r=>vmap.set(iso(r.week),r)); T.verily.forEach(r=>vmap.set(iso(r.week),Object.assign({},vmap.get(iso(r.week))||{},r)));
   const vk=[...vmap.keys()].sort(); const vAll=[]; if(vk.length){ for(let d=toDate(vk[0]); iso(d)<=vk[vk.length-1]; d=addDays(d,7)) vAll.push(vmap.get(iso(d))||{week:d}); } const v=vAll.slice(-52); // continuous weekly axis so unsampled weeks show as breaks document.getElementById('verilyTitle').textContent=`Verily, ${siteName.replace(/\s*\(Verily\)/i,'')}, last 52 weeks`;
-  document.querySelector('#verilyTitle').parentElement.querySelector('.note').textContent=`${T.config['Wastewater note']?T.config['Wastewater note']+' ':''}Ratio of virus to PMMoV × 1,000,000; Wastewater_History plus weekly entries in Wastewater_Local. Breaks in a line are weeks without sampling.`;
-  mk('cVerily',{type:'line',options:{plugins:{emptyMsg:{text:'No Verily values entered in Wastewater_Local'}}},data:{labels:v.map(r=>fmtD(r.week)),datasets:[lineDs('SARS-CoV-2',v.map(r=>r.covid),CFG.color.covid),lineDs('Influenza A',v.map(r=>r.fluA),CFG.color.flu),lineDs('Influenza B',v.map(r=>r.fluB),CFG.color.fluB),lineDs('RSV',v.map(r=>r.rsv),CFG.color.rsv),lineDs('Influenza A (H5)',v.map(r=>r.h5),'#5E6E78',{borderDash:[3,3]})].map(d=>Object.assign(d,{spanGaps:false}))},options:{scales:{y:{beginAtZero:true,title:{display:true,text:'Virus : PMMoV × 1M'}},x:{ticks:{maxTicksLimit:12,maxRotation:0}}}}});
+  document.querySelector('#verilyTitle').parentElement.querySelector('.note').textContent=`${T.config['Wastewater note']?T.config['Wastewater note']+' ':''}Ratio of virus to PMMoV × 1,000,000. Breaks in a line are weeks without sampling.`;
+  mk('cVerily',{type:'line',options:{plugins:{emptyMsg:{text:'No Verily values available'}}},data:{labels:v.map(r=>fmtD(r.week)),datasets:[lineDs('SARS-CoV-2',v.map(r=>r.covid),CFG.color.covid),lineDs('Influenza A',v.map(r=>r.fluA),CFG.color.flu),lineDs('Influenza B',v.map(r=>r.fluB),CFG.color.fluB),lineDs('RSV',v.map(r=>r.rsv),CFG.color.rsv),lineDs('Influenza A (H5)',v.map(r=>r.h5),'#5E6E78',{borderDash:[3,3]})].map(d=>Object.assign(d,{spanGaps:false}))},options:{scales:{y:{beginAtZero:true,title:{display:true,text:'Virus : PMMoV × 1M'}},x:{ticks:{maxTicksLimit:12,maxRotation:0}}}}});
   mk('cVerilyMeasles',{type:'line',data:{labels:v.map(r=>fmtD(r.week)),datasets:[lineDs('Measles',v.map(r=>r.measles),'#C0392B',{spanGaps:false})]},options:{plugins:{legend:{display:false},emptyMsg:{text:'No measles values'}},scales:{y:{beginAtZero:true,suggestedMax:10,title:{display:true,text:'Virus : PMMoV × 1M'}},x:{ticks:{maxTicksLimit:12,maxRotation:0}}}}});
   { const det=v.filter(r=>r.measles>0); document.getElementById('measlesNote').textContent=`Measles (wild type) in wastewater, ratio to PMMoV × 1,000,000. ${det.length?`Detected in ${det.length} of the last 52 weeks (most recent: week of ${fmtD(det[det.length-1].week)}).`:'Not detected in any sample in the last 52 weeks.'} Breaks are weeks without sampling.`; }
   renderSubtypes(vAll);
@@ -800,7 +804,7 @@ function renderCvW(){
         y2:{type:useLog?'logarithmic':'linear',position:'right',beginAtZero:!useLog,grid:{drawOnChartArea:false},title:{display:true,text:'Virus : PMMoV × 1M'}}}}}); };
   one('cCvwFlu','cFlu','wFlu',CFG.color.flu,'#153B66'); one('cCvwCovid','cCovid','wCovid',CFG.color.covid,'#3F2357'); one('cCvwRsv','cRsv','wRsv',CFG.color.rsv,'#165140');
   const lastW=[...weeks].reverse().find(w=>map.get(w).wCovid!=null||map.get(w).wFlu!=null||map.get(w).wRsv!=null);
-  document.getElementById('cvwNote').textContent=`${T.config['Wastewater note']?T.config['Wastewater note']+' ':''}${weeks.length} weeks shown; wastewater through week of ${lastW?fmtD(toDate(lastW)):'—'}. Cases: CalREDIE reports by report date, Mono County residents (Covid confirmed + probable; flu and RSV initial reports). Wastewater: Wastewater_History plus weekly Verily entries in Wastewater_Local.`;
+  document.getElementById('cvwNote').textContent=`${T.config['Wastewater note']?T.config['Wastewater note']+' ':''}${weeks.length} weeks shown; wastewater through week of ${lastW?fmtD(toDate(lastW)):'—'}. Cases: CalREDIE reports by report date, Mono County residents (Covid confirmed + probable; flu and RSV initial reports). Wastewater: Verily samples from the Mammoth Lakes plant.`;
 }
 
 function monoLagNote(){ const last=a=>Object.values(a||{}).flatMap(x=>x||[]).reduce((m,r)=>!m||r.week>m?r.week:m,null); const mo=last(live.nwss.mono), ca=last(live.nwss.ca); return (mo&&ca&&(ca-mo)>=14*864e5)?`No CDC NWSS data for the Mono site after the week ending ${fmtD(mo)} (local sampling gap). Newer Mono samples appear once CDC posts them; California data run through ${fmtD(ca)}.`:''; }
@@ -823,18 +827,18 @@ function renderState(){
 
 function renderSources(){
   const st=k=>{const x=live.status[k]; return x?`<span class="status ${x.s}"></span>${x.s==='ok'?'Loaded':'Failed'}<div class="note">${x.msg}</div>`:'<span class="status na"></span>Not loaded';};
-  const tr=`<span class="status ok"></span>From tracker`;
+  const tr=`<span class="status ok"></span>Entered weekly`;
   document.querySelector('#srcTable tbody').innerHTML=[
-    ['CalREDIE case counts (Mono residents)','Overview, Cases by season','Tracker: Weekly_Local',tr],
-    ['Mammoth Hospital weekly report','Flu detail, Mammoth Hospital','Tracker: Weekly_Local',tr],
-    ['CalREDIE electronic lab reports','Test positivity','Tracker: Weekly_ELR',tr],
+    ['CalREDIE case counts (Mono residents)','Overview, Cases by season','Entered weekly by Public Health',tr],
+    ['Mammoth Hospital weekly report','Flu detail, Mammoth Hospital','Entered weekly by Public Health',tr],
+    ['CalREDIE electronic lab reports','Test positivity','Entered weekly by Public Health',tr],
     ['<a href="https://www.cdc.gov/wastewater/respiratory-viruses/index.html" target="_blank" rel="noopener">CDC NWSS wastewater viral activity level</a>','Wastewater, Overview','Live: data.cdc.gov atcp-73re (Mono site, CA median, US median)',st('nwss')],
     ['<a href="https://www.cdc.gov/nrevss/php/dashboard/index.html" target="_blank" rel="noopener">CDC NREVSS Covid-19 positivity</a>','Overview','Live: data.cdc.gov gvsb-yw6g (national, HHS Region 9)',st('nrevss_covid')],
     ['<a href="https://www.cdc.gov/nrevss/php/dashboard/index.html" target="_blank" rel="noopener">CDC NREVSS RSV positivity</a>','Overview','Live: data.cdc.gov 3cxc-4k8q (national, HHS Region 9)',st('nrevss_rsv')],
-    ['<a href="https://publichealth.verily.com/plants/4b49eb68" target="_blank" rel="noopener">Verily wastewater, Mammoth plant</a>','Wastewater','Tracker: Wastewater_Local (no public API); history in Wastewater_History',tr],
-    ['<a href="https://cricelio.shinyapps.io/Monodashboard/" target="_blank" rel="noopener">UC Davis Mono wastewater dashboard</a>','Wastewater','Tracker: Wastewater_Local trend table',tr],
-    ['<a href="https://www.cdph.ca.gov/Programs/CID/DCDC/Pages/RespiratoryVirusReport.aspx" target="_blank" rel="noopener">CDPH Respiratory Virus Report</a>','Test positivity, Overview','Tracker: State_National (CDPH files are download-only)',tr],
-    ['<a href="https://skylab4.cdph.ca.gov/calcat/" target="_blank" rel="noopener">CalCAT</a>','Links','Tracker: State_National (R-eff); link for forecasts',tr],
+    ['<a href="https://publichealth.verily.com/plants/4b49eb68" target="_blank" rel="noopener">Verily wastewater, Mammoth plant</a>','Wastewater','Entered weekly by Public Health',tr],
+    ['<a href="https://cricelio.shinyapps.io/Monodashboard/" target="_blank" rel="noopener">UC Davis Mono wastewater dashboard</a>','Wastewater','Entered weekly by Public Health',tr],
+    ['<a href="https://www.cdph.ca.gov/Programs/CID/DCDC/Pages/RespiratoryVirusReport.aspx" target="_blank" rel="noopener">CDPH Respiratory Virus Report</a>','Test positivity, Overview','Entered weekly by Public Health',tr],
+    ['<a href="https://skylab4.cdph.ca.gov/calcat/" target="_blank" rel="noopener">CalCAT</a>','Links','Entered weekly by Public Health',tr],
     ['<a href="https://skylab.cdph.ca.gov/calwws/" target="_blank" rel="noopener">CalSewers</a>','Links','Link only; CA medians shown from CDC NWSS instead','<span class="status na"></span>Link'],
   ].map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('');
 }
@@ -854,14 +858,14 @@ function openChartZoom(id,title){ const src=charts[id]; if(!src) return; zoomSta
   const o=JSON.parse(JSON.stringify(src.config.options||{})); o.plugins=o.plugins||{}; o.plugins.legend=Object.assign({},o.plugins.legend||{},{display:true});
   mk('cZoom',{type:src.config.type,data,options:o}); }
 document.querySelectorAll('.zoomable').forEach(p=>p.addEventListener('click',()=>{ if(p.dataset.virus) openZoom(p.dataset.virus); else openChartZoom(p.dataset.chart,p.dataset.title); }));
-/* ============ flu vaccination: CAIR snapshot (pulled Nov 9, 2026; doses Aug 1 - Nov 8) ============ */
+/* ============ flu vaccination: CAIR snapshot (doses Aug 1 - Nov 8, 2026) ============ */
 const FLUVAX = {
   people:2385, prevPeople:2289,
-  weekly:[['Before Aug 23',18],['Aug 23',17],['Aug 30',61],['Sep 6',60],['Sep 13',104],['Sep 20',127],['Sep 27',382],['Oct 4',520],['Oct 11',351],['Oct 18',266],['Oct 25',252],['Nov 1',223]],  // +4 first vaccinated Nov 8, in total only  // residents by week of first dose this season
+  weekly:[['Before Aug 23',18],['Aug 23',17],['Aug 30',61],['Sep 6',60],['Sep 13',104],['Sep 20',127],['Sep 27',382],['Oct 4',520],['Oct 11',351],['Oct 18',266],['Oct 25',252],['Nov 1',227]],  // residents by week of first dose this season
   age:[['0–4',139],['5–17',401],['18–49',715],['50–64',427],['65+',703]],
   racePop:{'White':8538,'Latino':3568,'Multiracial':516,'American Indian or Alaska Native':162,'Asian':243,'Black or African American, or other race':121},
   race:[['White',1392],['Latino',763],['Unknown',73],['Multiracial',76],['American Indian or Alaska Native',30],['Asian',33],['Black or African American, or other race',18]],
-  sex:{female:1338, male:1046},
+  sexPct:{female:56, male:44},
   provGroups:[['Mono County Public Health',731],['Mammoth Hospital',611],['Vons Pharmacy, Mammoth Lakes',601],['Inyo County providers',279],['Outside Mono and Inyo counties',163]],
   providers:[
     ['In Mono County',[['Mono County Public Health',731],['Mammoth Hospital (pharmacy, pediatric clinic, employee health)',611],['Vons Pharmacy, Mammoth Lakes',601]]],
@@ -906,7 +910,7 @@ function renderFluVax(){
       tb.innerHTML=F.providers.map(([g,rows])=>{const st=rows.reduce((a,r)=>a+r[1],0);
         return `<tr><th>${g}</th><th class="num">${n(st)}</th><th class="num">${pc(st,F.people)}</th></tr>`+rows.map(r=>`<tr><td style="padding-left:18px">${r[0]}</td><td class="num">${n(r[1])}</td><td class="num">${pc(r[1],F.people)}</td></tr>`).join('');}).join('')
         +`<tr><th>Total Mono residents vaccinated</th><th class="num">${n(F.people)}</th><th class="num">100%</th></tr>`;}}
-  const sx=F.sex.female+F.sex.male; set('fvSexNote',`By sex: ${Math.round(F.sex.female/sx*100)}% female, ${Math.round(F.sex.male/sx*100)}% male. Black or African American and Other race are combined because of small counts.`);
+  set('fvSexNote',`By sex: ${F.sexPct.female}% female, ${F.sexPct.male}% male. Black or African American and Other race are combined because of small counts.`);
 }
 
 document.getElementById('zoomClose').addEventListener('click',closeZoom);
