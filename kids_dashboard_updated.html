@@ -90,8 +90,8 @@
     <div class="metrics-grid four">
       <div class="metric-card">
         <div class="metric-label">Children (under 18)</div>
-        <div class="metric-value">2,420</div>
-        <div class="metric-year">2023 · ACS estimate</div>
+        <div class="metric-value">2,329</div>
+        <div class="metric-year">2024 · ACS 5-year (±92)</div>
       </div>
       <div class="metric-card">
         <div class="metric-label">Median household income</div>
@@ -156,8 +156,8 @@
   <!-- DEMOGRAPHICS -->
   <div id="demographics" class="section">
     <div class="metrics-grid">
-      <div class="metric-card"><div class="metric-label">Total minors</div><div class="metric-value">2,349</div><div class="metric-year">2021 · Census</div></div>
-      <div class="metric-card"><div class="metric-label">Est. population under 18</div><div class="metric-value">2,420</div><div class="metric-year">2023 · Derived ACS</div></div>
+      <div class="metric-card"><div class="metric-label">Children under 18</div><div class="metric-value">2,329</div><div class="metric-year">2024 · ACS 5-year (±92)</div></div>
+      <div class="metric-card"><div class="metric-label">Share of population under 18</div><div class="metric-value">17.7%</div><div class="metric-year">2024 · ACS 5-year (±0.7)</div></div>
       <div class="metric-card"><div class="metric-label">Children below poverty</div><div class="metric-value">11%</div><div class="metric-year">2024 · Census SAIPE</div></div>
       <div class="metric-card"><div class="metric-label">Hispanic children in poverty</div><div class="metric-value">31%</div><div class="metric-year">2024 · CHA</div></div>
     </div>
@@ -452,9 +452,9 @@ function showTab(id, btn) {
 }
 
 const allData = [
-  { id: 'DEM_001', name: 'Total Number of Minors', value: '2,349', year: 2021, cat: 'dem', source: 'Census' },
+  { id: 'DEM_001', name: 'Total Number of Minors (Under 18)', value: '2,329', year: 2024, cat: 'dem', source: 'ACS S0101 (5-year)' },
   { id: 'DEM_POP_01', name: 'Total Population (All Ages)', value: '13,148', year: 2024, cat: 'dem', source: 'ACS 5-year (via Data USA)' },
-  { id: 'DEM_CHILD_01', name: 'Estimated Population Under 18', value: '2,420', year: 2023, cat: 'dem', source: 'Derived from ACS' },
+  { id: 'DEM_CHILD_02', name: 'Percent of Population Under 18', value: '17.7%', year: 2024, cat: 'dem', source: 'ACS S0101 (5-year)' },
   { id: 'DEM_POV_01', name: 'Percent Below Poverty Level', value: '8.6%', year: 2024, cat: 'dem', source: 'ACS S1701 (5-year)' },
   { id: 'ECON_INC_01', name: 'Median Household Income', value: '$99,415', year: 2024, cat: 'eco', source: 'ACS 5-year (via Data USA)' },
   { id: 'HLT_INS_01', name: 'Percent Uninsured Under 65', value: '10%', year: 2026, cat: 'dem', source: 'CHR 2026 release' },
