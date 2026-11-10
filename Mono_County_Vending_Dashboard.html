@@ -52,6 +52,11 @@
   .chart-wrap { position: relative; }
   .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
   .legend span { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #666; }
+  .legend .leg-item { cursor: pointer; user-select: none; padding: 2px 6px; margin: -2px -6px; border-radius: 4px; }
+  .legend .leg-item:hover { background: #f1f1ee; }
+  .legend .leg-item:focus-visible { outline: 2px solid #185FA5; }
+  .legend .leg-item.off { color: #aaa; text-decoration: line-through; }
+  .legend .leg-item.off .ldot { background: #ccc !important; }
   .ldot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
 
   .req-controls { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
@@ -139,10 +144,7 @@
     <div class="charts-grid row-full" style="margin-bottom:16px;">
       <div class="chart-card">
         <div class="chart-title">Items dispensed over time</div>
-        <div class="legend">
-          <span><span class="ldot" style="background:#185FA5"></span>Mammoth</span>
-          <span><span class="ldot" style="background:#0F6E56;"></span>Chalfant</span>
-        </div>
+        <div class="legend" id="leg-timeline"></div>
         <div class="chart-wrap" style="height:200px"><canvas id="c-timeline"></canvas></div>
       </div>
     </div>
@@ -306,6 +308,29 @@ function getFilteredReq(){const from=document.getElementById('df').value,to=docu
 function cnt(arr,k){const m={};arr.forEach(r=>{if(r[k])m[r[k]]=(m[r[k]]||0)+1;});return m;}
 function destroy(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
 
+// Clickable legends: click a label to hide/show that series. Hidden choices persist while filters change.
+const hiddenKeys={},legMeta={};
+function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+// mode 'dataset' = one legend entry per line/bar series; 'slice' = one entry per doughnut slice
+function setLegend(legId,chartId,mode,items){legMeta[legId]={chartId,mode,items};if(!hiddenKeys[legId])hiddenKeys[legId]=new Set();applyLegend(legId);}
+function applyLegend(legId){
+  const m=legMeta[legId],hid=hiddenKeys[legId],chart=charts[m.chartId];
+  if(chart){
+    if(m.mode==='dataset')chart.data.datasets.forEach((ds,i)=>chart.setDatasetVisibility(i,!hid.has(ds.label)));
+    else chart.data.labels.forEach((l,i)=>{if(chart.getDataVisibility(i)===hid.has(l))chart.toggleDataVisibility(i);});
+    chart.update();
+  }
+  const total=m.items.reduce((a,it)=>a+(hid.has(it.key)?0:(it.value||0)),0);
+  document.getElementById(legId).innerHTML=m.items.map(it=>{
+    const off=hid.has(it.key);
+    const pct=(m.mode==='slice'&&!off&&total)?' '+Math.round(it.value/total*100)+'%':'';
+    return `<span class="leg-item${off?' off':''}" role="button" tabindex="0" aria-pressed="${!off}" data-leg="${legId}" data-key="${esc(it.key)}" title="${esc(it.key)} — click to ${off?'show':'hide'}"><span class="ldot" style="background:${it.color};"></span>${esc(it.text)}${pct}</span>`;
+  }).join('');
+}
+function toggleLegend(el){const legId=el.dataset.leg,key=el.dataset.key,hid=hiddenKeys[legId];if(hid.has(key))hid.delete(key);else hid.add(key);applyLegend(legId);const again=[...document.getElementById(legId).children].find(c=>c.dataset.key===key);if(again)again.focus({preventScroll:true});}
+document.addEventListener('click',e=>{const el=e.target.closest('.leg-item');if(el)toggleLegend(el);});
+document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.classList&&e.target.classList.contains('leg-item')){e.preventDefault();toggleLegend(e.target);}});
+
 function renderMetrics(data){
   const orders=new Set(data.map(r=>r.order)).size;
   const items=data.reduce((a,r)=>a+r.qty,0);
@@ -329,6 +354,7 @@ function renderTimeline(data){
     {label:'Mammoth',data:dates.map(d=>byDD[d].Mammoth||0),borderColor:'#185FA5',backgroundColor:'rgba(24,95,165,0.08)',tension:0.3,fill:true,pointRadius:0},
     {label:'Chalfant',data:dates.map(d=>byDD[d].Chalfant||0),borderColor:'#0F6E56',backgroundColor:'rgba(15,110,86,0.06)',tension:0.3,fill:true,pointRadius:0,borderDash:[4,3]}
   ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{autoSkip:true,maxTicksLimit:16,maxRotation:0},grid:{display:false}},y:{beginAtZero:true,grid:{color:'rgba(0,0,0,0.06)'}}}}});
+  setLegend('leg-timeline','c-timeline','dataset',[{key:'Mammoth',text:'Mammoth',color:'#185FA5'},{key:'Chalfant',text:'Chalfant',color:'#0F6E56'}]);
 }
 
 function renderItems(data){
@@ -346,16 +372,16 @@ function renderTimeOfDay(){
   const items=Object.keys(HOUR_DATA);
   const todColors=['#185FA5','#D85A30','#0F6E56','#D4537E','#BA7517','#534AB7','#378ADD','#1D9E75','#888780','#E24B4A'];
   const todDashes=[[],[6,3],[3,3],[8,2],[4,4],[2,2],[6,2,2,2],[],[5,3],[3,2]];
-  document.getElementById('leg-tod').innerHTML=items.map((item,i)=>`<span><span class="ldot" style="background:${todColors[i]};"></span>${item.length>22?item.split(' ').slice(0,2).join(' ')+'…':item}</span>`).join('');
   charts['c-tod']=new Chart(document.getElementById('c-tod'),{type:'line',data:{labels:HOUR_LABELS,datasets:items.map((item,i)=>({label:item,data:HOUR_DATA[item],borderColor:todColors[i],backgroundColor:'transparent',borderWidth:2,borderDash:todDashes[i]||[],tension:0.35,pointRadius:3,pointHoverRadius:5}))},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,0.05)'}},y:{beginAtZero:true,grid:{color:'rgba(0,0,0,0.06)'},ticks:{font:{size:11}}}}}});
+  setLegend('leg-tod','c-tod','dataset',items.map((item,i)=>({key:item,text:item.length>22?item.split(' ').slice(0,2).join(' ')+'…':item,color:todColors[i]})));
 }
 
 function renderDoughnut(canvasId,legId,labels,values,colors){
   destroy(canvasId);
   const total=values.reduce((a,b)=>a+b,0);
-  if(!total)return;
-  document.getElementById(legId).innerHTML=labels.map((l,i)=>`<span><span class="ldot" style="background:${colors[i]};"></span>${l.length>14?l.split(/[\s\/]/)[0]+'…':l} ${Math.round(values[i]/total*100)}%</span>`).join('');
+  if(!total){document.getElementById(legId).innerHTML='';return;}
   charts[canvasId]=new Chart(document.getElementById(canvasId),{type:'doughnut',data:{labels,datasets:[{data:values,backgroundColor:colors,borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+  setLegend(legId,canvasId,'slice',labels.map((l,i)=>({key:l,text:l.length>14?l.split(/[\s\/]/)[0]+'…':l,value:values[i],color:colors[i]})));
 }
 
 function renderDevice(data){const mam=data.filter(r=>r.device==='Mammoth').length,cha=data.filter(r=>r.device==='Chalfant').length;renderDoughnut('c-device','leg-device',['Mammoth','Chalfant'],[mam,cha],['#185FA5','#0F6E56']);}
