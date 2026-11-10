@@ -9,9 +9,12 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f3; color: #1a1a18; min-height: 100vh; }
   .page { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
-  .dash-header { margin-bottom: 2rem; border-bottom: 1px solid #e0dfd8; padding-bottom: 1.25rem; }
-  .dash-title { font-size: 26px; font-weight: 600; color: #1a1a18; }
-  .dash-sub { font-size: 14px; color: #6b6b67; margin-top: 5px; }
+  .dash-header { margin-bottom: 1.75rem; background: linear-gradient(135deg, #12372f 0%, #1D9E75 100%); border-radius: 12px; padding: 1.6rem 1.75rem; border-left: 6px solid #EF9F27; }
+  .dash-title { font-size: 32px; font-weight: 700; color: #fff; letter-spacing: -0.3px; }
+  .dash-sub { font-size: 14px; color: #d8efe6; margin-top: 8px; line-height: 1.5; }
+  .metrics-grid.four { grid-template-columns: repeat(4, 1fr); }
+  @media (max-width: 800px) { .metrics-grid.four { grid-template-columns: repeat(2, 1fr); } .dash-title { font-size: 24px; } }
+  .dash-footer { text-align: center; font-size: 13px; color: #666; padding: 16px 0; }
   .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
   .tab { padding: 7px 16px; border-radius: 8px; border: 1px solid #d3d1c7; font-size: 13px; cursor: pointer; background: #fff; color: #6b6b67; transition: all 0.15s; font-family: inherit; }
   .tab.active { background: #1a1a18; color: #fff; border-color: #1a1a18; font-weight: 500; }
@@ -84,7 +87,7 @@
       <span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:2px;background:#B5D4F4;display:inline-block;"></span> California avg</span>
       <span style="margin-left:16px;">▲ above CA avg &nbsp; ▼ below CA avg</span>
     </div>
-    <div class="metrics-grid">
+    <div class="metrics-grid four">
       <div class="metric-card">
         <div class="metric-label">Children (under 18)</div>
         <div class="metric-value">2,420</div>
@@ -921,5 +924,8 @@ new Chart(document.getElementById('tobContextChart'), {
       y: { min: 0, max: 35, ticks: { color: textColor, font: { size: 11 }, callback: v => v + '%' }, grid: { color: gridColor } } } }
 });
 </script>
+<footer class="dash-footer">
+  Dashboard created by <a href="https://www.coreepisolutions.com/" style="color:inherit;">Core Epi Solutions</a>
+</footer>
 </body>
 </html>
