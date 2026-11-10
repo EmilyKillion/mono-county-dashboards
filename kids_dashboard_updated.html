@@ -624,6 +624,8 @@ const isPctChart = chart => {
   const cb = ax && ax.ticks && ax.ticks.callback;
   try { return typeof cb === 'function' && String(cb(1)).trim().endsWith('%'); } catch (e) { return false; }
 };
+// Tooltips: add a % sign only on percent charts; counts and rates keep plain numbers.
+Chart.defaults.plugins.tooltip.callbacks.label = c => ' ' + (c.dataset.label ? c.dataset.label + ': ' : '') + c.formattedValue + (c.chart.$pct ? '%' : '');
 Chart.register({
   id: 'pctLabels',
   beforeInit(chart) {
@@ -631,7 +633,6 @@ Chart.register({
     chart.$pct = true;
     const pad = chart.options.layout.padding;
     chart.options.layout.padding = Object.assign({}, typeof pad === 'object' ? pad : {}, { top: 16 });
-    chart.options.plugins.tooltip.callbacks.label = c => ' ' + (c.dataset.label ? c.dataset.label + ': ' : '') + c.parsed.y + '%';
   },
   afterDatasetsDraw(chart) {
     if (!chart.$pct) return;
