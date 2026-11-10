@@ -53,6 +53,9 @@
   .grade-tab.active { background: #378ADD; color: #fff; border-color: #378ADD; }
   .warn-high { font-size: 11px; color: #A32D2D; margin-top: 2px; }
   .warn-low { font-size: 11px; color: #27500A; margin-top: 2px; }
+  .cmp { font-size: 11px; color: #6b6b67; margin-top: 2px; }
+  .sub-head { font-size: 15px; font-weight: 600; color: #1a1a18; margin: 1.5rem 0 0.75rem; }
+  .chart-note { font-size: 12px; color: #888780; margin-top: 10px; line-height: 1.5; }
   @media (max-width: 640px) {
     .two-col, .three-col { grid-template-columns: 1fr; }
     .metrics-grid { grid-template-columns: repeat(2, 1fr); }
@@ -66,7 +69,7 @@
 
   <div class="dash-header">
     <div class="dash-title">Mono County — Kids Dashboard</div>
-    <div class="dash-sub">Children &amp; family health metrics &middot; Mono County, CA &middot; Sources: ACS, CDPH, CHR, Mono County CHA, CA Healthy Kids Survey&nbsp;(CHKS)</div>
+    <div class="dash-sub">Children &amp; family health metrics &middot; Mono County, CA &middot; Sources: ACS, CDE, CDPH, DHCS, CHR, Mono County CHA, CA Healthy Kids Survey&nbsp;(CHKS)</div>
   </div>
 
   <div class="tabs">
@@ -155,15 +158,86 @@
 
   <!-- DEMOGRAPHICS -->
   <div id="demographics" class="section">
-    <div class="metrics-grid">
-      <div class="metric-card"><div class="metric-label">Children under 18</div><div class="metric-value">2,329</div><div class="metric-year">2024 · ACS 5-year (±92)</div></div>
-      <div class="metric-card"><div class="metric-label">Share of population under 18</div><div class="metric-value">17.7%</div><div class="metric-year">2024 · ACS 5-year (±0.7)</div></div>
-      <div class="metric-card"><div class="metric-label">Children below poverty</div><div class="metric-value">11%</div><div class="metric-year">2024 · Census SAIPE</div></div>
-      <div class="metric-card"><div class="metric-label">Hispanic children in poverty</div><div class="metric-value">31%</div><div class="metric-year">2024 · CHA</div></div>
+    <div class="note-box" style="margin-top:0;margin-bottom:1.25rem;">
+      <strong style="color:#1a1a18;font-weight:600;">How to read this tab.</strong> School, birth and program figures are complete counts. American Community Survey (ACS) figures are survey estimates and are shown with their 90% margin of error (±). ACS measures with margins too wide to be useful for a county this size are not shown; see the note at the bottom.
+    </div>
+
+    <div class="sub-head">Who are Mono County's children?</div>
+    <div class="metrics-grid four">
+      <div class="metric-card"><div class="metric-label">Children under 18</div><div class="metric-value">2,329</div><div class="metric-year">2020–2024 · ACS (±92)</div></div>
+      <div class="metric-card"><div class="metric-label">Share of population under 18</div><div class="metric-value">17.7%</div><div class="cmp">CA 22.0%</div><div class="metric-year">2020–2024 · ACS (±0.7)</div></div>
+      <div class="metric-card"><div class="metric-label">Households with children</div><div class="metric-value">24%</div><div class="cmp">CA 32%</div><div class="metric-year">2020–2024 · ACS (±6)</div></div>
+      <div class="metric-card"><div class="metric-label">Births to county residents</div><div class="metric-value">113</div><div class="cmp">149 in 2014</div><div class="metric-year">2024 · CDPH birth records</div></div>
+      <div class="metric-card"><div class="metric-label">K–12 public school enrollment</div><div class="metric-value">1,420</div><div class="cmp">1,622 in 2019–20</div><div class="metric-year">2025–26 · CDE</div></div>
+      <div class="metric-card"><div class="metric-label">Students who are Hispanic/Latino</div><div class="metric-value">57%</div><div class="cmp">27% of all county residents</div><div class="metric-year">2025–26 · CDE</div></div>
+      <div class="metric-card"><div class="metric-label">Students who are English learners</div><div class="metric-value">21%</div><div class="cmp">CA 16%</div><div class="metric-year">2025–26 · CDE</div></div>
+      <div class="metric-card"><div class="metric-label">Students with a home language other than English</div><div class="metric-value">42%</div><div class="cmp">Spanish for 99% of English learners</div><div class="metric-year">2025–26 · CDE</div></div>
+    </div>
+
+    <div class="two-col">
+      <div class="chart-card">
+        <div class="chart-title">Children by age group</div>
+        <div style="position:relative;height:220px;"><canvas id="demoAgeChart"></canvas></div>
+        <p class="chart-note">Margins of error: 0–5 ±153, 6–11 ±197, 12–17 ±224. Finer age bands are not reliable at county level. Source: ACS 2020–2024, table B17024.</p>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Hispanic/Latino share — children vs. all residents</div>
+        <div style="position:relative;height:220px;"><canvas id="demoEthChart"></canvas></div>
+        <p class="chart-note">Children under 18 is an ACS estimate (±12 points); K–12 students is a complete count. Students are 57% Hispanic/Latino, 37% White, 2% American Indian/Alaska Native, 4% other, multiracial or not reported. Sources: ACS 2020–2024; CDE 2025–26.</p>
+      </div>
+    </div>
+
+    <div class="sub-head">Is the child population changing?</div>
+    <div class="two-col">
+      <div class="chart-card">
+        <div class="chart-title">K–12 public school enrollment, 2011–12 to 2025–26</div>
+        <div style="position:relative;height:240px;"><canvas id="demoEnrChart"></canvas></div>
+        <p class="chart-note">Enrollment is down 12% since 2019–20 (California: down 7%). Mammoth Unified and Eastern Sierra Unified, Census Day counts. Source: CDE via Ed-Data.</p>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Births to Mono County residents, 2008–2024</div>
+        <div style="position:relative;height:240px;"><canvas id="demoBirthChart"></canvas></div>
+        <p class="chart-note">Births are down 24% from 2014 to 2024. Fewer births now means smaller kindergarten classes in five years. Source: CDPH, Live Birth Profiles by County (by residence).</p>
+      </div>
+    </div>
+
+    <div class="sub-head">Where do children go to school?</div>
+    <div class="chart-card">
+      <div class="chart-title">Enrollment and student need by community, 2025–26</div>
+      <table class="data-table">
+        <thead><tr><th>Community</th><th>Schools</th><th>Enrollment</th><th>Change since 2021–22</th><th>Free/reduced-price meal eligible</th><th>English learners</th></tr></thead>
+        <tbody>
+          <tr><td>Mammoth Lakes</td><td style="color:#6b6b67;">Mammoth Elementary, Middle, High; Sierra High</td><td>1,079</td><td>−4%</td><td>50%</td><td>24%</td></tr>
+          <tr><td>Coleville / Walker</td><td style="color:#6b6b67;">Antelope Elementary; Coleville High</td><td>147</td><td>−25%</td><td>50%</td><td>*</td></tr>
+          <tr><td>Lee Vining</td><td style="color:#6b6b67;">Lee Vining Elementary; Lee Vining High</td><td>133</td><td>−1%</td><td>41%</td><td>19%</td></tr>
+          <tr><td>Bridgeport</td><td style="color:#6b6b67;">Bridgeport Elementary</td><td>48</td><td>−6%</td><td>33%</td><td>*</td></tr>
+          <tr><td>Benton</td><td style="color:#6b6b67;">Edna Beaman Elementary</td><td>13</td><td>*</td><td>*</td><td>*</td></tr>
+          <tr><td style="font-weight:600;">Both districts</td><td></td><td style="font-weight:600;">1,420</td><td style="font-weight:600;">−7%</td><td style="font-weight:600;">49%</td><td style="font-weight:600;">21%</td></tr>
+          <tr><td style="color:#6b6b67;">California</td><td></td><td style="color:#6b6b67;">5,731,260</td><td style="color:#6b6b67;">−3%</td><td style="color:#6b6b67;">63%</td><td style="color:#6b6b67;">16%</td></tr>
+        </tbody>
+      </table>
+      <p class="chart-note">* Not shown: fewer than 11 students, or too few to calculate a stable change. Students are counted where they attend school; communities without a school (for example June Lake and Crowley Lake) are included in the school they attend. Excludes 10 students at the County Office of Education's Jan Work Community School and 215 students at a San Diego-based charter school authorized by the County Office of Education. Source: CDE via Ed-Data.</p>
+    </div>
+
+    <div class="sub-head">Family and economic context</div>
+    <div class="metrics-grid four">
+      <div class="metric-card"><div class="metric-label">Children below poverty</div><div class="metric-value">11%</div><div class="cmp">CA 15%</div><div class="metric-year">2024 · Census SAIPE (90% CI 7.3–14.3)</div></div>
+      <div class="metric-card"><div class="metric-label">Students eligible for free/reduced-price meals</div><div class="metric-value">49%</div><div class="cmp">CA 63%</div><div class="metric-year">2025–26 · CDE</div></div>
+      <div class="metric-card"><div class="metric-label">Children enrolled in Medi-Cal</div><div class="metric-value">1,126</div><div class="cmp">about 48% of children under 18</div><div class="metric-year">June 2026 · DHCS</div></div>
+      <div class="metric-card"><div class="metric-label">Uninsured children</div><div class="metric-value">5%</div><div class="cmp">CA 3%</div><div class="metric-year">CHR 2026 release</div></div>
+      <div class="metric-card"><div class="metric-label">Children whose parents all work</div><div class="metric-value">81%</div><div class="cmp">CA 68%</div><div class="metric-year">2020–2024 · ACS (±8)</div></div>
+      <div class="metric-card"><div class="metric-label">Child care cost burden (% of income)</div><div class="metric-value">36%</div><div class="cmp">CA 30%</div><div class="metric-year">CHR 2026 release</div></div>
+      <div class="metric-card"><div class="metric-label">Licensed child care spaces</div><div class="metric-value">142</div><div class="cmp">334 in 2019 · 692 children under 6</div><div class="metric-year">2023 · CA Child Care R&amp;R Network</div></div>
+      <div class="metric-card"><div class="metric-label">Children in homes with broadband</div><div class="metric-value">99%</div><div class="cmp">CA 97%</div><div class="metric-year">2020–2024 · ACS (±2)</div></div>
     </div>
     <div class="chart-card">
-      <div class="chart-title">Poverty rate comparison by group</div>
-      <div style="position:relative;height:240px;"><canvas id="demoPovChart"></canvas></div>
+      <div class="chart-title">How Mono County's children and families compare with California</div>
+      <div style="position:relative;height:260px;"><canvas id="demoCompareChart"></canvas></div>
+      <p class="chart-note">"Parents all work" = children living with parents who are all in the labor force. Sources: ACS 2020–2024 (under 18, households, parents); CDE 2025–26 (English learners, meal eligibility); Census SAIPE 2024 (poverty).</p>
+    </div>
+
+    <div class="note-box">
+      <strong style="color:#1a1a18;font-weight:600;">Not shown because the margin of error is too wide.</strong> With about 2,300 children, ACS cannot reliably estimate these for Mono County: poverty by race/ethnicity, children below 200% of poverty, single-parent and grandparent-led households, children in immigrant families, median income of families with children, SNAP participation, renter status of families with children, and child counts by individual community. School and program counts are used in their place where they exist.
     </div>
   </div>
 
@@ -462,6 +536,22 @@ const allData = [
   { id: 'HLT_INS_02', name: 'Uninsured Children', value: '5%', year: 2026, cat: 'dem', source: 'CHR 2026 release (CA 3%)' },
   { id: 'ECO_CC_01', name: 'Child Care Cost Burden (% of household income)', value: '36%', year: 2026, cat: 'eco', source: 'CHR 2026 release (CA 30%)' },
   { id: 'DEM_003', name: 'Children Below Poverty (Hispanic/Latino)', value: '31%', year: 2024, cat: 'dem', source: 'CDPH / CHR' },
+  { id: 'DEM_AGE_01', name: 'Children Ages 0–5', value: '669 (±153)', year: 2024, cat: 'dem', source: 'ACS B17024 (2020–2024)' },
+  { id: 'DEM_AGE_02', name: 'Children Ages 6–11', value: '762 (±197)', year: 2024, cat: 'dem', source: 'ACS B17024 (2020–2024)' },
+  { id: 'DEM_AGE_03', name: 'Children Ages 12–17', value: '898 (±224)', year: 2024, cat: 'dem', source: 'ACS B17024 (2020–2024)' },
+  { id: 'DEM_HH_01', name: 'Households with Children Under 18', value: '24% (±6)', year: 2024, cat: 'dem', source: 'ACS B11005 (2020–2024); CA 32%' },
+  { id: 'DEM_ETH_01', name: 'Children Under 18 Who Are Hispanic/Latino', value: '44% (±12)', year: 2024, cat: 'dem', source: 'ACS B01001I (2020–2024)' },
+  { id: 'DEM_ETH_02', name: 'All Residents Who Are Hispanic/Latino', value: '27%', year: 2024, cat: 'dem', source: 'ACS B03002 (2020–2024)' },
+  { id: 'DEM_BIRTH_01', name: 'Births to County Residents', value: '113', year: 2024, cat: 'dem', source: 'CDPH Live Birth Profiles by County' },
+  { id: 'DEM_ENR_01', name: 'K–12 Public School Enrollment (Mammoth Unified + Eastern Sierra Unified)', value: '1,420', year: 2026, cat: 'dem', source: 'CDE Census Day enrollment 2025–26' },
+  { id: 'DEM_ENR_02', name: 'K–12 Students Who Are Hispanic/Latino', value: '57%', year: 2026, cat: 'dem', source: 'CDE 2025–26; CA 56%' },
+  { id: 'DEM_ENR_03', name: 'K–12 Students Who Are English Learners', value: '21%', year: 2026, cat: 'dem', source: 'CDE 2025–26; CA 16%' },
+  { id: 'DEM_ENR_04', name: 'K–12 Students with a Home Language Other Than English', value: '42%', year: 2026, cat: 'dem', source: 'CDE 2025–26 (English learners + fluent English proficient)' },
+  { id: 'DEM_ENR_05', name: 'K–12 Students Eligible for Free/Reduced-Price Meals', value: '49%', year: 2026, cat: 'eco', source: 'CDE 2025–26; CA 63%' },
+  { id: 'ECO_LF_01', name: 'Children Whose Parents Are All in the Labor Force', value: '81% (±8)', year: 2024, cat: 'eco', source: 'ACS B23008 (2020–2024); CA 68%' },
+  { id: 'ECO_CC_02', name: 'Licensed Child Care Spaces (Centers + Family Child Care Homes)', value: '142', year: 2023, cat: 'eco', source: 'CA Child Care R&R Network, 2023 Portfolio' },
+  { id: 'HLT_MC_01', name: 'Children Under 18 Enrolled in Medi-Cal', value: '1,126', year: 2026, cat: 'dem', source: 'DHCS, June 2026' },
+  { id: 'SDH_BB_01', name: 'Children in Households with Broadband', value: '99% (±2)', year: 2024, cat: 'sdh', source: 'ACS B28005 (2020–2024); CA 97%' },
   { id: 'MAT_002', name: 'Teen Birth Rate (Females 15–19)', value: '9 per 1,000', year: 2026, cat: 'mth', source: 'CHR 2026 release' },
   { id: 'MAT_003', name: 'Low Birthweight Births', value: '8.9%', year: 2023, cat: 'mth', source: 'CDPH CHSP 2025 (2021–23)' },
   { id: 'MAT_004', name: 'Early Prenatal Care (1st Trimester)', value: '85.0%', year: 2023, cat: 'mth', source: 'CDPH CHSP 2025 (2021–23)' },
@@ -527,6 +617,43 @@ allData.forEach(d => {
   tbody.appendChild(tr);
 });
 
+// Percentage labels: applied automatically to every chart whose value axis is formatted as a percent.
+const isPctChart = chart => {
+  const sc = chart.options.scales || {};
+  const ax = chart.options.indexAxis === 'y' ? sc.x : sc.y;
+  const cb = ax && ax.ticks && ax.ticks.callback;
+  try { return typeof cb === 'function' && String(cb(1)).trim().endsWith('%'); } catch (e) { return false; }
+};
+Chart.register({
+  id: 'pctLabels',
+  beforeInit(chart) {
+    if (!isPctChart(chart)) return;
+    chart.$pct = true;
+    const pad = chart.options.layout.padding;
+    chart.options.layout.padding = Object.assign({}, typeof pad === 'object' ? pad : {}, { top: 16 });
+    chart.options.plugins.tooltip.callbacks.label = c => ' ' + (c.dataset.label ? c.dataset.label + ': ' : '') + c.parsed.y + '%';
+  },
+  afterDatasetsDraw(chart) {
+    if (!chart.$pct) return;
+    const ctx = chart.ctx;
+    ctx.save();
+    ctx.fillStyle = '#1a1a18';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    chart.data.datasets.forEach((ds, i) => {
+      if (!chart.isDatasetVisible(i)) return;
+      chart.getDatasetMeta(i).data.forEach((el, j) => {
+        const v = ds.data[j];
+        if (v === null || v === undefined || isNaN(v) || v === 0) return; // 0 is used as a no-data placeholder in some charts
+        const narrow = el.width !== undefined && el.width < 30;
+        ctx.font = '600 ' + (narrow ? 9 : 11) + 'px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+        ctx.fillText(v + '%', el.x, el.y - (el.width === undefined ? 7 : 4));
+      });
+    });
+    ctx.restore();
+  }
+});
+
 const textColor = '#6b6b67';
 const gridColor = 'rgba(0,0,0,0.06)';
 const base = {
@@ -584,13 +711,43 @@ new Chart(document.getElementById('ratesChart'), {
 });
 
 // ---- DEMOGRAPHICS ----
-new Chart(document.getElementById('demoPovChart'), {
+const legendOn = { display: true, labels: { color: textColor, font: { size: 11 }, boxWidth: 12, boxHeight: 12 } };
+new Chart(document.getElementById('demoAgeChart'), {
   type: 'bar',
-  data: { labels: ['All residents (2024)', 'All children (2024)', 'Hispanic/Latino children (2024)'],
-    datasets: [{ data: [8.6,11,31], backgroundColor: ['#B5D4F4','#378ADD','#185FA5'], borderRadius: 4 }] },
-  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
-    scales: { x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 11 } } },
-      y: { min: 0, max: 40, grid: { color: gridColor }, ticks: { color: textColor, font: { size: 11 }, callback: v => v + '%' } } } }
+  data: { labels: ['Ages 0–5', 'Ages 6–11', 'Ages 12–17'],
+    datasets: [{ label: 'Children', data: [669, 762, 898], backgroundColor: ['#B5D4F4','#378ADD','#185FA5'], borderRadius: 4 }] },
+  options: { ...base, scales: { ...base.scales, y: { ...base.scales.y, min: 0 } } }
+});
+new Chart(document.getElementById('demoEthChart'), {
+  type: 'bar',
+  data: { labels: ['All residents', 'Children under 18', 'K–12 students', 'CA K–12 students'],
+    datasets: [{ label: 'Hispanic/Latino', data: [27, 44, 57, 56], backgroundColor: ['#B5D4F4','#378ADD','#185FA5','#d3d1c7'], borderRadius: 4 }] },
+  options: { ...pctY, plugins: { legend: { display: false } }, scales: { ...pctY.scales, y: { ...pctY.scales.y, min: 0, max: 70 } } }
+});
+new Chart(document.getElementById('demoEnrChart'), {
+  type: 'line',
+  data: { labels: ['2011–12','2012–13','2013–14','2014–15','2015–16','2016–17','2017–18','2018–19','2019–20','2020–21','2021–22','2022–23','2023–24','2024–25','2025–26'],
+    datasets: [
+      { label: 'Both districts', data: [1628,1609,1649,1592,1570,1615,1617,1612,1622,1519,1520,1512,1480,1435,1420], borderColor: '#1a1a18', backgroundColor: '#1a1a18', borderWidth: 2, pointRadius: 2, tension: 0.2 },
+      { label: 'Mammoth Unified', data: [1163,1151,1189,1193,1193,1213,1200,1209,1189,1119,1125,1118,1112,1087,1079], borderColor: '#378ADD', backgroundColor: '#378ADD', borderWidth: 2, pointRadius: 2, tension: 0.2 },
+      { label: 'Eastern Sierra Unified', data: [465,458,460,399,377,402,417,403,433,400,395,394,368,348,341], borderColor: '#1D9E75', backgroundColor: '#1D9E75', borderWidth: 2, pointRadius: 2, tension: 0.2 }
+    ] },
+  options: { ...base, plugins: { legend: legendOn }, scales: { x: { ...base.scales.x, ticks: { ...base.scales.x.ticks, maxRotation: 45, autoSkip: true, maxTicksLimit: 8 } }, y: { ...base.scales.y, min: 0 } } }
+});
+new Chart(document.getElementById('demoBirthChart'), {
+  type: 'bar',
+  data: { labels: ['2008','2009','2010','2011','2012','2013','2014','2015','2016','2017','2018','2019','2020','2021','2022','2023','2024'],
+    datasets: [{ label: 'Births', data: [175,139,151,156,131,150,149,152,131,147,134,128,124,127,126,118,113], backgroundColor: '#378ADD', borderRadius: 3 }] },
+  options: { ...base, scales: { ...base.scales, y: { ...base.scales.y, min: 0 } } }
+});
+new Chart(document.getElementById('demoCompareChart'), {
+  type: 'bar',
+  data: { labels: ['Population under 18', 'Households with children', 'Students: English learners', 'Students: meal eligible', 'Parents all work', 'Children in poverty'],
+    datasets: [
+      { label: 'Mono County', data: [17.7, 24, 21, 49, 81, 11], backgroundColor: '#378ADD', borderRadius: 4 },
+      { label: 'California', data: [22.0, 32, 16, 63, 68, 15], backgroundColor: '#B5D4F4', borderRadius: 4 }
+    ] },
+  options: { ...pctY, plugins: { legend: legendOn }, scales: { ...pctY.scales, y: { ...pctY.scales.y, min: 0, max: 100 } } }
 });
 
 // ---- BEHAVIORAL HEALTH ----
