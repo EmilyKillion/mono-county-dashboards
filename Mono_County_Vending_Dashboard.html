@@ -307,6 +307,8 @@ function getFiltered(){const from=document.getElementById('df').value,to=documen
 function getFilteredReq(){const from=document.getElementById('df').value,to=document.getElementById('dt').value;return REQ_DATA.filter(r=>r.date>=from&&r.date<=to&&(activeDev==='All'||r.device===activeDev));}
 function cnt(arr,k){const m={};arr.forEach(r=>{if(r[k])m[r[k]]=(m[r[k]]||0)+1;});return m;}
 function destroy(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+// Hover tooltip for line charts: shows the full date and each series' item count for that day.
+function lineHover(dates){return{interaction:{mode:'index',intersect:false},tooltip:{callbacks:{title:items=>{const d=dates[items[0].dataIndex];return fmtD(d)+', '+d.slice(0,4);},label:c=>` ${c.dataset.label}: ${c.parsed.y} item${c.parsed.y===1?'':'s'}`}}};}
 
 // Clickable legends: click a label to hide/show that series. Hidden choices persist while filters change.
 const hiddenKeys={},legMeta={};
@@ -351,9 +353,9 @@ function renderTimeline(data){
   data.forEach(r=>{if(!byDD[r.date])byDD[r.date]={Mammoth:0,Chalfant:0};byDD[r.date][r.device]=(byDD[r.date][r.device]||0)+r.qty;});
   const dates=Object.keys(byDD).sort();
   charts['c-timeline']=new Chart(document.getElementById('c-timeline'),{type:'line',data:{labels:dates.map(fmtD),datasets:[
-    {label:'Mammoth',data:dates.map(d=>byDD[d].Mammoth||0),borderColor:'#185FA5',backgroundColor:'rgba(24,95,165,0.08)',tension:0.3,fill:true,pointRadius:0},
-    {label:'Chalfant',data:dates.map(d=>byDD[d].Chalfant||0),borderColor:'#0F6E56',backgroundColor:'rgba(15,110,86,0.06)',tension:0.3,fill:true,pointRadius:0,borderDash:[4,3]}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{autoSkip:true,maxTicksLimit:16,maxRotation:0},grid:{display:false}},y:{beginAtZero:true,grid:{color:'rgba(0,0,0,0.06)'}}}}});
+    {label:'Mammoth',data:dates.map(d=>byDD[d].Mammoth||0),borderColor:'#185FA5',backgroundColor:'rgba(24,95,165,0.08)',tension:0.3,fill:true,pointRadius:0,pointHoverRadius:4},
+    {label:'Chalfant',data:dates.map(d=>byDD[d].Chalfant||0),borderColor:'#0F6E56',backgroundColor:'rgba(15,110,86,0.06)',tension:0.3,fill:true,pointRadius:0,pointHoverRadius:4,borderDash:[4,3]}
+  ]},options:{responsive:true,maintainAspectRatio:false,interaction:lineHover(dates).interaction,plugins:{legend:{display:false},tooltip:lineHover(dates).tooltip},scales:{x:{ticks:{autoSkip:true,maxTicksLimit:16,maxRotation:0},grid:{display:false}},y:{beginAtZero:true,grid:{color:'rgba(0,0,0,0.06)'}}}}});
   setLegend('leg-timeline','c-timeline','dataset',[{key:'Mammoth',text:'Mammoth',color:'#185FA5'},{key:'Chalfant',text:'Chalfant',color:'#0F6E56'}]);
 }
 
@@ -441,7 +443,7 @@ function renderFocusCharts(){
   destroy('c-focus-timeline');
   const dates=[...new Set(data.map(r=>r.date))].sort();
   const itemColors=['#185FA5','#D85A30','#0F6E56','#D4537E','#534AB7','#BA7517','#378ADD','#1D9E75','#888780','#E24B4A'];
-  charts['c-focus-timeline']=new Chart(document.getElementById('c-focus-timeline'),{type:'line',data:{labels:dates.map(fmtD),datasets:[...selectedItems].map((item,i)=>{const bd={};data.filter(r=>r.goods===item).forEach(r=>bd[r.date]=(bd[r.date]||0)+r.qty);return{label:item,data:dates.map(d=>bd[d]||0),borderColor:itemColors[i%itemColors.length],backgroundColor:'transparent',tension:0.3,pointRadius:2,borderWidth:2};})},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12,padding:12}}},scales:{x:{ticks:{autoSkip:true,maxTicksLimit:14,maxRotation:0},grid:{display:false}},y:{beginAtZero:true,grid:{color:'rgba(0,0,0,0.06)'}}}}}); 
+  charts['c-focus-timeline']=new Chart(document.getElementById('c-focus-timeline'),{type:'line',data:{labels:dates.map(fmtD),datasets:[...selectedItems].map((item,i)=>{const bd={};data.filter(r=>r.goods===item).forEach(r=>bd[r.date]=(bd[r.date]||0)+r.qty);return{label:item,data:dates.map(d=>bd[d]||0),borderColor:itemColors[i%itemColors.length],backgroundColor:'transparent',tension:0.3,pointRadius:2,pointHoverRadius:4,borderWidth:2};})},options:{responsive:true,maintainAspectRatio:false,interaction:lineHover(dates).interaction,plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12,padding:12}},tooltip:lineHover(dates).tooltip},scales:{x:{ticks:{autoSkip:true,maxTicksLimit:14,maxRotation:0},grid:{display:false}},y:{beginAtZero:true,grid:{color:'rgba(0,0,0,0.06)'}}}}}); 
   const gC={'Female':'#D4537E','Male':'#185FA5','Nonbinary':'#0F6E56','Transgender':'#EF9F27','Other / Prefer not to say':'#888780'};
   const gCnt=cnt(data.filter(r=>r.gender),'gender'),gL=Object.keys(gCnt);
   renderDoughnut('c-focus-gender','leg-focus-gender',gL,gL.map(l=>gCnt[l]),gL.map(l=>gC[l]||'#888'));
