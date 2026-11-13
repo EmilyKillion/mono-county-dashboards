@@ -324,7 +324,7 @@
       <div class="panel zoomable" data-chart="cFluSubtype" data-title="Influenza A subtypes in wastewater (H1, H3, H5)" title="Click to enlarge"><h3>Influenza A subtypes: H1 vs H3 vs H5 <span class="zoomhint">⤢ enlarge</span></h3><div class="seg no-print" id="subtypeMode" style="margin:0 0 8px"><button data-m="share" class="on">Share of subtype signal</button><button data-m="conc">Concentration</button></div><div class="chart"><canvas id="cFluSubtype"></canvas></div><p class="note" id="subtypeNote"></p></div>
       <div class="panel" style="grid-column:1/-1"><h3>UC Davis Mono wastewater dashboard</h3>
         <table id="ucdTable"><thead><tr><th>Pathogen</th><th>Trend</th><th>Percent change</th><th>Level</th></tr></thead><tbody></tbody></table>
-        <p class="note" id="ucdNote">Mann-Kendall trend test for consistently increasing or decreasing trends, with statistical significance. <a href="https://cricelio.shinyapps.io/Monodashboard/" target="_blank" rel="noopener">Source: UC Davis dashboard</a></p>
+        <p class="note" id="ucdNote">Mann-Kendall trend test for consistently increasing or decreasing trends, with statistical significance. Percent change compares the last 14 days with the previous 14; +LL means there was no detection in the previous period to compare against, and ND means too few recent detections to calculate a change. <a href="https://cricelio.shinyapps.io/MONOdashboard/" target="_blank" rel="noopener">Source: UC Davis dashboard</a></p>
       </div>
     </div>
     <div id="cvwBlock">
@@ -783,7 +783,7 @@ function renderWW(){
   renderSubtypes(vAll);
   const lvlColor={low:'#8DC26F',medium:'#F2C14E',high:'#B03A2E'};
   document.querySelector('#ucdTable tbody').innerHTML=T.ucd.length?T.ucd.map(r=>`<tr><td>${r.pathogen}</td><td>${r.trend??''}</td><td>${r.pc??''}</td><td>${r.level?`<span class="lvl-pill" style="background:${lvlColor[String(r.level).toLowerCase()]||'#7A8B96'}">${r.level}</span>`:''}</td></tr>`).join(''):'<tr><td colspan="4" style="color:var(--muted)">No UC Davis table entered.</td></tr>';
-  document.getElementById('ucdNote').innerHTML=`${T.ucd[0]?.asOf?`As of ${fmtD(T.ucd[0].asOf)}. `:''}Mann-Kendall trend test for consistently increasing or decreasing trends, with statistical significance. <a href="https://cricelio.shinyapps.io/Monodashboard/" target="_blank" rel="noopener">Source: UC Davis dashboard</a>`;
+  document.getElementById('ucdNote').innerHTML=`${T.ucd[0]?.asOf?`As of ${fmtD(T.ucd[0].asOf)}. `:''}Mann-Kendall trend test for consistently increasing or decreasing trends, with statistical significance. Percent change compares the last 14 days with the previous 14; +LL means there was no detection in the previous period to compare against, and ND means too few recent detections to calculate a change. <a href="https://cricelio.shinyapps.io/MONOdashboard/" target="_blank" rel="noopener">Source: UC Davis dashboard</a>`;
 }
 
 function renderCvW(){
@@ -836,7 +836,7 @@ function renderSources(){
     ['<a href="https://www.cdc.gov/nrevss/php/dashboard/index.html" target="_blank" rel="noopener">CDC NREVSS Covid-19 positivity</a>','Overview','Live: data.cdc.gov gvsb-yw6g (national, HHS Region 9)',st('nrevss_covid')],
     ['<a href="https://www.cdc.gov/nrevss/php/dashboard/index.html" target="_blank" rel="noopener">CDC NREVSS RSV positivity</a>','Overview','Live: data.cdc.gov 3cxc-4k8q (national, HHS Region 9)',st('nrevss_rsv')],
     ['<a href="https://publichealth.verily.com/plants/4b49eb68" target="_blank" rel="noopener">Verily wastewater, Mammoth plant</a>','Wastewater','Entered weekly by Public Health',tr],
-    ['<a href="https://cricelio.shinyapps.io/Monodashboard/" target="_blank" rel="noopener">UC Davis Mono wastewater dashboard</a>','Wastewater','Entered weekly by Public Health',tr],
+    ['<a href="https://cricelio.shinyapps.io/MONOdashboard/" target="_blank" rel="noopener">UC Davis Mono wastewater dashboard</a>','Wastewater','Entered weekly by Public Health',tr],
     ['<a href="https://www.cdph.ca.gov/Programs/CID/DCDC/Pages/RespiratoryVirusReport.aspx" target="_blank" rel="noopener">CDPH Respiratory Virus Report</a>','Test positivity, Overview','Entered weekly by Public Health',tr],
     ['<a href="https://skylab4.cdph.ca.gov/calcat/" target="_blank" rel="noopener">CalCAT</a>','Links','Entered weekly by Public Health',tr],
     ['<a href="https://skylab.cdph.ca.gov/calwws/" target="_blank" rel="noopener">CalSewers</a>','Links','Link only; CA medians shown from CDC NWSS instead','<span class="status na"></span>Link'],
