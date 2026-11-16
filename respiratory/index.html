@@ -193,6 +193,8 @@
     body:not(.printing) nav, body:not(.printing) .hd-actions{display:none}
   }
   /* staff-only controls: shown when the address ends in ?edit */
+  /* tabs hidden for now: remove the hidden-tab class from the nav button and section to restore */
+  .hidden-tab, body.printing section.tab.hidden-tab{display:none!important}
   .editonly{display:none !important}
   html.edit .editonly{display:revert !important}
 </style>
@@ -225,7 +227,7 @@
     <button data-tab="ww">Wastewater</button>
     <button data-tab="flu">Flu detail</button>
     <button data-tab="fluvax">Flu vaccination</button>
-    <button data-tab="mh">Mammoth Hospital</button>
+    <button data-tab="mh" class="hidden-tab">Mammoth Hospital</button>
     <button data-tab="highlights">Highlights</button>
     <button data-tab="sources">Sources &amp; status</button>
   </nav>
@@ -379,7 +381,7 @@
   </section>
 
   <!-- MH -->
-  <section class="tab" id="tab-mh">
+  <section class="tab hidden-tab" id="tab-mh">
     <h2>Mammoth Hospital</h2>
     <p class="lead">Weekly counts reported by Mammoth Hospital: influenza and RSV cases, and Covid-19 admissions. “All patients” includes visitors; “Mono residents” are local.</p>
     <div class="toolbar"><label for="seasonSelMh">Season</label><select id="seasonSelMh" class="seasonMirror"></select></div>
