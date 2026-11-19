@@ -7,6 +7,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
+  .ww-wide{grid-column:1/-1}
   :root{
     --navy:#0F3A52; --navy-2:#13506E; --teal:#1E6B85;
     --ink:#1B2A33; --muted:#5E6E78; --line:#D9E1E6; --bg:#F5F8FA; --panel:#FFFFFF;
@@ -160,6 +161,7 @@
   body.printing table{font-size:11.5px} body.printing th,body.printing td{padding:4px 7px}
   body.printing #tab-sources > .panel:first-of-type, body.printing #tab-sources > .panel:last-of-type, body.printing #tab-sources > .lead{display:none}
   body.printing #wwNote{display:none}
+  body.printing .ww-wide{grid-column:auto}
   body.printing #tab-ww .grid.g2{grid-template-columns:1fr 1fr 1fr}
   body.printing #cvwBlock{break-before:page;page-break-before:always} body.printing #cvwBlock .subhead{border-top:0;margin-top:0;padding-top:0;border-left:5px solid var(--navy);padding-left:8px}
   body.printing #cvwBlock .chart{height:130px}
@@ -321,9 +323,9 @@
     </div>
     <p class="note" id="wwNote" style="margin:8px 0 16px"></p>
     <div class="grid g2">
-      <div class="panel zoomable" data-chart="cVerily" data-title="Verily wastewater, Mammoth Lakes plant" title="Click to enlarge"><h3 id="verilyTitle">Verily, Mammoth Lakes plant <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cVerily"></canvas></div><p class="note">Ratio of virus to PMMoV × 1,000,000, entered weekly in the tracker from the Verily dashboard.</p></div>
-      <div class="panel zoomable" data-chart="cVerilyMeasles" data-title="Verily, measles" title="Click to enlarge"><h3>Verily, measles <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cVerilyMeasles"></canvas></div><p class="note" id="measlesNote">Measles (wild type) in wastewater, ratio to PMMoV × 1,000,000. 0 = not detected; breaks are weeks without sampling.</p></div>
+      <div class="panel zoomable ww-wide" data-chart="cVerily" data-title="Verily wastewater, Mammoth Lakes plant" title="Click to enlarge"><h3 id="verilyTitle">Verily, Mammoth Lakes plant <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cVerily"></canvas></div><p class="note">Ratio of virus to PMMoV × 1,000,000, entered weekly in the tracker from the Verily dashboard.</p></div>
       <div class="panel zoomable" data-chart="cFluSubtype" data-title="Influenza A subtypes in wastewater (H1, H3, H5)" title="Click to enlarge"><h3>Influenza A subtypes: H1 vs H3 vs H5 <span class="zoomhint">⤢ enlarge</span></h3><div class="seg no-print" id="subtypeMode" style="margin:0 0 8px"><button data-m="share" class="on">Share of subtype signal</button><button data-m="conc">Concentration</button></div><div class="chart"><canvas id="cFluSubtype"></canvas></div><p class="note" id="subtypeNote"></p></div>
+      <div class="panel zoomable" data-chart="cVerilyMeasles" data-title="Verily, measles" title="Click to enlarge"><h3>Verily, measles <span class="zoomhint">⤢ enlarge</span></h3><div class="chart"><canvas id="cVerilyMeasles"></canvas></div><p class="note" id="measlesNote">Measles (wild type) in wastewater, ratio to PMMoV × 1,000,000. 0 = not detected; breaks are weeks without sampling.</p></div>
       <div class="panel" style="grid-column:1/-1"><h3>UC Davis Mono wastewater dashboard</h3>
         <table id="ucdTable"><thead><tr><th>Pathogen</th><th>Trend</th><th>Percent change</th><th>Level</th></tr></thead><tbody></tbody></table>
         <p class="note" id="ucdNote">Mann-Kendall trend test for consistently increasing or decreasing trends, with statistical significance. Percent change compares the last 14 days with the previous 14; +LL means there was no detection in the previous period to compare against, and ND means too few recent detections to calculate a change. <a href="https://cricelio.shinyapps.io/MONOdashboard/" target="_blank" rel="noopener">Source: UC Davis dashboard</a></p>
