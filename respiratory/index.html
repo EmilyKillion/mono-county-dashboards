@@ -79,6 +79,11 @@
   th{background:#EEF3F6;font-weight:600;color:var(--navy)}
   td.num,th.num{text-align:right}
   .lvl-pill{display:inline-block;padding:2px 9px;border-radius:3px;font-size:12.5px;font-weight:600;color:#fff}
+  .trend-pill{display:inline-block;padding:2px 9px;border-radius:3px;font-size:12.5px;font-weight:600;white-space:nowrap;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .trend-up-strong{background:#F6D3D0;color:#8E1F16} .trend-up{background:#FBE7E5;color:#B03A2E}
+  .trend-none{background:#EEF2F4;color:#5E6E78}
+  .trend-down{background:#E5F3E8;color:#2E7D3E} .trend-down-strong{background:#CDEBD4;color:#1E6230}
+  .pc-up{color:#B03A2E;font-weight:600} .pc-down{color:#2E7D3E;font-weight:600}
   .status{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
   .status.ok{background:var(--ok)} .status.warn{background:var(--warn)} .status.bad{background:var(--bad)} .status.na{background:#B8C2C9}
   ul.hl{margin:0;padding-left:18px} ul.hl li{margin:0 0 8px}
@@ -785,8 +790,10 @@ function renderWW(){
   mk('cVerilyMeasles',{type:'line',data:{labels:v.map(r=>fmtD(r.week)),datasets:[lineDs('Measles',v.map(r=>r.measles),'#C0392B',{spanGaps:false})]},options:{plugins:{legend:{display:false},emptyMsg:{text:'No measles values'}},scales:{y:{beginAtZero:true,suggestedMax:10,title:{display:true,text:'Virus : PMMoV × 1M'}},x:{ticks:{maxTicksLimit:12,maxRotation:0}}}}});
   { const det=v.filter(r=>r.measles>0); document.getElementById('measlesNote').textContent=`Measles (wild type) in wastewater, ratio to PMMoV × 1,000,000. ${det.length?`Detected in ${det.length} of the last 52 weeks (most recent: week of ${fmtD(det[det.length-1].week)}).`:'Not detected in any sample in the last 52 weeks.'} Breaks are weeks without sampling.`; }
   renderSubtypes(vAll);
+  const trendMap={'upward':['trend-up-strong','▲','pc-up'],'increasing':['trend-up-strong','▲','pc-up'],'likely upward':['trend-up','▲','pc-up'],'likely increasing':['trend-up','▲','pc-up'],
+    'no trend':['trend-none','–',''],'likely downward':['trend-down','▼','pc-down'],'likely decreasing':['trend-down','▼','pc-down'],'downward':['trend-down-strong','▼','pc-down'],'decreasing':['trend-down-strong','▼','pc-down']};
   const lvlColor={low:'#8DC26F',medium:'#F2C14E',high:'#B03A2E','no detections':'#8DC26F','no detection; detection-only':'#8DC26F','detected; detection-only':'#F2C14E'};
-  document.querySelector('#ucdTable tbody').innerHTML=T.ucd.length?T.ucd.map(r=>`<tr><td>${r.pathogen}</td><td>${r.trend??''}</td><td>${r.pc??''}</td><td>${r.level?`<span class="lvl-pill" style="background:${lvlColor[String(r.level).toLowerCase()]||'#7A8B96'};color:${['#F2C14E','#8DC26F'].includes(lvlColor[String(r.level).toLowerCase()])?'#1F2A33':'#fff'}">${r.level}</span>`:''}</td></tr>`).join(''):'<tr><td colspan="4" style="color:var(--muted)">No UC Davis table entered.</td></tr>';
+  document.querySelector('#ucdTable tbody').innerHTML=T.ucd.length?T.ucd.map(r=>{const tk=String(r.trend??'').trim().toLowerCase(),tm=trendMap[tk];return `<tr><td>${r.pathogen}</td><td>${tm?`<span class="trend-pill ${tm[0]}">${tm[1]} ${r.trend}</span>`:(r.trend??'')}</td><td${tm&&tm[2]?` class="${tm[2]}"`:''}>${r.pc??''}</td><td>${r.level?`<span class="lvl-pill" style="background:${lvlColor[String(r.level).toLowerCase()]||'#7A8B96'};color:${['#F2C14E','#8DC26F'].includes(lvlColor[String(r.level).toLowerCase()])?'#1F2A33':'#fff'}">${r.level}</span>`:''}</td></tr>`}).join(''):'<tr><td colspan="4" style="color:var(--muted)">No UC Davis table entered.</td></tr>';
   document.getElementById('ucdNote').innerHTML=`${T.ucd[0]?.asOf?`As of ${fmtD(T.ucd[0].asOf)}. `:''}Mann-Kendall trend test for consistently increasing or decreasing trends, with statistical significance. Percent change compares the last 14 days with the previous 14; +LL means there was no detection in the previous period to compare against, and ND means too few recent detections to calculate a change. <a href="https://cricelio.shinyapps.io/MONOdashboard/" target="_blank" rel="noopener">Source: UC Davis dashboard</a>`;
 }
 
